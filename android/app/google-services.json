@@ -1,0 +1,154 @@
+{
+  "project_info": {
+    "project_number": "64139383562",
+    "project_id": "crazy-fantasy-97ec8",
+    "storage_bucket": "crazy-fantasy-97ec8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64139383562:android:6561cc833b3720848aa0f3",
+        "android_client_info": {
+          "package_name": "com.example.crazy_fantasty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "64139383562-rku761u5dv47qp63fujb1c6kfbehejnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV8aTgaP0AW33VBCi76-bSvBAMoNDuCPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "64139383562-rku761u5dv47qp63fujb1c6kfbehejnt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "64139383562-7uavkoio7g1bggjd6rqs8osa3oiu77o9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.crazyFantasty.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64139383562:android:5ce6f7cf1e2c08268aa0f3",
+        "android_client_info": {
+          "package_name": "com.example.crazy_fantasy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "64139383562-rku761u5dv47qp63fujb1c6kfbehejnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV8aTgaP0AW33VBCi76-bSvBAMoNDuCPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "64139383562-rku761u5dv47qp63fujb1c6kfbehejnt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "64139383562-7uavkoio7g1bggjd6rqs8osa3oiu77o9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.crazyFantasty.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64139383562:android:2ec2e342106c8aed8aa0f3",
+        "android_client_info": {
+          "package_name": "com.example.crazyfantazy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "64139383562-rku761u5dv47qp63fujb1c6kfbehejnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV8aTgaP0AW33VBCi76-bSvBAMoNDuCPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "64139383562-rku761u5dv47qp63fujb1c6kfbehejnt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "64139383562-7uavkoio7g1bggjd6rqs8osa3oiu77o9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.crazyFantasty.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64139383562:android:67ba97c115846da08aa0f3",
+        "android_client_info": {
+          "package_name": "com.example.untitled"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "64139383562-rku761u5dv47qp63fujb1c6kfbehejnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV8aTgaP0AW33VBCi76-bSvBAMoNDuCPk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "64139383562-rku761u5dv47qp63fujb1c6kfbehejnt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "64139383562-7uavkoio7g1bggjd6rqs8osa3oiu77o9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.crazyFantasty.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
