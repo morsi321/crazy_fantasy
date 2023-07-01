@@ -6,6 +6,8 @@ import '../../../Data/models/team.dart';
 import '../../view model/add_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'dailog_delete.dart';
+
 class ListItemTeamView extends StatelessWidget {
   const ListItemTeamView({super.key, required this.teams});
 
@@ -48,37 +50,67 @@ class ItemTeam extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(
-                index.toString(),
-                style: const TextStyle(color: Colors.white, fontSize: 20),
-              ),
-
-              CashImageNetwork(url: team.pathImage!, width: 50, height: 50),
-              SizedBox(
-                width: context.width * .35,
-                child: Text(
-                  team.name!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white, fontSize: 20),
-                ),
+              InfoDataTeam(
+                team: team,
+                index: index,
               ),
               IconButton(
                   onPressed: () {
-                    BlocProvider.of<AddTeamCubit>(context).editTeam(team,context);
+                    BlocProvider.of<AddTeamCubit>(context)
+                        .editTeam(team, context);
                   },
                   icon: const Icon(
                     Icons.edit,
                     color: Colors.white,
                   )),
               IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDailogDelete(context, team.id!);
+                  },
                   icon: const Icon(
                     Icons.delete,
                     color: Colors.red,
                   ))
             ],
           )),
+    );
+  }
+}
+
+class InfoDataTeam extends StatelessWidget {
+  const InfoDataTeam({super.key, required this.team, required this.index});
+
+  final Team team;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        BlocProvider.of<AddTeamCubit>(context).viewTeam(team,context);
+      },
+      child: SizedBox(
+        width: context.width * .7,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text(
+              index.toString(),
+              style: const TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            CashImageNetwork(url: team.pathImage!, width: 50, height: 50),
+            SizedBox(
+              width: context.width * .35,
+              child: Text(
+                team.name!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 18,fontFamily: 'janna'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

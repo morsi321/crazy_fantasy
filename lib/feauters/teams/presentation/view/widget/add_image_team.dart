@@ -63,6 +63,10 @@ class ImageFile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.file(File(filePath));
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.file(File(filePath),
+          width: 250, height: 150, fit: BoxFit.cover),
+    );
   }
 }

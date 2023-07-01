@@ -28,8 +28,8 @@ class Team {
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'path': pathImage,
       'captain': captain,
+      if(pathImage != null)'path': pathImage,
       'fantasyID1': fantasyID1,
       'champion': champion,
       'fantasyID2': fantasyID2,

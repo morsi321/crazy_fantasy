@@ -1,16 +1,19 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class CompressionImagesService {
   static Future<Uint8List?> compressImage(File file) async {
     var result = await FlutterImageCompress.compressWithFile(
       file.absolute.path,
-      quality: 5,
+      quality: 20,
     );
-    print(file.lengthSync());
-    print(result?.length);
+    if (kDebugMode) {
+      print(file.lengthSync());
+      print(result?.length);
+    }
     return result;
   }
 

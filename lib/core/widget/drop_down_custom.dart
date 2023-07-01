@@ -1,5 +1,4 @@
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DroDownCustom extends StatelessWidget {
@@ -10,7 +9,7 @@ class DroDownCustom extends StatelessWidget {
       required this.labelDropDown,
       required this.selectedValue,
       this.width,
-      this.colorBorder})
+      this.colorBorder, required this.disable})
       : super(key: key);
   final Function(String?) onTap;
   final List<String> items;
@@ -18,6 +17,7 @@ class DroDownCustom extends StatelessWidget {
   final double? width;
   final String selectedValue;
   final Color? colorBorder;
+  final bool disable;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +41,7 @@ class DroDownCustom extends StatelessWidget {
         child: ButtonTheme(
 
 
+
           materialTapTargetSize: MaterialTapTargetSize.padded,
           child: DropdownButton<String>(
             dropdownColor: const Color.fromRGBO(28, 22, 54, 10),
@@ -52,7 +53,7 @@ class DroDownCustom extends StatelessWidget {
             underline: DropdownButtonHideUnderline(
               child: Container(),
             ),
-            onChanged: (String? newValue) {
+            onChanged :disable?  null:(String? newValue) {
               onTap(newValue);
             },
             items: items.map<DropdownMenuItem<String>>((String value) {

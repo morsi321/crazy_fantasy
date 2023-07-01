@@ -7,21 +7,23 @@ class AddTeamInitial extends AddTeamState {}
 
 class AddTeamChampionState extends AddTeamState {}
 
-class LoadingAddTeamChampionState extends AddTeamState {}
+class LoadingCrudChampionState extends AddTeamState {}
+class RemoveImageTeamState extends AddTeamState {}
 
-class FailureAddTeamState extends AddTeamState {
+class FailureCrudTeamState extends AddTeamState {
   final String message;
 
-  FailureAddTeamState({required this.message});
+  FailureCrudTeamState({required this.message});
 }
 
-class SuccessfulAddTeamState extends AddTeamState {
+class SuccessfulCrudState extends AddTeamState {
   final String message;
 
-  SuccessfulAddTeamState(this.message);
+  SuccessfulCrudState(this.message);
 }
 
 class LoadingGetTeamsState extends AddTeamState {}
+class ChangeChampionshipSelectedState extends AddTeamState {}
 
 class SuccessfulGetTeamsState extends AddTeamState {
 }
@@ -31,3 +33,5 @@ class FailureGetTeamsState extends AddTeamState {
 
   FailureGetTeamsState(this.message);
 }
+
+

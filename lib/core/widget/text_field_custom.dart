@@ -1,7 +1,6 @@
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:flutter/material.dart';
 
-
 class TextFromCustom extends StatelessWidget {
   const TextFromCustom(
       {Key? key,
@@ -14,7 +13,12 @@ class TextFromCustom extends StatelessWidget {
       this.prefixIcon,
       this.fillColor,
       this.radius,
-      this.validator, this.enable, this.suffixIcon, this.obscureText})
+      this.validator,
+      this.enable,
+      this.suffixIcon,
+      this.obscureText,
+      this.onChanged,
+      this.hintText})
       : super(key: key);
   final double? height;
   final double? width;
@@ -29,6 +33,8 @@ class TextFromCustom extends StatelessWidget {
   final bool? obscureText;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final String? hintText;
 
   @override
   Widget build(BuildContext context) {
@@ -36,20 +42,21 @@ class TextFromCustom extends StatelessWidget {
         height: height ?? 53,
         width: width ?? context.width * 0.40,
         child: TextFormField(
-          // enabled: enable??true,
+            // enabled: enable??true,
+            onChanged: onChanged,
             obscureText: obscureText ?? false,
-
             controller: controller,
             style: style,
-            readOnly: enable??false,
+            readOnly: enable ?? false,
             validator: validator,
+
             decoration: InputDecoration(
-
-
+              hintText: hintText,
+              hintStyle: style,
               fillColor: fillColor,
               filled: fillColor != null ? true : false,
               prefixIcon: prefixIcon,
-              suffixIcon:suffixIcon ,
+              suffixIcon: suffixIcon,
               labelText: label,
               disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(radius ?? 5)),

@@ -2,6 +2,7 @@ import 'package:crazy_fantasy/feauters/teams/Data/models/team.dart';
 import 'package:dartz/dartz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import 'add_team_repo.dart';
 
@@ -25,38 +26,54 @@ class AddTeamRepoImpl implements AddTeamRepo {
       print(e.toString());
       return left("حدث خطأ ما يرجى المحاولة مرة أخرى");
     }
-    throw UnimplementedError();
   }
 
   @override
-  Future<Either<String, String>> deleteTeam({required String id}) {
-    // TODO: implement deleteTeam
-    throw UnimplementedError();
+  Future<Either<String, String>> deleteTeam({required String id}) async {
+    try {
+      await FirebaseFirestore.instance.collection('teams').doc(id).delete();
+      return const Right('تم حذف الفريق بنجاح');
+    } catch (e) {
+      debugPrint(e.toString());
+      return left("حدث خطأ ما يرجى المحاولة مرة أخرى");
+    }
   }
 
   @override
   Future<Either<String, List<Team>>> getTeams(
-      {bool refrish = false, DocumentSnapshot? lastDocument}) async {
+      {bool refrish = false,
+      DocumentSnapshot? lastDocument,
+      String? championship}) async {
     if (refrish == true) {
       this.lastDocument = null;
     }
     try {
-      List<DocumentSnapshot> documents = await getDocumentByPagination();
-      List<Team> teams = [];
-      for (var doc in documents) {
-        var data = doc.data();
-        String idDoc = doc.reference.id;
-        print(idDoc);
-
-
-        teams.add(Team.fromJson(data as Map<String, dynamic>,idDoc));
+      List<DocumentSnapshot> documents = [];
+      if (championship == null) {
+        documents = await getDocumentByPagination();
+      } else {
+        documents = await getTeamsByChampionship(championship);
       }
+      List<Team> teams = fetchDoc(documents);
       refrish = false;
       return Right(teams);
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
       return Left(e.toString());
     }
+  }
+
+  fetchDoc(List<DocumentSnapshot<Object?>> documents) {
+    List<Team> teams = [];
+    for (var doc in documents) {
+      var data = doc.data();
+      String idDoc = doc.reference.id;
+
+      teams.add(Team.fromJson(data as Map<String, dynamic>, idDoc));
+    }
+    return teams;
   }
 
   @override
@@ -86,8 +103,52 @@ class AddTeamRepoImpl implements AddTeamRepo {
           .startAfterDocument(lastDocument!)
           .limit(10)
           .get();
+
       lastDocument = querySnapshot.docs.last;
       return querySnapshot.docs;
+    }
+  }
+
+  getTeamsByChampionship(String championship) async {
+    if (lastDocument == null) {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('teams')
+          .where("champion", isEqualTo: championship)
+          .limit(15)
+          .get();
+      lastDocument = querySnapshot.docs.last;
+      print(querySnapshot.docs.length);
+      return querySnapshot.docs;
+    } else {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('teams')
+          .where("champion", isEqualTo: championship)
+          .startAfterDocument(lastDocument!)
+          .limit(10)
+          .get();
+
+      lastDocument = querySnapshot.docs.last;
+      return querySnapshot.docs;
+    }
+  }
+
+  @override
+  Future<Either<String, List<Team>>> search(String nameTeam) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('teams')
+          .where("name", isGreaterThanOrEqualTo: nameTeam)
+          .where("name", isLessThanOrEqualTo: "$nameTeam\uf7ff")
+          .get();
+      List<Team> teams = fetchDoc(querySnapshot.docs);
+      // print(teams[0].name);
+      return Right(teams);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+
+      return const Left("حدث خطأ ما يرجى المحاولة مرة أخرى");
     }
   }
 }
