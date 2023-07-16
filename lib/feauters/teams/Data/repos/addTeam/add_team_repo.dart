@@ -1,7 +1,7 @@
 
 import 'package:dartz/dartz.dart';
 
-import '../../models/team.dart';
+import '../../../../../core/models/team.dart';
 
 
 abstract class AddTeamRepo {
@@ -14,5 +14,6 @@ abstract class AddTeamRepo {
 
   Future<Either<String, List<Team>>> getTeams();
   Future<Either<String, List<Team>>> search(String nameTeam);
+  Future getScorePlayer(int id);
 
 }

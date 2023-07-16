@@ -1,7 +1,11 @@
+import 'package:crazy_fantasy/core/utils/app_router.dart';
 import 'package:crazy_fantasy/core/widget/text_field_custom.dart';
+import 'package:crazy_fantasy/feauters/teams/Data/repos/addTeam/add_team_repo_impl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../Teams Data update/Data/repos/update_teams_repo_impl.dart';
 import '../../view model/add_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,6 +46,22 @@ class _SearchState extends State<Search> {
             style: const TextStyle(color: Colors.white),
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 15.0),
+            child: IconButton(
+              padding:  EdgeInsets.zero,
+              onPressed: () {
+                context.push(AppRouter.updateTeam);
+
+              },
+              icon: const Icon(
+                Icons.menu,
+                size: 30,
+                color: Colors.white,
+              ),
+            ),
+          ),],
         backgroundColor: const Color.fromRGBO(28, 22, 54, .9),
       ),
     );

@@ -1,9 +1,11 @@
-import 'package:crazy_fantasy/feauters/teams/Data/models/team.dart';
+import 'package:crazy_fantasy/core/constance/url.dart';
+import 'package:crazy_fantasy/core/models/team.dart';
 import 'package:dartz/dartz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../../../core/servies/api_services.dart';
 import 'add_team_repo.dart';
 
 class AddTeamRepoImpl implements AddTeamRepo {
@@ -68,6 +70,7 @@ class AddTeamRepoImpl implements AddTeamRepo {
   fetchDoc(List<DocumentSnapshot<Object?>> documents) {
     List<Team> teams = [];
     for (var doc in documents) {
+      if (doc.reference.id == 'lastUpdate') continue;
       var data = doc.data();
       String idDoc = doc.reference.id;
 
@@ -80,10 +83,9 @@ class AddTeamRepoImpl implements AddTeamRepo {
   Future<Either<String, String>> updateTeam(
       {required String id, required Team teamModel}) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('teams')
-          .doc(id)
-          .update(teamModel.toMap());
+      CollectionReference fire = FirebaseFirestore.instance.collection('teams');
+
+      await fire.doc(id).update(teamModel.toMap());
       return const Right('تم تعديل الفريق بنجاح');
     } catch (e) {
       debugPrint(e.toString());
@@ -94,14 +96,14 @@ class AddTeamRepoImpl implements AddTeamRepo {
   Future<List<DocumentSnapshot>> getDocumentByPagination() async {
     if (lastDocument == null) {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('teams').limit(15).get();
+          await FirebaseFirestore.instance.collection('teams').limit(50).get();
       lastDocument = querySnapshot.docs.last;
       return querySnapshot.docs;
     } else {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('teams')
           .startAfterDocument(lastDocument!)
-          .limit(10)
+          .limit(50)
           .get();
 
       lastDocument = querySnapshot.docs.last;
@@ -113,18 +115,18 @@ class AddTeamRepoImpl implements AddTeamRepo {
     if (lastDocument == null) {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('teams')
-          .where("champion", isEqualTo: championship)
-          .limit(15)
+          .where(championship, isEqualTo: true)
+          .limit(25)
           .get();
       lastDocument = querySnapshot.docs.last;
-      print(querySnapshot.docs.length);
+      // print(querySnapshot.docs.length);
       return querySnapshot.docs;
     } else {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('teams')
-          .where("champion", isEqualTo: championship)
+          .where(championship, isEqualTo: true)
           .startAfterDocument(lastDocument!)
-          .limit(10)
+          .limit(100)
           .get();
 
       lastDocument = querySnapshot.docs.last;
@@ -151,7 +153,26 @@ class AddTeamRepoImpl implements AddTeamRepo {
       return const Left("حدث خطأ ما يرجى المحاولة مرة أخرى");
     }
   }
+
+  @override
+  Future getScorePlayer(int id) async {
+    try {
+      ApiService apiService = ApiService();
+      Map<String, dynamic> responce =
+          await apiService.get(path: UrlEndpoint.getScoreHistory(id));
+      int score = responce['past'][0]['total_points'];
+      try {
+        return score;
+      } catch (e) {
+        return 0;
+      }
+    } catch (e) {
+      return getScorePlayer(id);
+    }
+  }
 }
+
+getScoreTeam() async {}
 
 Future<bool> isTeamNameTaken(String teamName) async {
   try {

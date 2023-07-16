@@ -1,8 +1,11 @@
+import 'package:crazy_fantasy/feauters/Teams%20Data%20update/presentation/View/teams_data_update_view.dart';
 import 'package:crazy_fantasy/feauters/teams/presentation/view%20model/add_team_cubit.dart';
 import 'package:crazy_fantasy/feauters/teams/presentation/view/team_view.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'core/utils/app_router.dart';
 import 'core/utils/bloc_observer.dart';
+import 'feauters/Teams Data update/presentation/view model/update_data_team_cubit.dart';
 import 'firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,14 +30,19 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => AddTeamCubit(),
         ),
+        BlocProvider(
+          create: (context) => UpdateDataTeamCubit(),
+        ),
       ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
+      child: MaterialApp.router(
+        routerConfig: AppRouter.router,
+        title: 'Crazy Fantasy',
         theme: ThemeData(
           scaffoldBackgroundColor: const Color.fromRGBO(28, 22, 54, .9),
+
           useMaterial3: true,
         ),
-        home: const TeamView(),
+
       ),
     );
   }

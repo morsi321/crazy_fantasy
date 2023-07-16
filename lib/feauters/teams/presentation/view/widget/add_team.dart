@@ -3,7 +3,7 @@ import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:crazy_fantasy/core/widget/BoxColor.dart';
 import 'package:crazy_fantasy/core/widget/IconButtonCustom.dart';
 import 'package:crazy_fantasy/core/widget/blurBody.dart';
-import 'package:crazy_fantasy/feauters/teams/Data/models/team.dart';
+import 'package:crazy_fantasy/core/models/team.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/widget/drop_down_custom.dart';
@@ -13,6 +13,7 @@ import '../../view model/add_team_cubit.dart';
 import 'add_image_team.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'championships.dart';
 import 'image_team.dart';
 
 class AddTeam extends StatelessWidget {
@@ -56,9 +57,16 @@ class AddTeam extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               LabelAndTextForm(
-                label: 'Name Team',
+                label: 'اسم فريق ',
                 controller:
                     BlocProvider.of<AddTeamCubit>(context).nameTeamController,
+                enable: BlocProvider.of<AddTeamCubit>(context).isView,
+              ),
+              const SizedBox(height: 20),
+              LabelAndTextForm(
+                label: 'الدولة',
+                controller:
+                    BlocProvider.of<AddTeamCubit>(context).countryController,
                 enable: BlocProvider.of<AddTeamCubit>(context).isView,
               ),
               const SizedBox(height: 20),
@@ -68,33 +76,7 @@ class AddTeam extends StatelessWidget {
                 enable: BlocProvider.of<AddTeamCubit>(context).isView,
               ),
               const SizedBox(height: 20),
-              const Text('championship',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontFamily: 'janna',
-                      fontWeight: FontWeight.w500)),
-              const SizedBox(height: 7),
-              BoxColor(
-                  width: double.infinity,
-                  color: Colors.white.withOpacity(.1),
-                  child: BlocBuilder<AddTeamCubit, AddTeamState>(
-                    builder: (context, state) {
-                      return DroDownCustom(
-                        disable: BlocProvider.of<AddTeamCubit>(context).isView,
-                        colorBorder: Colors.transparent,
-                        onTap: (String? value) {
-                          BlocProvider.of<AddTeamCubit>(context)
-                              .changeChampionShip(value!);
-                        },
-                        items: championShip,
-                        labelDropDown: '',
-                        selectedValue:
-                            BlocProvider.of<AddTeamCubit>(context).championship,
-                      );
-                    },
-                  )),
-              const SizedBox(height: 20),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -136,11 +118,12 @@ class AddTeam extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               LabelAndTextForm(
-                label: 'Fantasy ID 5 (this is Captain)',
+                label: 'Captain ID',
                 enable: BlocProvider.of<AddTeamCubit>(context).isView,
-                controller: BlocProvider.of<AddTeamCubit>(context).fantasyID5,
+                controller: BlocProvider.of<AddTeamCubit>(context).captain,
               ),
               const SizedBox(height: 20),
+              const Championships(),
               BlocProvider.of<AddTeamCubit>(context).isView
                   ? const SizedBox()
                   : const AddTeamButton(),

@@ -4,6 +4,12 @@ part of 'add_team_cubit.dart';
 abstract class AddTeamState {}
 
 class AddTeamInitial extends AddTeamState {}
+class ChangeIsTeams1000State extends AddTeamState {}
+class ChangeIsCupState extends AddTeamState {}
+class ChangeIsClassicLeagueState extends AddTeamState {}
+class ChangeIsVipLeagueState extends AddTeamState {}
+
+
 
 class AddTeamChampionState extends AddTeamState {}
 
@@ -24,6 +30,7 @@ class SuccessfulCrudState extends AddTeamState {
 
 class LoadingGetTeamsState extends AddTeamState {}
 class ChangeChampionshipSelectedState extends AddTeamState {}
+class ClearDataTeamState extends AddTeamState {}
 
 class SuccessfulGetTeamsState extends AddTeamState {
 }

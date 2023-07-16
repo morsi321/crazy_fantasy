@@ -2,7 +2,7 @@ import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:crazy_fantasy/core/widget/cash_image_network.dart';
 import 'package:flutter/material.dart';
 
-import '../../../Data/models/team.dart';
+import '../../../../../core/models/team.dart';
 import '../../view model/add_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -45,7 +45,7 @@ class ItemTeam extends StatelessWidget {
       ),
       child: Container(
           width: double.infinity,
-          height: 60,
+          height: 65,
           color: Colors.white.withOpacity(.05),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -87,7 +87,7 @@ class InfoDataTeam extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        BlocProvider.of<AddTeamCubit>(context).viewTeam(team,context);
+        BlocProvider.of<AddTeamCubit>(context).viewTeam(team, context);
       },
       child: SizedBox(
         width: context.width * .7,
@@ -98,14 +98,42 @@ class InfoDataTeam extends StatelessWidget {
               index.toString(),
               style: const TextStyle(color: Colors.white, fontSize: 20),
             ),
-            CashImageNetwork(url: team.pathImage!, width: 50, height: 50),
             SizedBox(
-              width: context.width * .35,
-              child: Text(
-                team.name!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.white, fontSize: 18,fontFamily: 'janna'),
+              width: context.width * .52,
+              child: Row(
+                children: [
+                  CashImageNetwork(url: team.pathImage!, width: 50, height: 50),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          team.name!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontFamily: 'janna'),
+                        ),
+                        Text(
+                          team.country!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'janna',
+                              color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
