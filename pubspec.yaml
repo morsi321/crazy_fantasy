@@ -42,12 +42,14 @@ dependencies:
   cached_network_image: ^3.2.3
   dio:
   go_router: ^9.0.3
+  progress_state_button: ^1.0.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   firebase_core: ^2.14.0
+
   firebase_auth: ^4.6.3
   cloud_firestore: ^4.8.2
   firebase_storage: ^11.2.4

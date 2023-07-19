@@ -3,6 +3,7 @@ import 'package:crazy_fantasy/feauters/Classic%20League/Data/repos/classic_leagu
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../feauters/vip/Data/repo/vip_repo_impl.dart';
 
 class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
   const AppBarCustom({Key? key, required this.title})
@@ -33,7 +34,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: () async {
-
+                await OrganizeVipChampionshipRepoImpl().createVip();
               },
               icon: const Icon(
                 Icons.menu,

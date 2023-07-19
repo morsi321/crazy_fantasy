@@ -1,6 +1,7 @@
 import 'package:crazy_fantasy/feauters/Teams%20Data%20update/presentation/View/teams_data_update_view.dart';
 import 'package:crazy_fantasy/feauters/teams/presentation/view%20model/add_team_cubit.dart';
 import 'package:crazy_fantasy/feauters/teams/presentation/view/team_view.dart';
+import 'package:crazy_fantasy/feauters/vip/presentaion/viewModel/vip_championship_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/utils/app_router.dart';
@@ -32,12 +33,16 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => UpdateDataTeamCubit(),
+        ),BlocProvider(
+          create: (context) => VipChampionshipCubit(),
         ),
       ],
       child: MaterialApp.router(
         routerConfig: AppRouter.router,
         title: 'Crazy Fantasy',
+
         theme: ThemeData(
+          fontFamily: 'Janna',
           scaffoldBackgroundColor: const Color.fromRGBO(28, 22, 54, .9),
 
           useMaterial3: true,

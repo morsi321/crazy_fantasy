@@ -4,7 +4,7 @@ void showBottomSheetCustom(BuildContext context, Widget child) {
   showModalBottomSheet(
     barrierColor: Colors.black.withOpacity(.3),
 
-    backgroundColor:   const Color.fromRGBO(28, 22, 54, .9),
+    backgroundColor:   const Color.fromRGBO(28, 22, 54, 1),
 
   context: context,
     builder: (BuildContext context) {

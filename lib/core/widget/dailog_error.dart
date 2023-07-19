@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'BoxColor.dart';
 import 'blurBody.dart';
 
-void dialogError(context, String? message, Future<void> Function() retryFun,
+void dialogError(context, String? message, void Function() retryFun,
     {Future<void> Function()? okFun}) {
   showDialog(
       barrierColor: Colors.black.withOpacity(0.2),

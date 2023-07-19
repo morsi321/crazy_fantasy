@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
-import 'vip_reop.dart';
+import 'cup_reop.dart';
 
 class OrganizeCupChampionshipRepoImpl implements OrganizeCupChampionshipRepo {
   @override
@@ -59,12 +59,13 @@ class OrganizeCupChampionshipRepoImpl implements OrganizeCupChampionshipRepo {
     }
   }
 
-  removeGameWeek({required int numRound} ) async {
+  removeGameWeek({required int numRound}) async {
     try {
       Map matches = await getMatchesLastRound(nameRound: 'الدور $numRound');
       await chooseWinnerTheGameWeek(matches, -1);
       await updateNumGameWeek(deleteGameWeek: true);
-      await addGroupsInFireStore(matches: matches, nameRound: 'الدور $numRound');
+      await addGroupsInFireStore(
+          matches: matches, nameRound: 'الدور $numRound');
     } catch (e) {
       if (kDebugMode) {
         print(e.toString());
@@ -76,7 +77,7 @@ class OrganizeCupChampionshipRepoImpl implements OrganizeCupChampionshipRepo {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('teams')
-          .where('isCupLeague', isEqualTo: true)
+          .where('isCup', isEqualTo: true)
           .get();
       List<DocumentSnapshot> teamsDoc = querySnapshot.docs;
       List<Map> teams = teamsDoc
@@ -133,11 +134,10 @@ class OrganizeCupChampionshipRepoImpl implements OrganizeCupChampionshipRepo {
           } else if (score1 < score2) {
             match['score1'] = 0;
             match['score2'] = match['score2'] + increment;
-          }else{
+          } else {
             match['score1'] = match['score1'];
             match['score2'] = match['score2'];
           }
-
         }));
       });
 
@@ -206,8 +206,8 @@ class OrganizeCupChampionshipRepoImpl implements OrganizeCupChampionshipRepo {
     try {
       FirebaseFirestore.instance
           .collection("Crazy_fantasy")
-          .doc("Vip")
-          .collection("vip")
+          .doc("Cup")
+          .collection("Cup")
           .doc(nameRound)
           .set({
         "isFinished": false,
@@ -238,9 +238,8 @@ class OrganizeCupChampionshipRepoImpl implements OrganizeCupChampionshipRepo {
   updateNumGameWeek(
       {bool deleteGameWeek = false, bool firstGameWeek = false}) async {
     try {
-      DocumentReference fire =  FirebaseFirestore.instance
-          .collection("Crazy_fantasy")
-          .doc("Vip");
+      DocumentReference fire =
+          FirebaseFirestore.instance.collection("Crazy_fantasy").doc("cup");
 
       if (firstGameWeek) {
         fire.set({

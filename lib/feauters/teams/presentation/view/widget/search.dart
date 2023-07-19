@@ -47,21 +47,18 @@ class _SearchState extends State<Search> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 15.0),
-            child: IconButton(
-              padding:  EdgeInsets.zero,
-              onPressed: () {
-                context.push(AppRouter.updateTeam);
-
-              },
-              icon: const Icon(
-                Icons.menu,
-                size: 30,
-                color: Colors.white,
-              ),
+          IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              Scaffold.of(context).openEndDrawer();
+            },
+            icon: const Icon(
+              Icons.menu,
+              size: 30,
+              color: Colors.white,
             ),
-          ),],
+          ),
+        ],
         backgroundColor: const Color.fromRGBO(28, 22, 54, .9),
       ),
     );
