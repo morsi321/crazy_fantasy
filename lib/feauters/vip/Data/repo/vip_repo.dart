@@ -1,13 +1,14 @@
-import 'package:dartz/dartz.dart';
 
 abstract class OrganizeVipChampionshipRepo {
-  Future<Either<String, String>> createVip();
+  Future handeVip({required int gameWeek, required String org});
 
-  Future<Either<String, String>> doRound256();
-  Future<Either<String, String>> doRound({required int numRound });
-  Future<Either<String, String>> doRound8();
-  Future<Either<String, int>> getCurrentGameWeek();
-  Future<Either<String, String>> removeFirstGameWeek();
-  // Future<Either<String, String>> removeRound();
-  Future<Either<String, String>> finishGameWeek();
+  Future  createVip({required String org});
+
+  Future doRound256({required String org});
+  Future doRound({required int numRound ,required String org});
+  Future doRound8({required String org});
+  // Future<Either<String, int>> getCurrentGameWeek();
+  Future finishGameWeekInRound({required int numRound,required String org});
+  Future finishGameWeeKInLastRound({required String org});
+  Future finishGameWeek({required String org});
 }

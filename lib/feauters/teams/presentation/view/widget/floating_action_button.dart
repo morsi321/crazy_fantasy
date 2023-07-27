@@ -1,7 +1,7 @@
-import 'package:crazy_fantasy/core/widget/bootom_sheet_custom.dart';
-import 'package:crazy_fantasy/feauters/teams/presentation/view/team_view.dart';
-import 'package:crazy_fantasy/feauters/teams/presentation/view/widget/add_team.dart';
+import 'package:crazy_fantasy/feauters/teams/presentation/view%20model/add_team_cubit.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddTeamButton extends StatelessWidget {
   const AddTeamButton({super.key});
@@ -13,7 +13,9 @@ class AddTeamButton extends StatelessWidget {
       child: FloatingActionButton(
         backgroundColor: Colors.white,
         onPressed: (){
-          showBottomSheetCustom(context, const AddTeam());},
+          // showBottomSheetCustom(context, const AddTeam());
+          BlocProvider.of<AddTeamCubit>(context).add1000Team();
+          },
         child: const Icon(Icons.add),
       ),
     );

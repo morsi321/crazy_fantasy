@@ -10,8 +10,7 @@ class TeamView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return   const Scaffold(
-
+    return const Scaffold(
       endDrawer: DrawerCustom(),
       appBar: Search(),
       floatingActionButton: AddTeamButton(),

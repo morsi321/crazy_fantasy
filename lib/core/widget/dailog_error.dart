@@ -1,5 +1,6 @@
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'BoxColor.dart';
 import 'blurBody.dart';
@@ -64,9 +65,8 @@ void dialogError(context, String? message, void Function() retryFun,
                         children: [
                           GestureDetector(
                               onTap: () {
-                                Navigator.of(context)
-                                    .popUntil((route) => route.isFirst);
                                 retryFun();
+                                context.pop();
                               },
                               child: const BoxColor(
                                 width: 100,
@@ -78,8 +78,7 @@ void dialogError(context, String? message, void Function() retryFun,
                               )),
                           GestureDetector(
                               onTap: () {
-                                Navigator.of(context)
-                                    .popUntil((route) => route.isFirst);
+                                Navigator.of(context).pop();
                               },
                               child: const BoxColor(
                                 width: 100,

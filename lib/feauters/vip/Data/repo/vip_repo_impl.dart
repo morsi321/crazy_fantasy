@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:dartz/dartz.dart';
@@ -10,39 +9,87 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
   Map groups = {};
 
   @override
-  Future<Either<String, String>> createVip() async {
+  Future<Either<String, String>> handeVip(
+      {required int gameWeek, required String org}) async {
+    try {
+      if (gameWeek >= 1 && gameWeek <= 15) {
+        await finishGameWeek(org: org);
+      } else if (gameWeek == 16) {
+        await doRound256(org: org);
+
+        await finishGameWeekInRound(numRound: 256, org: org);
+      } else if (gameWeek == 17) {
+        await finishGameWeekInRound(numRound: 256, org: org);
+      } else if (gameWeek == 18) {
+        await doRound(numRound: 128, org: org);
+        await finishGameWeekInRound(numRound: 128, org: org);
+      } else if (gameWeek == 19) {
+        await finishGameWeekInRound(numRound: 128, org: org);
+      } else if (gameWeek == 20) {
+        await doRound(numRound: 64, org: org);
+        await finishGameWeekInRound(numRound: 64, org: org);
+      } else if (gameWeek == 21) {
+        await finishGameWeekInRound(numRound: 64, org: org);
+      } else if (gameWeek == 22) {
+        await doRound(numRound: 32, org: org);
+        await finishGameWeekInRound(numRound: 32, org: org);
+      } else if (gameWeek == 23) {
+        await finishGameWeekInRound(numRound: 32, org: org);
+      } else if (gameWeek == 24) {
+        await doRound(numRound: 16, org: org);
+        await finishGameWeekInRound(numRound: 16, org: org);
+      } else if (gameWeek == 25) {
+        await finishGameWeekInRound(numRound: 16, org: org);
+      } else if (gameWeek == 26) {
+        await doRound8(org: org);
+        await finishGameWeeKInLastRound(org: org);
+      } else if (gameWeek > 26 && gameWeek <= 32) {
+        await finishGameWeeKInLastRound(org: org);
+      }
+      return const Right('تم تنظيم الجولة بنجاح');
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+      return const Left('حدث خطأ ما برجاء المحاولة مرة اخري');
+    }
+  }
+
+  @override
+  Future createVip({required String org}) async {
     try {
       Stopwatch stopwatch = Stopwatch()..start();
       List<Map> teams = await getVipLeagueTeams();
       teams = shuffleTeams(teams);
+
       Map groupWithMatches = await groupDivision(teams: teams);
       Map<dynamic, dynamic> matches = matchesDivision(groupWithMatches);
       Map half1Group = halfGroups(matches).$1;
       Map half2Group = halfGroups(matches).$2;
 
-      await addGroupsInFireStore(data: half1Group, nameRound: 'الدور 511');
+      List<Future> futures = [
+        addGroupsInFireStore(
+            data: half1Group, nameRound: 'الدور 511', org: org),
+        addGroupsInFireStore(data: half2Group, nameRound: 'الدور 512', org: org)
+      ];
 
-      await addGroupsInFireStore(data: half2Group, nameRound: 'الدور 512');
-      await updateNumGameWeek(firstGameWeek: true);
+      Future.wait(futures);
 
       stopwatch.stop();
       if (kDebugMode) {
         print('time: ${stopwatch.elapsedMilliseconds}');
       }
-
-      return const Right('تم انشاء البطولة بنجاح');
     } catch (e) {
       if (kDebugMode) {
         print(e.toString());
       }
-      return const Left("حدث خطأ ما برجاء المحاولة مرة اخري");
     }
   }
 
   @override
-  Future<Either<String, String>> doRound256() async {
-    Map half1 = await getRound(numRound: 511);
-    Map half2 = await getRound(numRound: 512);
+  Future doRound256({required String org}) async {
+    Map half1 = await getRound(numRound: 511, org: org);
+    Map half2 = await getRound(numRound: 512, org: org);
 
     Map mergeGroups = merge2Groups(half1["groups"], half2["groups"]);
 
@@ -50,65 +97,68 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     Map matches = matchesDivisionCross(qualifiedTeams);
 
     await addGroupsInFireStore(
-        key: "matches", data: matches["matches"], nameRound: 'الدور 256');
-    await updateNumGameWeek();
+        org: org,
+        key: "matches",
+        data: matches["matches"],
+        nameRound: 'الدور 256');
 
-    try {
-      return const Right("تم تنظيم الدور 256 بنجاح");
-    } catch (e) {
-      return const Left(" حدث خطأ ما برجاء المحاولة مرة اخري");
+    try {} catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
   }
 
   @override
-  Future<Either<String, String>> doRound({required int numRound}) async {
+  Future doRound({required int numRound, required String org}) async {
     try {
-      Map matches = await getRound(numRound: numRound * 2);
+      Map matches = await getRound(numRound: numRound * 2, org: org);
       List<Map> teams128 = await qualifiedTeams(matches);
       teams128 = shuffleTeams(teams128);
       Map matchesRandom = await divisionOfMatchesRandom(teams128);
       await addGroupsInFireStore(
           key: "matches",
+          org: org,
           data: matchesRandom["matches"],
           nameRound: 'الدور $numRound');
-
-      return const Right("تم تنظيم الدور 256 بنجاح");
     } catch (e) {
-      print(e.toString());
-      return const Left(" حدث خطأ ما برجاء المحاولة مرة اخري");
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
   }
 
   @override
-  Future<Either<String, String>> doRound8() async {
+  Future doRound8({required String org}) async {
     try {
-      Map matches = await getRound(numRound: 16);
+      Map matches = await getRound(numRound: 16, org: org);
       List<Map> teams8 = await qualifiedTeams(matches);
       individuallyDivisionMatches(teams8);
       await addGroupsInFireStore(
         key: "individuallyTeams",
+        org: org,
         data: teams8,
         nameRound: 'الدور 8',
       );
-
-      return const Right("تم تنظيم الدور 8 بنجاح");
     } catch (e) {
-      return const Left(" حدث خطأ ما برجاء المحاولة مرة اخري");
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
   }
 
-  @override
   getCurrentGameWeek() async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection("Crazy_fantasy")
-          .doc("vip_league")
+          .collection("infoApp")
+          .doc("gameWeek")
           .get();
       int numGameWeek = documentSnapshot['gameWeek'];
-      return Right(numGameWeek);
+      return numGameWeek;
     } catch (e) {
-      print(e.toString());
-      return Left(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
   }
 
@@ -233,19 +283,32 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     }
   }
 
-  finishGameWeekInRound({required int numRound}) async {
-    Map matches = await getRound(numRound: numRound);
+  @override
+  finishGameWeekInRound({required int numRound, required String org}) async {
+    try {
+      Map matches = await getRound(numRound: numRound, org: org);
+      int numGameWeek = await getCurrentGameWeek();
 
-    await regScores(matches: matches, increment: 3);
+      await regScores(matches: matches, increment: 3, numGameWeek: numGameWeek);
 
-    await addGroupsInFireStore(
-        data: matches['matches'], nameRound: "الدور $numRound", key: "matches");
-    await updateNumGameWeek();
+      await addGroupsInFireStore(
+          org: org,
+          data: matches['matches'],
+          nameRound: "الدور $numRound",
+          key: "matches");
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+    }
 
     // regScores(matches)
   }
 
-  regScores({required Map matches, required int increment}) async {
+  regScores(
+      {required Map matches,
+      required int increment,
+      required numGameWeek}) async {
     try {
       Stopwatch stopwatch = Stopwatch()..start();
       List<Future> futures = [];
@@ -253,8 +316,10 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       matches['matches'].forEach((match) {
         // print(match);
         futures.add(Future(() async {
-          int score1 = await getTotalPointsTeam(match['teamAId']);
-          int score2 = await getTotalPointsTeam(match["teamBId"]);
+          int score1 =
+              await getPointsGameWeekTeam(match['teamAId'], numGameWeek);
+          int score2 =
+              await getPointsGameWeekTeam(match["teamBId"], numGameWeek);
 
           if (score1 > score2) {
             match['teamAGoals'] = match['teamAGoals'] + increment;
@@ -422,10 +487,10 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     // sortedGroups now holds the sorted groups
   }
 
-  getRound({required int numRound}) async {
+  getRound({required int numRound, required String org}) async {
     try {
       DocumentReference documentReference = FirebaseFirestore.instance
-          .collection("Crazy_fantasy")
+          .collection(org)
           .doc("vip_league")
           .collection("vip_rounds")
           .doc("الدور $numRound");
@@ -441,41 +506,54 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
   }
 
   @override
-  finishGameWeek() async {
+  finishGameWeek({required String org}) async {
     try {
-      int numGameWeek = await getLastGameWeek() - 1;
+      int numGameWeek = await getCurrentGameWeek() - 1;
+
       Map newResult = await selectWinner(
+        org: org,
         numGameWeek: numGameWeek,
       );
       var result = halfGroups(newResult);
       Map half1Group = result.$1;
       Map half2Group = result.$2;
-      await addGroupsInFireStore(data: half1Group, nameRound: 'الدور 511');
+      await addGroupsInFireStore(
+          data: half1Group, nameRound: 'الدور 511', org: org);
 
-      await addGroupsInFireStore(data: half2Group, nameRound: 'الدور 512');
-      await updateNumGameWeek();
-      return const Right("تم انهاء الجولة بنجاح");
+      await addGroupsInFireStore(
+          data: half2Group, nameRound: 'الدور 512', org: org);
     } catch (e) {
-      return const Left("جدث خطأ ما حاول مرة اخرى");
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
   }
 
-  finishGameWeeKInLastRound() async {
-    int numGameWeek = await getLastGameWeek();
-    numGameWeek = 38 - numGameWeek;
-    List newResult =
-        await setResultGameWeekInLastRound(numGameWeek: numGameWeek);
-    await updateNumGameWeek();
-    await addGroupsInFireStore(
-        key: 'individuallyTeams', data: newResult, nameRound: 'الدور 8');
+  @override
+  finishGameWeeKInLastRound({required String org}) async {
+    try {
+      int numGameWeek = await getCurrentGameWeek();
+      numGameWeek = (38 - numGameWeek) - 4;
+      List newResult = await setResultGameWeekInLastRound(
+          numGameWeek: numGameWeek, org: org);
+      await addGroupsInFireStore(
+          org: org,
+          key: 'individuallyTeams',
+          data: newResult,
+          nameRound: 'الدور 8');
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+    }
   }
 
-  setResultGameWeekInLastRound({required int numGameWeek}) async {
-    Map dataRound = await getRound(numRound: 8);
+  setResultGameWeekInLastRound(
+      {required int numGameWeek, required String org}) async {
+    Map dataRound = await getRound(numRound: 8, org: org);
     List teams = dataRound['individuallyTeams'];
 
-    numGameWeek = 7 - numGameWeek;
-    print(numGameWeek);
+    numGameWeek = (numGameWeek - 8).abs();
 
     List<Future> futures = [];
 
@@ -483,10 +561,10 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       for (int j = 0; j < teams[i]['matches'].length; j++) {
         if (j == numGameWeek) {
           futures.add(Future(() async {
-            int scoreHomeTeam =
-                await getTotalPointsTeam(teams[i]['matches'][j]['homeTeam']);
-            int scoreAwayTeam =
-                await getTotalPointsTeam(teams[i]['matches'][j]['awayTeam']);
+            int scoreHomeTeam = await getPointsGameWeekTeam(
+                teams[i]['matches'][j]['homeTeam'], numGameWeek);
+            int scoreAwayTeam = await getPointsGameWeekTeam(
+                teams[i]['matches'][j]['awayTeam'], numGameWeek);
 
             if (scoreHomeTeam > scoreAwayTeam) {
               teams[i]['matches'][numGameWeek]['homeTeamGoals'] = 3;
@@ -509,32 +587,29 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     await Future.wait(futures);
     return teams;
   }
- @override
-  removeFirstGameWeek() async {
-  try{
-    int numGameWeek = await getLastGameWeek() - 2;
-    Map newResult = await selectWinner(numGameWeek: numGameWeek, remove: true);
-    var result = halfGroups(newResult);
-    Map half1Group = result.$1;
-    Map half2Group = result.$2;
-    await addGroupsInFireStore(data: half1Group, nameRound: 'الدور 511');
 
-    await addGroupsInFireStore(data: half2Group, nameRound: 'الدور 512');
-    updateNumGameWeek(deleteGameWeek: true);
-    return const Right("تم  حذف الجولة بنجاح");
+  // @override
+  // removeFirstGameWeek() async {
+  //   try {
+  //     int numGameWeek = await getCurrentGameWeek() - 2;
+  //     Map newResult =
+  //         await selectWinner(numGameWeek: numGameWeek, remove: true,org: org);
+  //     var result = halfGroups(newResult);
+  //     Map half1Group = result.$1;
+  //     Map half2Group = result.$2;
+  //     // await addGroupsInFireStore(data: half1Group, nameRound: 'الدور 511');
+  //     //
+  //     // await addGroupsInFireStore(data: half2Group, nameRound: 'الدور 512');
+  //   } catch (e) {
+  //     if (kDebugMode) {
+  //       print(e.toString());
+  //     }
+  //   }
+  // }
 
-  } catch(e){
-    if(kDebugMode){
-      print(e.toString());
-    }
-    return const Left("حدث خطأ ما حاول مرة اخرى");
-  }
-
-  }
-
-  selectWinner({required int numGameWeek, bool remove = false}) async {
-    Map half1 = await getRound(numRound: 511);
-    Map half2 = await getRound(numRound: 512);
+  selectWinner({required int numGameWeek, required String org}) async {
+    Map half1 = await getRound(numRound: 511, org: org);
+    Map half2 = await getRound(numRound: 512, org: org);
     Map merge2Group = merge2Groups(half1['groups'], half2['groups']);
 
     List<Future> futures = [];
@@ -544,33 +619,29 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         for (int j = 0; j < group[i]['matches'].length; j++) {
           if (j == numGameWeek) {
             futures.add(Future(() async {
-              int scoreHomeTeam =
-                  await getTotalPointsTeam(group[i]['matches'][j]['homeTeam']);
-              int scoreAwayTeam =
-                  await getTotalPointsTeam(group[i]['matches'][j]['awayTeam']);
+              int scoreHomeTeam = await getPointsGameWeekTeam(
+                  group[i]['matches'][j]['homeTeam'], numGameWeek + 1);
+              int scoreAwayTeam = await getPointsGameWeekTeam(
+                  group[i]['matches'][j]['awayTeam'], numGameWeek + 1);
 
               if (scoreHomeTeam > scoreAwayTeam) {
-                group[i]['matches'][numGameWeek]['homeTeamGoals'] =
-                    remove ? 0 : 3;
+                group[i]['matches'][numGameWeek]['homeTeamGoals'] = 3;
                 group[i]['matches'][numGameWeek]['awayTeamGoals'] = 0;
 
-                group[i]['points'] += remove
-                    ? -3
-                    : group[i]['matches'][numGameWeek]['homeTeamGoals'];
+                group[i]['points'] +=
+                    group[i]['matches'][numGameWeek]['homeTeamGoals'];
+
+                print(group[i]['points']);
               } else if (scoreHomeTeam < scoreAwayTeam) {
                 group[i]['matches'][numGameWeek]['homeTeamGoals'] = 0;
-                group[i]['matches'][numGameWeek]['awayTeamGoals'] =
-                    remove ? 0 : 3;
+                group[i]['matches'][numGameWeek]['awayTeamGoals'] = 3;
               } else {
-                group[i]['matches'][numGameWeek]['homeTeamGoals'] =
-                    remove ? 0 : 1;
-                group[i]['matches'][numGameWeek]['awayTeamGoals'] =
-                    remove ? 0 : 1;
-                group[i]['points'] += remove
-                    ? -1
-                    : group[i]['matches'][numGameWeek]['homeTeamGoals'];
+                group[i]['matches'][numGameWeek]['homeTeamGoals'] = 1;
+                group[i]['matches'][numGameWeek]['awayTeamGoals'] = 1;
+                group[i]['points'] +=
+                    group[i]['matches'][numGameWeek]['homeTeamGoals'];
               }
-              group[i]['matches'][numGameWeek]['isFinished'] = remove ? false : true;
+              group[i]['matches'][numGameWeek]['isFinished'] = true;
             }));
           }
         }
@@ -581,10 +652,13 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
   }
 
   addGroupsInFireStore(
-      {required data, required String nameRound, String? key}) async {
+      {required data,
+      required String nameRound,
+      String? key,
+      required String org}) async {
     try {
       FirebaseFirestore.instance
-          .collection("Crazy_fantasy")
+          .collection(org)
           .doc("vip_league")
           .collection("vip_rounds")
           .doc(nameRound)
@@ -599,51 +673,21 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     }
   }
 
-  updateNumGameWeek(
-      {bool deleteGameWeek = false, bool firstGameWeek = false}) async {
-    try {
-      DocumentReference fire = FirebaseFirestore.instance
-          .collection("Crazy_fantasy")
-          .doc("vip_league");
-      if (firstGameWeek) {
-        fire.set({
-          "gameWeek": FieldValue.increment(1),
-        });
-      } else {
-        fire.update({
-          "gameWeek": FieldValue.increment(deleteGameWeek ? -1 : 1),
-        });
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
-  }
+  // regRound(int numRound) async {
+  //   DocumentReference fire = FirebaseFirestore.instance
+  //       .collection("Crazy_fantasy")
+  //       .doc("data_$numRound");
+  //   fire.set({"isRound": true});
+  // }
 
-  getTotalPointsTeam(String teamId) async {
+  getPointsGameWeekTeam(String teamId, int numGameWeek) async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection("teams")
           .doc(teamId)
           .get();
       // print(documentSnapshot['totalScore']);
-      return documentSnapshot['totalScore'];
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
-  }
-
-  getLastGameWeek() async {
-    try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection("Crazy_fantasy")
-          .doc("vip_league")
-          .get();
-      // print(documentSnapshot['totalScore']);
-      return documentSnapshot['gameWeek'];
+      return documentSnapshot['gameWeek$numGameWeek'];
     } catch (e) {
       if (kDebugMode) {
         print(e.toString());

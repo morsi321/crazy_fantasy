@@ -8,7 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/servies/comperison_image.dart';
 
@@ -83,7 +82,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     isTeams1000 = !isTeams1000;
     emit(ChangeIsTeams1000State());
   }
-  
 
   changeIsCup() {
     isCup = !isCup;

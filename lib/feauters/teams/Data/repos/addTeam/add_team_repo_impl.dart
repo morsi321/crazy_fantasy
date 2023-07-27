@@ -70,7 +70,6 @@ class AddTeamRepoImpl implements AddTeamRepo {
   fetchDoc(List<DocumentSnapshot<Object?>> documents) {
     List<Team> teams = [];
     for (var doc in documents) {
-      if (doc.reference.id == 'lastUpdate') continue;
       var data = doc.data();
       String idDoc = doc.reference.id;
 
