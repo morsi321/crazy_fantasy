@@ -1,6 +1,6 @@
+import 'package:crazy_fantasy/feauters/organizers/presentation/view%20Model/add_orgaizer_cubit.dart';
 import 'package:flutter/material.dart';
 
-import '../../view model/add_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Championships extends StatelessWidget {
@@ -8,8 +8,8 @@ class Championships extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final addTeamCubit = context.read<AddTeamCubit>();
-    return BlocBuilder<AddTeamCubit, AddTeamState>(
+    final addOrgCubit = context.read<AddOrganizerCubit>();
+    return BlocBuilder<AddOrganizerCubit, AddOrganizerState>(
       builder: (context, state) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -19,9 +19,9 @@ class Championships extends StatelessWidget {
                 'بطولة الف تيم',
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
-              value: addTeamCubit.isTeams1000,
+              value: addOrgCubit.isTeams1000,
               onChanged: (bool? value) {
-                addTeamCubit.changeIsTeams1000();
+                addOrgCubit.changeIsTeams1000();
               },
             ),
             CheckboxListTile(
@@ -29,19 +29,20 @@ class Championships extends StatelessWidget {
                 ' الكاس',
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
-              value: addTeamCubit.isCup,
+              value: addOrgCubit.isCup,
               onChanged: (bool? value) {
-                addTeamCubit.changeIsCup();
+                addOrgCubit.changeIsCup();
               },
             ),
+
             CheckboxListTile(
               title: const Text(
                 'الدوري الكلاسيكي ',
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
-              value: addTeamCubit.isClassicLeague,
+              value: addOrgCubit.isClassicLeague,
               onChanged: (bool? value) {
-                addTeamCubit.changeIsClassicLeague();
+                addOrgCubit.changeIsClassicLeague();
               },
             ),
             CheckboxListTile(
@@ -49,9 +50,9 @@ class Championships extends StatelessWidget {
                 'VIP',
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
-              value: addTeamCubit.isVipLeague,
+              value: addOrgCubit.isVipLeague,
               onChanged: (bool? value) {
-                addTeamCubit.changeIsVipLeague();
+                addOrgCubit.changeIsVipLeague();
               },
             ),
           ],

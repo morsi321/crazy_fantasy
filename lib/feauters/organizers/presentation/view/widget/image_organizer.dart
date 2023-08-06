@@ -1,9 +1,10 @@
 import 'package:crazy_fantasy/core/widget/cash_image_network.dart';
-import 'package:crazy_fantasy/feauters/add%20organizer/presentation/view%20Model/add_orgaizer_cubit.dart';
-import 'package:crazy_fantasy/feauters/add%20organizer/presentation/view/widget/AddImageTeam.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../view Model/add_orgaizer_cubit.dart';
+import 'AddImageTeam.dart';
 
 class ImageOrganizer extends StatelessWidget {
   const ImageOrganizer({super.key});

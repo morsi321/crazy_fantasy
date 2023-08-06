@@ -1,12 +1,13 @@
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:crazy_fantasy/core/widget/cash_image_network.dart';
-import 'package:crazy_fantasy/feauters/add%20organizer/Data/models/orgnizer_model.dart';
-import 'package:crazy_fantasy/feauters/add%20organizer/presentation/view%20Model/add_orgaizer_cubit.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../add organizer/presentation/view/widget/dailog_delete.dart';
+import '../../../../teams/presentation/view/widget/dailog_delete.dart';
+import '../../../Data/models/orgnizer_model.dart';
+import '../../view Model/add_orgaizer_cubit.dart';
+
 
 
 class ListOrganizerView extends StatelessWidget {

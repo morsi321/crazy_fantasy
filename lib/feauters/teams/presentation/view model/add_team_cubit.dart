@@ -23,10 +23,7 @@ part 'add_team_state.dart';
 
 class AddTeamCubit extends Cubit<AddTeamState> {
   AddTeamCubit() : super(AddTeamInitial());
-  bool isTeams1000 = false;
-  bool isCup = false;
-  bool isClassicLeague = false;
-  bool isVipLeague = false;
+
 
   bool isChangeChampionship = false;
 
@@ -71,73 +68,14 @@ class AddTeamCubit extends Cubit<AddTeamState> {
       scrollController.addListener(() {
         if (scrollController.position.pixels ==
             scrollController.position.maxScrollExtent) {
-          handelGetTeamsByChampionShip();
+          getTeams();
           isDone = false;
         }
       });
     }
   }
 
-  changeIsTeams1000() {
-    isTeams1000 = !isTeams1000;
-    emit(ChangeIsTeams1000State());
-  }
 
-  changeIsCup() {
-    isCup = !isCup;
-
-    emit(ChangeIsCupState());
-  }
-
-  changeIsClassicLeague() {
-    isClassicLeague = !isClassicLeague;
-    emit(ChangeIsClassicLeagueState());
-  }
-
-  changeIsVipLeague() {
-    isVipLeague = !isVipLeague;
-
-    emit(ChangeIsVipLeagueState());
-  }
-
-  clearChamopionships() {
-    isTeams1000 = false;
-    isCup = false;
-    isClassicLeague = false;
-    isVipLeague = false;
-  }
-
-  changeChampionshipSelected(String value) async {
-    championshipSelected = value;
-    isChangeChampionship = true;
-    emit(ChangeChampionshipSelectedState());
-    teams.clear();
-    if (value == 'جميع البطولات') {
-      await getTeams(refrish: true);
-      return;
-    }
-    await handelGetTeamsByChampionShip();
-    isChangeChampionship = false;
-  }
-
-  handelGetTeamsByChampionShip() async {
-    if (championshipSelected == '') {
-      getTeams();
-    } else if (championshipSelected == 'الدوري الكلاسيكي') {
-      await getTeams(
-          refrish: isChangeChampionship,
-          championShipSelected: "isClassicLeague");
-    } else if (championshipSelected == 'الكاس') {
-      await getTeams(
-          refrish: isChangeChampionship, championShipSelected: "isCup");
-    } else if (championshipSelected == 'Vip') {
-      await getTeams(
-          refrish: isChangeChampionship, championShipSelected: 'isVipLeague');
-    } else if (championshipSelected == "بطوله الف تيم") {
-      await getTeams(
-          refrish: isChangeChampionship, championShipSelected: 'isTeams1000');
-    }
-  }
 
   void viewTeam(Team team, context) {
     showBottomSheetCustom(context, const AddTeam());
@@ -161,10 +99,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
           name: nameTeamController.text,
           pathImage: path,
           country: countryController.text,
-          isClassicLeague: isClassicLeague,
-          isCup: isCup,
-          isTeams1000: isTeams1000,
-          isVipLeague: isVipLeague,
+
           captain: int.parse(captain.text),
           fantasyID1: int.parse(fantasyID1.text),
           fantasyID2: int.parse(fantasyID2.text),
@@ -216,10 +151,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     captain.text = team.captain!.toString();
     idTeam = team.id!;
     countryController.text = team.country!;
-    isTeams1000 = team.isTeams1000!;
-    isCup = team.isCup!;
-    isClassicLeague = team.isClassicLeague!;
-    isVipLeague = team.isVipLeague!;
+
   }
 
   addOrUpdateTeam(context) async {
@@ -247,10 +179,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     teamUpdate.fantasyID3 = int.parse(fantasyID3.text);
     teamUpdate.fantasyID4 = int.parse(fantasyID4.text);
     teamUpdate.managerID = mangerId.text;
-    teamUpdate.isTeams1000 = isTeams1000;
-    teamUpdate.isCup = isCup;
-    teamUpdate.isClassicLeague = isClassicLeague;
-    teamUpdate.isVipLeague = isVipLeague;
+
 
     teamUpdate.scoreCaptain =
         await AddTeamRepoImpl().getScorePlayer(int.parse(captain.text));
@@ -290,7 +219,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
   getTeams({bool refrish = false, String? championShipSelected}) async {
     emit(LoadingGetTeamsState());
     var response = await addTeamRepoImpl.getTeams(
-        refrish: refrish, championship: championShipSelected);
+        refrish: refrish);
     response.fold((failure) {
       isLoading = true;
       emit(FailureGetTeamsState(failure));
@@ -328,7 +257,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
 
   clearDataTeam() {
     isUpdate = false;
-    clearChamopionships();
     countryController.clear();
     nameTeamController.clear();
     fantasyID1.clear();
@@ -396,12 +324,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     if (pathImageTeam == null && !isUpdate) {
       errorValidation.add('من فضلك ادخل صورة الفريق');
     }
-    if (isTeams1000 == false &&
-        isCup == false &&
-        isVipLeague == false &&
-        isClassicLeague == false) {
-      errorValidation.add('من فضلك اختر البطولة');
-    }
+  
 
     return errorValidation;
   }

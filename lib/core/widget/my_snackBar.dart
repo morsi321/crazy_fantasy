@@ -1,10 +1,8 @@
-import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:flutter/material.dart';
 
-void mySnackBar(BuildContext context, {required String message, Color? color}) {
+void mySnackBar(BuildContext context, {required String message, Color? color,int? duration}) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      margin: EdgeInsets.only(bottom: context.height * 0.6),
 
       backgroundColor: color,
       content: SizedBox(
@@ -15,7 +13,7 @@ void mySnackBar(BuildContext context, {required String message, Color? color}) {
             style: const TextStyle(fontSize: 20),
             textAlign: TextAlign.center,
           ))),
-      duration: const Duration(seconds: 5),
+      duration:  Duration(seconds:duration?? 5),
       // Width of the SnackBar.
 
       behavior: SnackBarBehavior.floating,

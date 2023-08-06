@@ -1,13 +1,13 @@
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:crazy_fantasy/feauters/teams/presentation/view%20model/add_team_cubit.dart';
-import 'package:crazy_fantasy/feauters/teams/presentation/view/widget/championship_filtter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'Item_team.dart';
 
 class ShowTeams extends StatefulWidget {
-  const ShowTeams({super.key});
+  const ShowTeams({super.key,  this.forOrg = false});
+  final bool forOrg ;
 
   @override
   State<ShowTeams> createState() => _ShowTeamsState();
@@ -22,6 +22,8 @@ class _ShowTeamsState extends State<ShowTeams> {
     super.initState();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -29,7 +31,6 @@ class _ShowTeamsState extends State<ShowTeams> {
         SizedBox(
           height: context.height * 0.01,
         ),
-      const ChampionshipFilter(),
         SizedBox(
           height: context.height * 0.01,
         ),
@@ -45,6 +46,7 @@ class _ShowTeamsState extends State<ShowTeams> {
                 .isNotEmpty) {
               return Expanded(
                 child: ListItemTeamView(
+                  forOrg: widget.forOrg,
                   teams: BlocProvider.of<AddTeamCubit>(context).teams,
                 ),
               );

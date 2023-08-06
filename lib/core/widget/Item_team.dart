@@ -1,15 +1,18 @@
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:crazy_fantasy/core/widget/cash_image_network.dart';
+import 'package:crazy_fantasy/feauters/organizers/presentation/view%20Model/add_orgaizer_cubit.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../core/models/team.dart';
-import '../../view model/add_team_cubit.dart';
+import '../models/team.dart';
+import '../../feauters/teams/presentation/view model/add_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'dailog_delete.dart';
+import '../../feauters/teams/presentation/view/widget/dailog_delete.dart';
 
 class ListItemTeamView extends StatelessWidget {
-  const ListItemTeamView({super.key, required this.teams});
+  const ListItemTeamView({super.key, required this.teams, this.forOrg = false});
+
+  final bool forOrg;
 
   final List<Team> teams;
 
@@ -24,6 +27,7 @@ class ListItemTeamView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           return ItemTeam(
+            forOrg: forOrg,
             team: teams[index],
             index: index + 1,
           );
@@ -32,7 +36,13 @@ class ListItemTeamView extends StatelessWidget {
 }
 
 class ItemTeam extends StatelessWidget {
-  const ItemTeam({super.key, required this.team, required this.index});
+  const ItemTeam(
+      {super.key,
+      required this.team,
+      required this.index,
+      this.forOrg = false});
+
+  final bool forOrg;
 
   final Team team;
   final int index;
@@ -54,23 +64,38 @@ class ItemTeam extends StatelessWidget {
                 team: team,
                 index: index,
               ),
-              IconButton(
-                  onPressed: () {
-                    BlocProvider.of<AddTeamCubit>(context)
-                        .editTeam(team, context);
-                  },
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                  )),
-              IconButton(
-                  onPressed: () {
-                    showDailogDelete(context, team.id!);
-                  },
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  ))
+              forOrg
+                  ? IconButton(
+                      onPressed: () =>
+                        BlocProvider.of<AddOrganizerCubit>(context)
+                            .addTeamInBag(team, context),
+
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ))
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              BlocProvider.of<AddTeamCubit>(context)
+                                  .editTeam(team, context);
+                            },
+                            icon: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                            )),
+                        IconButton(
+                            onPressed: () {
+                              showDailogDelete(context, team.id!);
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ))
+                      ],
+                    )
             ],
           )),
     );

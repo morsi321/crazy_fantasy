@@ -3,7 +3,8 @@ import 'package:crazy_fantasy/feauters/teams/presentation/view/widget/floating_a
 import 'package:crazy_fantasy/feauters/teams/presentation/view/widget/search.dart';
 import 'package:flutter/material.dart';
 
-import 'widget/show_teams.dart';
+import '../../../../core/widget/show_teams.dart';
+
 
 class TeamView extends StatelessWidget {
   const TeamView({super.key});

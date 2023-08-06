@@ -1,7 +1,6 @@
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
-import 'package:crazy_fantasy/feauters/add%20organizer/presentation/view%20Model/add_orgaizer_cubit.dart';
-import 'package:crazy_fantasy/feauters/add%20organizer/presentation/view/widget/list_organizer_view.dart';
-import 'package:crazy_fantasy/feauters/teams/presentation/view%20model/add_team_cubit.dart';
+import 'package:crazy_fantasy/feauters/organizers/presentation/view%20Model/add_orgaizer_cubit.dart';
+import 'package:crazy_fantasy/feauters/organizers/presentation/view/widget/list_organizer_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,10 +28,9 @@ class _ShowOrganizerState extends State<ShowOrganizer> {
           height: context.height * 0.01,
         ),
 
-        BlocConsumer<AddOrganizerCubit, AddOrganizerState>(
-          listener: (context, state) {},
+        BlocBuilder<AddOrganizerCubit, AddOrganizerState>(
           builder: (context, state) {
-            if (state is LoadingCrudChampionState) {
+            if (state is GetOrganizerLoadingState) {
               return const Padding(
                 padding: EdgeInsets.only(bottom: 120),
                 child: Center(

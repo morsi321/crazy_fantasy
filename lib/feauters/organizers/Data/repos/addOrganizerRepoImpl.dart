@@ -1,8 +1,8 @@
-import 'package:crazy_fantasy/feauters/add%20organizer/Data/models/orgnizer_model.dart';
 
 import 'package:dartz/dartz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import '../models/orgnizer_model.dart';
 import 'addOrganizerRepo.dart';
 
 class AddOrganizerRepoImpl implements AddOrganizerRepo {

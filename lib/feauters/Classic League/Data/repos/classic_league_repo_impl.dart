@@ -45,11 +45,11 @@ class OrganizeClassicLeagueRepoImpl implements OrganizeClassicLeagueRepo {
   @override
   Future<Either<String, String>> doRound({required int numRound}) async {
     try {
-      Map groups = await getGroupsLastRound(nameRound: 'الدور ${numRound*2}');
+      Map groups = await getGroupsLastRound(nameRound: 'الدور ${numRound * 2}');
       Map scoreGroups = await getScoresTeam(groups);
 
       await finishLastRound(
-          groups: scoreGroups, nameRound: 'الدور ${numRound*2}');
+          groups: scoreGroups, nameRound: 'الدور ${numRound * 2}');
       List<String> qualifiedTeams = selectQualifiedTeams(scoreGroups);
 
       qualifiedTeams = shuffleTeams(qualifiedTeams);
@@ -173,12 +173,12 @@ class OrganizeClassicLeagueRepoImpl implements OrganizeClassicLeagueRepo {
   getGroupsLastRound({required String nameRound}) async {
     int numberOfTeamsInGroup = 32;
     try {
-      DocumentSnapshot documentSnapshot = await  FirebaseFirestore.instance
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection("Crazy_fantasy")
           .doc("classic_league")
           .collection("classic_league")
-          .doc(nameRound).get();
-
+          .doc(nameRound)
+          .get();
 
       int count = 0;
       int numLoops = 0;

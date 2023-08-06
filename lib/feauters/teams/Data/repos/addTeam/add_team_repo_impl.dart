@@ -43,19 +43,13 @@ class AddTeamRepoImpl implements AddTeamRepo {
 
   @override
   Future<Either<String, List<Team>>> getTeams(
-      {bool refrish = false,
-      DocumentSnapshot? lastDocument,
-      String? championship}) async {
+      {bool refrish = false, DocumentSnapshot? lastDocument}) async {
     if (refrish == true) {
       this.lastDocument = null;
     }
     try {
       List<DocumentSnapshot> documents = [];
-      if (championship == null) {
-        documents = await getDocumentByPagination();
-      } else {
-        documents = await getTeamsByChampionship(championship);
-      }
+      documents = await getDocumentByPagination();
       List<Team> teams = fetchDoc(documents);
       refrish = false;
       return Right(teams);
@@ -103,29 +97,6 @@ class AddTeamRepoImpl implements AddTeamRepo {
           .collection('teams')
           .startAfterDocument(lastDocument!)
           .limit(50)
-          .get();
-
-      lastDocument = querySnapshot.docs.last;
-      return querySnapshot.docs;
-    }
-  }
-
-  getTeamsByChampionship(String championship) async {
-    if (lastDocument == null) {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('teams')
-          .where(championship, isEqualTo: true)
-          .limit(25)
-          .get();
-      lastDocument = querySnapshot.docs.last;
-      // print(querySnapshot.docs.length);
-      return querySnapshot.docs;
-    } else {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('teams')
-          .where(championship, isEqualTo: true)
-          .startAfterDocument(lastDocument!)
-          .limit(100)
           .get();
 
       lastDocument = querySnapshot.docs.last;

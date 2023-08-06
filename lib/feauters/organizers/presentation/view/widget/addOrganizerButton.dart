@@ -1,11 +1,11 @@
+import 'package:crazy_fantasy/core/widget/bootom_sheet_custom.dart';
 
 import 'package:flutter/material.dart';
 
-import '../../../../../core/widget/bootom_sheet_custom.dart';
-import 'add_team.dart';
+import 'add org/add_oragnizer_Widget.dart';
 
-class AddTeamButton extends StatelessWidget {
-  const AddTeamButton({super.key});
+class AddOrganizerButton extends StatelessWidget {
+  const AddOrganizerButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +14,7 @@ class AddTeamButton extends StatelessWidget {
       child: FloatingActionButton(
         backgroundColor: Colors.white,
         onPressed: (){
-          showBottomSheetCustom(context, const AddTeam());
-          // BlocProvider.of<AddTeamCubit>(context).add1000Team();
-          },
+          showBottomSheetCustom(context, const AddOrganizerWidget());},
         child: const Icon(Icons.add),
       ),
     );

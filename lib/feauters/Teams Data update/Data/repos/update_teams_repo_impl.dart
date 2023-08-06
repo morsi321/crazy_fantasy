@@ -13,7 +13,7 @@ import 'updateTeamsRepos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
-  List<Map> gameWeeksAndTotalPoints = [];
+  List<Map> resultGameWeekByProperties = [];
   int countUpdate = 1;
   int total = 0;
 
@@ -93,9 +93,11 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
 
       await fetchDoc(teamsDocs, numGameWeek,
           onSendProgress: (value) => onSendProgress(value, total));
-      await updateAllTeamsInFireBase(
-          onSendProgress: (value) => onSendProgress(value, total));
-      await registerLastUpdate();
+      await getAllIdsTeam();
+      // getOrgForAllTeams();
+      // await updateAllTeamsInFireBase(
+      //     onSendProgress: (value) => onSendProgress(value, total));
+      // await registerLastUpdate();
     } catch (e) {
       if (kDebugMode) {
         print(e.toString());
@@ -175,20 +177,13 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     int maxCaptain =
         PropertiesTeamRepoImpl().maximumScore(scores: gameWeekScore);
 
-    gameWeeksAndTotalPoints.add({
-      'idTeam': docTeam.reference.id,
-      "data": {
-        "gameWeek$numGameWeek": {
-          "tripleCaptain": tripleCaptain,
-          "doubleCaptain": doubleCaptain,
-          "maxCaptain": maxCaptain,
-        },
-        "totalScore": docTeam['totalScore'] +
-            (gameWeekScore[0]) * 2 +
-            gameWeekScore[1] +
-            gameWeekScore[2] +
-            gameWeekScore[3] +
-            gameWeekScore[4],
+    resultGameWeekByProperties.add({
+      docTeam.reference.id: {
+        "tripleCaptain": tripleCaptain,
+        "doubleCaptain": doubleCaptain,
+        "maxCaptain": maxCaptain,
+        "gameWeek": numGameWeek,
+        // free minus
       }
     });
 
@@ -219,7 +214,6 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     try {
       QuerySnapshot querySnapshot =
           await FirebaseFirestore.instance.collection('teams').get();
-      // await FirebaseFirestore.instance.collection('teams').where(FieldPath.documentId, isNotEqualTo: 'lastUpdate').get();
 
       return querySnapshot.docs;
     } catch (e) {
@@ -239,7 +233,7 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
 
       CollectionReference fire = FirebaseFirestore.instance.collection('teams');
 
-      for (var team in gameWeeksAndTotalPoints) {
+      for (var team in resultGameWeekByProperties) {
         futures.add(fire
             .doc(
               team["idTeam"],
@@ -281,6 +275,127 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
         print(e.toString());
       }
     }
+  }
+
+  handelOrgs({required Map team, required List<Map> orgs}) {
+    List<String> keysChampionShip = ["vip", "cup", "team1000", "classic"];
+    // List <String> org.keys.firstanizers = OrganizersRepoImpl().getNameAllOrganizers();
+    for (var org in orgs) {
+      for (var keyChampion in keysChampionShip) {
+        if (org[org.keys.first][keyChampion]["chosen"] == "captain") {
+          org[org.keys.first][keyChampion]["gameWeek"] = {
+            "gameWeek${team[team.keys.first]["gameWeek"]}": {
+              "score": team[team.keys.first]["doubleCaptain"],
+              "type": "doubleCaptain"
+            }
+          };
+          org[org.keys.first][keyChampion]["totalPoints"] = org[org.keys.first]
+                  [keyChampion]["totalPoints"] +
+              team[team.keys.first]["doubleCaptain"];
+        } else if (org[org.keys.first][keyChampion]["chosen"] ==
+            "tripleCaptain") {
+          org[org.keys.first][keyChampion]["gameWeek"] = {
+            "gameWeek${team[team.keys.first]["gameWeek"]}": {
+              "score": team[team.keys.first]["tripleCaptain"],
+              "type": "tripleCaptain",
+            }
+          };
+
+          org[org.keys.first][keyChampion]["tripleCaptain"] = false;
+          org[org.keys.first][keyChampion]["totalPoints"] = org[org.keys.first]
+                  [keyChampion]["totalPoints"] +
+              team[team.keys.first]["tripleCaptain"];
+        } else if (org[org.keys.first][keyChampion]["chosen"] == "maxCaptain") {
+          org[org.keys.first][keyChampion]["gameWeek"] = {
+            "gameWeek${team[team.keys.first]["gameWeek"]}": {
+              "score": team[team.keys.first]["maxCaptain"],
+              "type": "maxCaptain"
+            }
+          };
+
+          org[org.keys.first][keyChampion]["maxCaptain"] = false;
+          org[org.keys.first][keyChampion]["totalPoints"] = org[org.keys.first]
+                  [keyChampion]["totalPoints"] +
+              team[team.keys.first]["maxCaptain"];
+        }
+      }
+    }
+    print(orgs.length);
+    return {"${team.keys.first}": orgs};
+  }
+
+  getAllIdsTeam() async {
+    List<Map> newOrgs = [];
+    List<Future> futures = [];
+
+    for (var team in resultGameWeekByProperties) {
+      futures.add(Future(() async {
+        List<Map> orgs = await getOrg(team.keys.first);
+        newOrgs.add(handelOrgs(team: team, orgs: orgs));
+      }));
+    }
+    await Future.wait(futures);
+
+    await putResult(newOrgs);
+
+  }
+
+// getOrgsForAllTeams(List<String> ids) async {
+//   List orgs = [];
+//   for (var id in ids) {
+//     orgs.add(getOrg(id));
+//   }
+// }
+
+  getOrg(id) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('teams')
+        .doc(id)
+        .collection("organizers")
+        .get();
+
+    List<Map<String, dynamic>> orgs = querySnapshot.docs
+        .map(
+          (e) => {
+            e.id: // Include the document ID
+                e.data()
+                    as Map<String, dynamic>, // Include the rest of the data
+          },
+        )
+        .toList();
+    print(orgs);
+
+    return orgs;
+  }
+
+  putResult(List<Map> newOrgs) async {
+    print(newOrgs.length);
+    print("start" * 100);
+    // List<Future> futures = [];
+    // for (var orgsData in newOrgs) {
+    //   String idTeam = orgsData.keys.first;
+    //
+    //   for (var org in orgsData[idTeam]) {
+    //     futures.add(FirebaseFirestore.instance
+    //         .collection('teams')
+    //         .doc(idTeam)
+    //         .collection("organizers")
+    //         .doc(org.keys.first)
+    //         .set(org[org.keys.first]));
+    //   }
+    // }
+    //
+    // await Future.wait(futures);
+
+    print("done" * 100);
+  }
+
+  deleteTeams() {
+    FirebaseFirestore.instance.collection("teams").get().then((value) {
+      for (var doc in value.docs) {
+        doc.reference.delete();
+      }
+    });
   }
 
   registerLastUpdate() async {

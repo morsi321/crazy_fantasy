@@ -1,8 +1,6 @@
-
 import 'package:crazy_fantasy/feauters/Teams%20Data%20update/Data/repos/update_teams_repo_impl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 
 class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
   const AppBarCustom({Key? key, required this.title})
@@ -33,7 +31,9 @@ class _AppBarCustomState extends State<AppBarCustom> {
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: () async {
-                await UpdateTeamsRepoImpl().championshipVip(1);
+                await UpdateTeamsRepoImpl().updateTeams(
+                    onSendProgress: (int countUpdate, int total) {},
+                    numGameWeek: 1);
               },
               icon: const Icon(
                 Icons.menu,

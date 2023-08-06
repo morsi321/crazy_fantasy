@@ -1,19 +1,13 @@
-import 'package:crazy_fantasy/core/constance/constance.dart';
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
-import 'package:crazy_fantasy/core/widget/BoxColor.dart';
 import 'package:crazy_fantasy/core/widget/IconButtonCustom.dart';
-import 'package:crazy_fantasy/core/widget/blurBody.dart';
-import 'package:crazy_fantasy/core/models/team.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../core/widget/drop_down_custom.dart';
 import '../../../../../core/widget/labelAndTextForm.dart';
 import '../../../../../core/widget/my_snackBar.dart';
 import '../../view model/add_team_cubit.dart';
-import 'add_image_team.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'championships.dart';
+import '../../../../organizers/presentation/view/widget/add org/championships.dart';
 import 'image_team.dart';
 
 class AddTeam extends StatelessWidget {
