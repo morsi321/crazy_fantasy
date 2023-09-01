@@ -26,21 +26,15 @@ class UpdateDataTeamCubit extends Cubit<UpdateDataTeamState> {
   }
 
   updateTeamOrg({required Organizer org}) async {
-    emit(UpdateAllTeamLoading(sent: 0, total: 1));
+    emit(UpdateAllTeamLoading());
     var response = await UpdateTeamsRepoImpl().finishGameWeek(
-      org: org,
-      onSendProgress: (int sent, int total) {
-        emit(UpdateAllTeamLoading(
-          sent: sent,
-          total: total,
-        ));
-      },
-    );
-    response.fold((failure) {
+        org: org,);
+        response.fold((failure)
+    {
       emit(FailureUpdateAllTeam(message: failure));
     }, (s) async {
-      await getAllOrgs();
-      emit(SuccessfulUpdateAllTeam(message: s));
+    await getAllOrgs();
+    emit(SuccessfulUpdateAllTeam(message: s));
     });
   }
 

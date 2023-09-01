@@ -43,6 +43,7 @@ dependencies:
   dio:
   go_router: ^9.0.3
   progress_state_button: ^1.0.4
+  lottie: ^2.6.0
 
 dev_dependencies:
   flutter_test:

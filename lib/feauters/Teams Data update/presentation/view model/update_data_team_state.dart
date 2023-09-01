@@ -25,12 +25,7 @@ class FailureGetLastDateUpdate extends UpdateDataTeamState {
   FailureGetLastDateUpdate({required this.message});
 }
 
-class UpdateAllTeamLoading extends UpdateDataTeamState {
-  final int sent;
-  final int total;
-
-  UpdateAllTeamLoading({required this.sent, required this.total});
-}
+class UpdateAllTeamLoading extends UpdateDataTeamState {}
 
 class SuccessfulUpdateAllTeam extends UpdateDataTeamState {
   final String message;

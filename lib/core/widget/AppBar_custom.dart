@@ -24,6 +24,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
     return PreferredSize(
       preferredSize: const Size.fromHeight(170),
       child: AppBar(
+        centerTitle: true,
         title: Text(widget.title,
             style: const TextStyle(
                 fontSize: 22, fontFamily: 'janna', color: Colors.white)),

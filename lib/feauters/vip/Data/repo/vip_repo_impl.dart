@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import '../../../organizers/Data/models/orgnizer_model.dart';
 import 'vip_repo.dart';
 
@@ -226,7 +225,6 @@ class OrganizeVipChampionshipRepoImpl
 
   @override
   Future createVip({required Organizer org}) async {
-    Stopwatch stopwatch = Stopwatch()..start();
     String numRound1 = '';
     String numRound2 = '';
     int countHead = 0;
@@ -262,10 +260,7 @@ class OrganizeVipChampionshipRepoImpl
 
     await Future.wait(futures);
 
-    stopwatch.stop();
-    if (kDebugMode) {
-      print('time: ${stopwatch.elapsedMilliseconds}');
-    }
+
   }
 
   @override
@@ -298,11 +293,8 @@ class OrganizeVipChampionshipRepoImpl
       });
     }
 
-    // print(teams);
     teams= shuffleTeams(teams);
-    // print(teams);
     Map matchesRandom = await divisionOfMatchesRandom(teams);
-    print(matchesRandom);
     await addGroupsInFireStore(
         org: org,
         key: "matches",
@@ -313,11 +305,9 @@ class OrganizeVipChampionshipRepoImpl
   @override
   Future doRound({required int numRound, required String org}) async {
       Map matches = await getRound(numRound: "${numRound * 2}", org: org);
-      print(matches);
       List<Map> teams = await qualifiedTeams(matches);
       teams = shuffleTeams(teams);
       Map matchesRandom = await divisionOfMatchesRandom(teams);
-      print(matchesRandom);
       await addGroupsInFireStore(
           key: "matches",
           org: org,
@@ -436,7 +426,6 @@ class OrganizeVipChampionshipRepoImpl
   qualifiedTeams(
     Map matches,
   ) async {
-    Stopwatch stopwatch = Stopwatch()..start();
     List<Future> futures = [];
 
     List<Map> qualifiedTeams = [];
@@ -466,10 +455,7 @@ class OrganizeVipChampionshipRepoImpl
 
     await Future.wait(futures);
 
-    stopwatch.stop();
-    if (kDebugMode) {
-      print('doRound2 executed in ${stopwatch.elapsedMilliseconds} ms');
-    }
+
     return qualifiedTeams;
   }
 
@@ -499,7 +485,6 @@ class OrganizeVipChampionshipRepoImpl
       {required Map matches,
       required String nameOrg,
       required numGameWeek}) async {
-    Stopwatch stopwatch = Stopwatch()..start();
     List<Future> futures = [];
 
     matches['matches'].forEach((match) {
@@ -531,10 +516,6 @@ class OrganizeVipChampionshipRepoImpl
     });
     await Future.wait(futures);
 
-    stopwatch.stop();
-    if (kDebugMode) {
-      print('doRound2 executed in ${stopwatch.elapsedMilliseconds} ms');
-    }
     return matches;
   }
 
@@ -709,7 +690,6 @@ class OrganizeVipChampionshipRepoImpl
   }
 
   matchesDivision(Map teams) {
-    Stopwatch stopwatch = Stopwatch()..start();
     List<Map> matches = [];
 
     for (int i = 0; i < teams.length; i++) {
@@ -733,8 +713,6 @@ class OrganizeVipChampionshipRepoImpl
       }
     }
 
-    stopwatch.stop();
-    print('matchesDivision executed in ${stopwatch.elapsedMilliseconds}');
 
     return teams;
   }
@@ -962,7 +940,6 @@ class OrganizeVipChampionshipRepoImpl
       teams[i] = teams[j];
       teams[j] = temp;
     }
-    // print(teams);
 
     return teams;
   }

@@ -6,7 +6,7 @@ abstract class UpdateTeamsRepo {
 
   Future<Either<String, String>> finishGameWeek(
       {required Organizer org,
-      required void Function(int countUpdate, int total) onSendProgress,
+
       });
 
 

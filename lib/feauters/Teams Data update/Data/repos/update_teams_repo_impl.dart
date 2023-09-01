@@ -13,15 +13,11 @@ import 'updateTeamsRepos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
-  int countUpdate = 1;
-  int total = 0;
-
   @override
   Future<Either<String, String>> startSeason({required Organizer org}) async {
     try {
-        await OrganizeVipChampionshipRepoImpl().createVip(org: org);
-        await updateNumGameWeek(idOrg: org.id!);
-
+      await OrganizeVipChampionshipRepoImpl().createVip(org: org);
+      await updateNumGameWeek(idOrg: org.id!);
 
       return const Right('تم بداء الموسم بنجاح');
     } catch (e) {
@@ -35,19 +31,18 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
   @override
   Future<Either<String, String>> finishGameWeek({
     required Organizer org,
-    required void Function(int countUpdate, int total) onSendProgress,
   }) async {
     try {
-      int numGameWeek = await getGameWeek(idOrg: org.id!);
-      await updateTeams(
-          idOrg: org.id!,
-          onSendProgress: onSendProgress,
-          numGameWeek: numGameWeek,
-          idTeams: mergeTwoListWithOutDuplicate(
-              org.otherChampionshipsTeams!
-                  .map((e) => e["id"] as String)
-                  .toList(),
-              org.teams1000Id!));
+      // int numGameWeek = await getGameWeek(idOrg: org.id!);
+      // await updateTeams(
+      //     idOrg: org.id!,
+      //     onSendProgress: onSendProgress,
+      //     numGameWeek: numGameWeek,
+      //     idTeams: mergeTwoListWithOutDuplicate(
+      //         org.otherChampionshipsTeams!
+      //             .map((e) => e["id"] as String)
+      //             .toList(),
+      //         org.teams1000Id!));
       await handelChampionship(org: org);
       await updateNumGameWeek(idOrg: org.id!);
 
@@ -65,7 +60,7 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
       await OrganizeVipChampionshipRepoImpl().handeVip512(org: org);
     } else if (org.countTeams == "256") {
       await OrganizeVipChampionshipRepoImpl().handeVip256(org: org);
-    }else if (org.countTeams == "128") {
+    } else if (org.countTeams == "128") {
       await OrganizeVipChampionshipRepoImpl().handeVip128(org: org);
     }
   }
@@ -80,10 +75,11 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
       required List<String> idTeams}) async {
     List<DocumentSnapshot> teamsDocs = await getALLTeams(idTeams: idTeams);
 
-    total = teamsDocs.length * 2;
     List<Map> teamScores = await getGameWeekTeamScores(
-        teamsDocs, numGameWeek, idOrg,
-        onSendProgress: (value) => onSendProgress(value, total));
+      teamsDocs,
+      numGameWeek,
+      idOrg,
+    );
     List<Map> championsTeamOrg =
         await getChampionsTeamOrg(idOrg: idOrg, detailsTeams: teamScores);
     List<Map> newScoresOrgTeam =
@@ -111,7 +107,7 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
 
   getGameWeekTeamScores(
       List<DocumentSnapshot<Object?>> documents, int numGameWeek, String idOrg,
-      {required void Function(int countUpdate) onSendProgress}) async {
+      ) async {
     List<Future> futures = [];
     List<Map> teamsScores = [];
     Stopwatch stopwatch = Stopwatch()..start();
@@ -137,9 +133,7 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
       print("time${stopwatch.elapsedMilliseconds}");
     }
 
-    onSendProgress(
-      countUpdate++,
-    );
+
     return teamsScores;
   }
 
