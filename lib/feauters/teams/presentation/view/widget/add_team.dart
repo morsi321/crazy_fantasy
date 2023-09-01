@@ -7,7 +7,6 @@ import '../../../../../core/widget/my_snackBar.dart';
 import '../../view model/add_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../organizers/presentation/view/widget/add org/championships.dart';
 import 'image_team.dart';
 
 class AddTeam extends StatelessWidget {
@@ -117,7 +116,6 @@ class AddTeam extends StatelessWidget {
                 controller: BlocProvider.of<AddTeamCubit>(context).captain,
               ),
               const SizedBox(height: 20),
-              const Championships(),
               BlocProvider.of<AddTeamCubit>(context).isView
                   ? const SizedBox()
                   : const AddTeamButton(),

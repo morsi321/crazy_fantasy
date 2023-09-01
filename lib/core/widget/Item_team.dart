@@ -7,7 +7,6 @@ import '../models/team.dart';
 import '../../feauters/teams/presentation/view model/add_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../feauters/teams/presentation/view/widget/dailog_delete.dart';
 
 class ListItemTeamView extends StatelessWidget {
   const ListItemTeamView({super.key, required this.teams, this.forOrg = false});
@@ -49,6 +48,7 @@ class ItemTeam extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final addOrgCubit = BlocProvider.of<AddOrganizerCubit>(context);
     return Padding(
       padding: const EdgeInsets.only(
         bottom: 5.0,
@@ -66,9 +66,21 @@ class ItemTeam extends StatelessWidget {
               ),
               forOrg
                   ? IconButton(
-                      onPressed: () =>
-                        BlocProvider.of<AddOrganizerCubit>(context)
-                            .addTeamInBag(team, context),
+                      onPressed: () => addOrgCubit.isTeams1000 &&
+                          !(addOrgCubit.isVipLeague ||
+                              addOrgCubit.isClassicLeague ||
+                              addOrgCubit.isCup)
+                          ? addOrgCubit.addFor1000Team(team, context)
+                          : addOrgCubit.indexPageOrganizer == 2 &&
+                          (addOrgCubit.isCup ||
+                              addOrgCubit.isVipLeague ||
+                              addOrgCubit.isClassicLeague)
+                          ? addOrgCubit.addTeamInBag(team, context)
+                          : addOrgCubit.indexPageOrganizer == 3 &&
+                          addOrgCubit.isTeams1000
+                          ? addOrgCubit.addFor1000Team(team, context)
+                          : (){},
+
 
                       icon: const Icon(
                         Icons.add,
@@ -88,7 +100,7 @@ class ItemTeam extends StatelessWidget {
                             )),
                         IconButton(
                             onPressed: () {
-                              showDailogDelete(context, team.id!);
+                              // showDailogDelete(context, team.id!);
                             },
                             icon: const Icon(
                               Icons.delete,

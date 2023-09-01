@@ -8,8 +8,6 @@ import '../../../../teams/presentation/view/widget/dailog_delete.dart';
 import '../../../Data/models/orgnizer_model.dart';
 import '../../view Model/add_orgaizer_cubit.dart';
 
-
-
 class ListOrganizerView extends StatelessWidget {
   const ListOrganizerView({super.key, required this.organizers});
 
@@ -18,19 +16,19 @@ class ListOrganizerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: organizers.length ,
-
+        itemCount: organizers.length,
         itemBuilder: (context, index) {
           return OrganizerItem(
             organizer: organizers[index],
-            index: index+1,
+            index: index + 1,
           );
         });
   }
 }
 
 class OrganizerItem extends StatelessWidget {
-  const OrganizerItem({super.key, required this.organizer, required this.index});
+  const OrganizerItem(
+      {super.key, required this.organizer, required this.index});
 
   final Organizer organizer;
   final int index;
@@ -49,7 +47,7 @@ class OrganizerItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               InfoDataOrganizer(
-               organizer : organizer,
+                organizer: organizer,
                 index: index,
               ),
               IconButton(
@@ -63,7 +61,13 @@ class OrganizerItem extends StatelessWidget {
                   )),
               IconButton(
                   onPressed: () {
-                    showDailogDelete(context, organizer.id!);
+                    showDailogDeleteOrg(
+                        context,
+                        organizer.name!,
+                        organizer.otherChampionshipsTeams!
+                            .map((e) => e["id"] as String)
+                            .toList(),
+                        organizer.teams1000Id!);
                   },
                   icon: const Icon(
                     Icons.delete,
@@ -76,7 +80,8 @@ class OrganizerItem extends StatelessWidget {
 }
 
 class InfoDataOrganizer extends StatelessWidget {
-  const InfoDataOrganizer({super.key, required this.organizer, required this.index});
+  const InfoDataOrganizer(
+      {super.key, required this.organizer, required this.index});
 
   final Organizer organizer;
   final int index;
@@ -100,7 +105,8 @@ class InfoDataOrganizer extends StatelessWidget {
               width: context.width * .52,
               child: Row(
                 children: [
-                  CashImageNetwork(url: organizer.image!, width: 50, height: 50),
+                  CashImageNetwork(
+                      url: organizer.image!, width: 50, height: 50),
                   const SizedBox(
                     width: 15,
                   ),

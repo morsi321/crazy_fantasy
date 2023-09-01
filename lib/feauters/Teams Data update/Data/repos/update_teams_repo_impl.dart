@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:crazy_fantasy/feauters/Teams%20Data%20update/Data/repos/Properties%20Team/properties%20_team_repo_impl.dart';
+import 'package:crazy_fantasy/feauters/organizers/Data/models/orgnizer_model.dart';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
@@ -8,29 +9,19 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/constance/url.dart';
 import '../../../../core/servies/api_services.dart';
 import '../../../vip/Data/repo/vip_repo_impl.dart';
-import 'organizers/OrganizersRepoImpl.dart';
 import 'updateTeamsRepos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
-  List<Map> resultGameWeekByProperties = [];
   int countUpdate = 1;
   int total = 0;
 
   @override
-  Future<Either<String, String>> startSeason() async {
+  Future<Either<String, String>> startSeason({required Organizer org}) async {
     try {
-      List<String> organizers =
-          await OrganizersRepoImpl().getNameAllOrganizers();
-      List<Future> futures = [
-        OrganizersRepoImpl().addOrganizersInTeams(),
-      ];
-      for (var org in organizers) {
-        futures.add(OrganizeVipChampionshipRepoImpl().createVip(org: org));
-      }
+        await OrganizeVipChampionshipRepoImpl().createVip(org: org);
+        await updateNumGameWeek(idOrg: org.id!);
 
-      await Future.wait(futures);
-      await updateNumGameWeek(isFirst: true);
 
       return const Right('تم بداء الموسم بنجاح');
     } catch (e) {
@@ -42,16 +33,23 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
   }
 
   @override
-  Future<Either<String, String>> finishGameWeek(
-      {required void Function(int countUpdate, int total)
-          onSendProgress}) async {
+  Future<Either<String, String>> finishGameWeek({
+    required Organizer org,
+    required void Function(int countUpdate, int total) onSendProgress,
+  }) async {
     try {
-      await updateNumGameWeek();
-
-      int numGameWeek = await getGameWeek();
+      int numGameWeek = await getGameWeek(idOrg: org.id!);
       await updateTeams(
-          onSendProgress: onSendProgress, numGameWeek: numGameWeek);
-      await championshipVip(numGameWeek);
+          idOrg: org.id!,
+          onSendProgress: onSendProgress,
+          numGameWeek: numGameWeek,
+          idTeams: mergeTwoListWithOutDuplicate(
+              org.otherChampionshipsTeams!
+                  .map((e) => e["id"] as String)
+                  .toList(),
+              org.teams1000Id!));
+      await handelChampionship(org: org);
+      await updateNumGameWeek(idOrg: org.id!);
 
       return const Right('finishGameWeek');
     } catch (e) {
@@ -62,95 +60,48 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     }
   }
 
-  championshipVip(int numGameWeek) async {
-    try {
-      List<String> organizers =
-          await OrganizersRepoImpl().getNameAllOrganizers();
-      List<Future> futures = [];
-      for (var org in organizers) {
-        futures.add(OrganizeVipChampionshipRepoImpl()
-            .handeVip(gameWeek: numGameWeek, org: org));
-      }
-      await Future.wait(futures);
-      if (kDebugMode) {
-        print("done");
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
+  handelChampionship({required Organizer org}) async {
+    if (org.countTeams == "512") {
+      await OrganizeVipChampionshipRepoImpl().handeVip512(org: org);
+    } else if (org.countTeams == "256") {
+      await OrganizeVipChampionshipRepoImpl().handeVip256(org: org);
+    }else if (org.countTeams == "128") {
+      await OrganizeVipChampionshipRepoImpl().handeVip128(org: org);
     }
   }
 
-  updateTeams({
-    required void Function(int countUpdate, int total) onSendProgress,
-    required int numGameWeek,
-  }) async {
-    try {
-      List<DocumentSnapshot> teamsDocs = await getALLTeams();
+  updateTeams(
+      {required String idOrg,
+      required void Function(
+        int countUpdate,
+        int total,
+      ) onSendProgress,
+      required int numGameWeek,
+      required List<String> idTeams}) async {
+    List<DocumentSnapshot> teamsDocs = await getALLTeams(idTeams: idTeams);
 
-      total = teamsDocs.length * 2;
+    total = teamsDocs.length * 2;
+    List<Map> teamScores = await getGameWeekTeamScores(
+        teamsDocs, numGameWeek, idOrg,
+        onSendProgress: (value) => onSendProgress(value, total));
+    List<Map> championsTeamOrg =
+        await getChampionsTeamOrg(idOrg: idOrg, detailsTeams: teamScores);
+    List<Map> newScoresOrgTeam =
+        handelOrg(orgTeamsDetails: championsTeamOrg, numGameWeek: numGameWeek);
+    await putResult(newScoresOrgTeam, idOrg);
 
-      await fetchDoc(teamsDocs, numGameWeek,
-          onSendProgress: (value) => onSendProgress(value, total));
-      await getAllIdsTeam();
-      // getOrgForAllTeams();
-      // await updateAllTeamsInFireBase(
-      //     onSendProgress: (value) => onSendProgress(value, total));
-      // await registerLastUpdate();
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
+    // getOrgForAllTeams();
+    // await updateAllTeamsInFireBase(
+    //     onSendProgress: (value) => onSendProgress(value, total));
+    // await registerLastUpdate();
   }
 
-  fetchDoc(List<DocumentSnapshot<Object?>> documents, int numGameWeek,
-      {required void Function(int countUpdate) onSendProgress}) async {
-    try {
-      List<Future> futures = [];
-      Stopwatch stopwatch = Stopwatch()..start();
-      for (var doc in documents) {
-        futures.add(
-            getGameWeekTeam(doc, numGameWeek, onSendProgress: onSendProgress));
-      }
-      if (kDebugMode) {
-        print(futures.length);
-      }
-      await Future.wait(futures);
-      stopwatch.stop();
-      if (kDebugMode) {
-        print('threads time: ${stopwatch.elapsedMilliseconds} ms');
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  getGameWeek() async {
+  getGameWeek({required String idOrg}) async {
     DocumentSnapshot data = await FirebaseFirestore.instance
-        .collection('infoApp')
-        .doc('gameWeek')
+        .collection('organizers')
+        .doc(idOrg)
         .get();
-    int gameWeek;
-    if (data.exists) {
-      gameWeek = data['gameWeek'];
-      return gameWeek;
-    } else {
-      gameWeek = 909;
-      return gameWeek;
-    }
-  }
-
-  @override
-  Future<Either<String, int>> getCurrentGameWeek() async {
-    try {
-      int gameWeek = await getGameWeek();
-      print(gameWeek);
-      return Right(gameWeek);
-    } catch (e) {
-      return Left(e.toString());
-    }
+    return data['numGameWeek'];
   }
 
   Future<int> getPointsGameWeek(int id, int numGameWeek) async {
@@ -158,38 +109,38 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     return 20 + random.nextInt(90 - 20);
   }
 
-  getGameWeekTeam(DocumentSnapshot docTeam, int numGameWeek,
-      {required void Function(
-        int countUpdate,
-      ) onSendProgress}) async {
-    List<int> gameWeekScore = await Future.wait([
-      getPointsGameWeek(docTeam['captain'], numGameWeek),
-      getPointsGameWeek(docTeam['fantasyID1'], numGameWeek),
-      getPointsGameWeek(docTeam['fantasyID2'], numGameWeek),
-      getPointsGameWeek(docTeam['fantasyID3'], numGameWeek),
-      getPointsGameWeek(docTeam['fantasyID4'], numGameWeek),
-    ]);
-
-    int tripleCaptain =
-        PropertiesTeamRepoImpl().tripleScore(scores: gameWeekScore);
-    int doubleCaptain =
-        PropertiesTeamRepoImpl().doubleScore(scores: gameWeekScore);
-    int maxCaptain =
-        PropertiesTeamRepoImpl().maximumScore(scores: gameWeekScore);
-
-    resultGameWeekByProperties.add({
-      docTeam.reference.id: {
-        "tripleCaptain": tripleCaptain,
-        "doubleCaptain": doubleCaptain,
-        "maxCaptain": maxCaptain,
-        "gameWeek": numGameWeek,
-        // free minus
-      }
-    });
+  getGameWeekTeamScores(
+      List<DocumentSnapshot<Object?>> documents, int numGameWeek, String idOrg,
+      {required void Function(int countUpdate) onSendProgress}) async {
+    List<Future> futures = [];
+    List<Map> teamsScores = [];
+    Stopwatch stopwatch = Stopwatch()..start();
+    for (var docTeam in documents) {
+      futures.add(Future(() async {
+        List<int> gameWeekScore = await Future.wait([
+          getPointsGameWeek(docTeam['captain'], numGameWeek),
+          getPointsGameWeek(docTeam['fantasyID1'], numGameWeek),
+          getPointsGameWeek(docTeam['fantasyID2'], numGameWeek),
+          getPointsGameWeek(docTeam['fantasyID3'], numGameWeek),
+          getPointsGameWeek(docTeam['fantasyID4'], numGameWeek),
+        ]);
+        teamsScores.add({
+          docTeam.reference.id: {
+            "gameWeekScoresTeam": gameWeekScore,
+          }
+        });
+      }));
+    }
+    await Future.wait(futures);
+    stopwatch.stop();
+    if (kDebugMode) {
+      print("time${stopwatch.elapsedMilliseconds}");
+    }
 
     onSendProgress(
       countUpdate++,
     );
+    return teamsScores;
   }
 
   Future<int> getScorePlayer(int id) async {
@@ -210,12 +161,26 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     }
   }
 
-  Future getALLTeams() async {
-    try {
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('teams').get();
+  Future getALLTeams({required List<String> idTeams}) async {
+    List<Future> futures = [];
+    List<DocumentSnapshot> teamsDocs = [];
+    for (var id in idTeams) {
+      futures.add(FirebaseFirestore.instance
+          .collection('teams')
+          .doc(id)
+          .get()
+          .then((value) {
+        teamsDocs.add(value);
+      }));
+    }
+    await Future.wait(futures);
+    return teamsDocs;
+  }
 
-      return querySnapshot.docs;
+  updateNumGameWeek({required String idOrg}) async {
+    try {
+      return FirebaseFirestore.instance.collection("organizers").doc(idOrg).set(
+          {"numGameWeek": FieldValue.increment(1)}, SetOptions(merge: true));
     } catch (e) {
       if (kDebugMode) {
         print(e.toString());
@@ -223,121 +188,85 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     }
   }
 
-  updateAllTeamsInFireBase(
-      {required void Function(
-        int countUpdate,
-      ) onSendProgress}) async {
-    try {
-      Stopwatch stopwatch = Stopwatch()..start();
-      List<Future> futures = [];
+  handelOrg({required List<Map> orgTeamsDetails, required int numGameWeek}) {
+    List<Map> newScoresOrgTeams = [];
+    for (Map team in orgTeamsDetails) {
+      List<String> nameChampionShips =
+          team[team.keys.first]["champions"].keys.toList();
 
-      CollectionReference fire = FirebaseFirestore.instance.collection('teams');
+      for (var champion in nameChampionShips) {
+        if (team[team.keys.first]["champions"][champion]["chosen"] ==
+            "captain") {
+          int doubleCaptain = PropertiesTeamRepoImpl()
+              .doubleScore(scores: team[team.keys.first]["gameWeekScoresTeam"]);
 
-      for (var team in resultGameWeekByProperties) {
-        futures.add(fire
-            .doc(
-              team["idTeam"],
-            )
-            .update(team['data']));
-        onSendProgress(
-          countUpdate++,
-        );
-      }
-
-      // await Future.wait(futures);
-      if (kDebugMode) {
-        print("updated");
-      }
-      stopwatch.stop();
-      if (kDebugMode) {
-        print('bitch time: ${stopwatch.elapsedMilliseconds} ms');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-    }
-  }
-
-  updateNumGameWeek({bool isFirst = false}) async {
-    try {
-      DocumentReference fire =
-          FirebaseFirestore.instance.collection("infoApp").doc("gameWeek");
-      if (isFirst) {
-        fire.set({"gameWeek": 0});
-      } else {
-        fire.update({
-          "gameWeek": FieldValue.increment(1),
-        });
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
-  }
-
-  handelOrgs({required Map team, required List<Map> orgs}) {
-    List<String> keysChampionShip = ["vip", "cup", "team1000", "classic"];
-    // List <String> org.keys.firstanizers = OrganizersRepoImpl().getNameAllOrganizers();
-    for (var org in orgs) {
-      for (var keyChampion in keysChampionShip) {
-        if (org[org.keys.first][keyChampion]["chosen"] == "captain") {
-          org[org.keys.first][keyChampion]["gameWeek"] = {
-            "gameWeek${team[team.keys.first]["gameWeek"]}": {
-              "score": team[team.keys.first]["doubleCaptain"],
+          team[team.keys.first]["champions"][champion]["gameWeek"] = {
+            "gameWeek$numGameWeek": {
+              "score": doubleCaptain,
               "type": "doubleCaptain"
             }
           };
-          org[org.keys.first][keyChampion]["totalPoints"] = org[org.keys.first]
-                  [keyChampion]["totalPoints"] +
-              team[team.keys.first]["doubleCaptain"];
-        } else if (org[org.keys.first][keyChampion]["chosen"] ==
+          team[team.keys.first]["champions"][champion]["totalPoints"] =
+              team[team.keys.first]["champions"][champion]["totalPoints"] +
+                  doubleCaptain;
+        } else if (team[team.keys.first]["champions"][champion]["chosen"] ==
             "tripleCaptain") {
-          org[org.keys.first][keyChampion]["gameWeek"] = {
-            "gameWeek${team[team.keys.first]["gameWeek"]}": {
-              "score": team[team.keys.first]["tripleCaptain"],
+          int tripleCaptain = PropertiesTeamRepoImpl()
+              .tripleScore(scores: team[team.keys.first]["gameWeekScoresTeam"]);
+          team[team.keys.first]["champions"][champion]["gameWeek"] = {
+            "gameWeek$numGameWeek": {
+              "score": tripleCaptain,
               "type": "tripleCaptain",
             }
           };
+          team[team.keys.first]["champions"][champion]["chosen"] = "captain";
 
-          org[org.keys.first][keyChampion]["tripleCaptain"] = false;
-          org[org.keys.first][keyChampion]["totalPoints"] = org[org.keys.first]
-                  [keyChampion]["totalPoints"] +
-              team[team.keys.first]["tripleCaptain"];
-        } else if (org[org.keys.first][keyChampion]["chosen"] == "maxCaptain") {
-          org[org.keys.first][keyChampion]["gameWeek"] = {
-            "gameWeek${team[team.keys.first]["gameWeek"]}": {
-              "score": team[team.keys.first]["maxCaptain"],
-              "type": "maxCaptain"
-            }
+          team[team.keys.first]["champions"][champion]["tripleCaptain"] = false;
+
+          team[team.keys.first]["champions"][champion]["totalPoints"] =
+              team[team.keys.first]["champions"][champion]["totalPoints"] +
+                  tripleCaptain;
+        } else if (team[team.keys.first]["champions"][champion]["chosen"] ==
+            "maxCaptain") {
+          team[team.keys.first]["champions"][champion]["chosen"] = "captain";
+
+          int maxCaptain = PropertiesTeamRepoImpl().maximumScore(
+              scores: team[team.keys.first]["gameWeekScoresTeam"]);
+          team[team.keys.first]["champions"][champion]["gameWeek"] = {
+            "gameWeek$numGameWeek": {"score": maxCaptain, "type": "maxCaptain"}
           };
 
-          org[org.keys.first][keyChampion]["maxCaptain"] = false;
-          org[org.keys.first][keyChampion]["totalPoints"] = org[org.keys.first]
-                  [keyChampion]["totalPoints"] +
-              team[team.keys.first]["maxCaptain"];
+          team[team.keys.first]["champions"][champion]["maxCaptain"] = false;
+          team[team.keys.first]["champions"][champion]["totalPoints"] =
+              team[team.keys.first]["champions"][champion]["totalPoints"] +
+                  maxCaptain;
         }
       }
+      newScoresOrgTeams.add(team);
     }
-    print(orgs.length);
-    return {"${team.keys.first}": orgs};
+    return newScoresOrgTeams;
   }
 
-  getAllIdsTeam() async {
-    List<Map> newOrgs = [];
+  getChampionsTeamOrg(
+      {required String idOrg, required List<Map> detailsTeams}) async {
+    List<Map> orgDetailsTeam = [];
     List<Future> futures = [];
 
-    for (var team in resultGameWeekByProperties) {
+    for (var team in detailsTeams) {
       futures.add(Future(() async {
-        List<Map> orgs = await getOrg(team.keys.first);
-        newOrgs.add(handelOrgs(team: team, orgs: orgs));
+        Map<String, dynamic> org =
+            await getOrg(idTeam: team.keys.first, idOrg: idOrg);
+        orgDetailsTeam.add({
+          team.keys.first: {
+            "gameWeekScoresTeam": team[team.keys.first]["gameWeekScoresTeam"],
+            "champions": org,
+          }
+        });
       }));
     }
     await Future.wait(futures);
 
-    await putResult(newOrgs);
-
+    return orgDetailsTeam;
   }
 
 // getOrgsForAllTeams(List<String> ids) async {
@@ -347,47 +276,30 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
 //   }
 // }
 
-  getOrg(id) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+  getOrg({required String idTeam, required String idOrg}) async {
+    DocumentSnapshot org = await FirebaseFirestore.instance
         .collection('teams')
-        .doc(id)
-        .collection("organizers")
+        .doc(idTeam)
+        .collection('organizers')
+        .doc(idOrg)
         .get();
-
-    List<Map<String, dynamic>> orgs = querySnapshot.docs
-        .map(
-          (e) => {
-            e.id: // Include the document ID
-                e.data()
-                    as Map<String, dynamic>, // Include the rest of the data
-          },
-        )
-        .toList();
-    print(orgs);
-
-    return orgs;
+    return org.data();
   }
 
-  putResult(List<Map> newOrgs) async {
-    print(newOrgs.length);
-    print("start" * 100);
-    // List<Future> futures = [];
-    // for (var orgsData in newOrgs) {
-    //   String idTeam = orgsData.keys.first;
-    //
-    //   for (var org in orgsData[idTeam]) {
-    //     futures.add(FirebaseFirestore.instance
-    //         .collection('teams')
-    //         .doc(idTeam)
-    //         .collection("organizers")
-    //         .doc(org.keys.first)
-    //         .set(org[org.keys.first]));
-    //   }
-    // }
-    //
-    // await Future.wait(futures);
+  putResult(List<Map> newScoreOrgTeams, String nameOrg) async {
+    List<Future> futures = [];
+    for (var team in newScoreOrgTeams) {
+      String idTeam = team.keys.first;
 
-    print("done" * 100);
+      futures.add(FirebaseFirestore.instance
+          .collection('teams')
+          .doc(idTeam)
+          .collection("organizers")
+          .doc(nameOrg)
+          .set(team[team.keys.first]["champions"], SetOptions(merge: true)));
+    }
+
+    await Future.wait(futures);
   }
 
   deleteTeams() {
@@ -398,38 +310,11 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     });
   }
 
-  registerLastUpdate() async {
-    DateTime now = DateTime.now();
-    String formattedDate =
-        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    String formattedTime =
-        '${(now.hour % 12).toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}';
-
-    String lastUpdate = "$formattedDate   $formattedTime";
-    if (kDebugMode) {
-      print(lastUpdate);
-    }
-
-    await FirebaseFirestore.instance
-        .collection('infoApp')
-        .doc('lastUpdate')
-        .update({"lastUpdate": lastUpdate});
-  }
-
-  @override
-  Future<Either<String, String>> getLastUpdate() async {
-    try {
-      DocumentSnapshot docLastUpdate = await FirebaseFirestore.instance
-          .collection('infoApp')
-          .doc('lastUpdate')
-          .get();
-      if (docLastUpdate.exists) {
-        return right(docLastUpdate['lastUpdate']);
-      } else {
-        return right(" لم يتم تحديث البيانات من قبل");
-      }
-    } catch (e) {
-      return left("حدث خطأ ما يرجى المحاولة مرة أخرى");
-    }
+  mergeTwoListWithOutDuplicate(List<String> list1, List<String> list2) {
+    List<String> list3 = [];
+    list3.addAll(list1);
+    list3.addAll(list2);
+    list3 = list3.toSet().toList();
+    return list3;
   }
 }

@@ -1,11 +1,7 @@
-import 'package:crazy_fantasy/core/utils/app_router.dart';
 import 'package:crazy_fantasy/core/widget/text_field_custom.dart';
-import 'package:crazy_fantasy/feauters/teams/Data/repos/addTeam/add_team_repo_impl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../Teams Data update/Data/repos/update_teams_repo_impl.dart';
 import '../../view model/add_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,9 +26,17 @@ class _SearchState extends State<Search> {
         title: ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: TextFromCustom(
-            onChanged: (value) {
+            onFieldSubmitted: (value) {
               BlocProvider.of<AddTeamCubit>(context).search(value);
             },
+            onChanged: (value) {
+              if(value.isEmpty){
+                BlocProvider.of<AddTeamCubit>(context).getTeams();
+              }
+
+            },
+
+
             width: double.infinity,
             height: 55,
             hintText: "Search",

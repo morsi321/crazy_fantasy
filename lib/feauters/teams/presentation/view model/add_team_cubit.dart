@@ -24,12 +24,11 @@ part 'add_team_state.dart';
 class AddTeamCubit extends Cubit<AddTeamState> {
   AddTeamCubit() : super(AddTeamInitial());
 
-
   bool isChangeChampionship = false;
 
   TextEditingController nameTeamController = TextEditingController();
   TextEditingController countryController =
-      TextEditingController(text: "Egypt");
+      TextEditingController(text: "مصر");
   TextEditingController fantasyID1 = TextEditingController();
   TextEditingController fantasyID2 = TextEditingController();
   TextEditingController fantasyID3 = TextEditingController();
@@ -75,8 +74,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     }
   }
 
-
-
   void viewTeam(Team team, context) {
     showBottomSheetCustom(context, const AddTeam());
     isView = true;
@@ -99,23 +96,13 @@ class AddTeamCubit extends Cubit<AddTeamState> {
           name: nameTeamController.text,
           pathImage: path,
           country: countryController.text,
-
           captain: int.parse(captain.text),
           fantasyID1: int.parse(fantasyID1.text),
           fantasyID2: int.parse(fantasyID2.text),
           fantasyID3: int.parse(fantasyID3.text),
           fantasyID4: int.parse(fantasyID4.text),
           managerID: mangerId.text,
-          scoreCaptain:
-              await AddTeamRepoImpl().getScorePlayer(int.parse(captain.text)),
-          scoreFantasyID1: await AddTeamRepoImpl()
-              .getScorePlayer(int.parse(fantasyID1.text)),
-          scoreFantasyID2: await AddTeamRepoImpl()
-              .getScorePlayer(int.parse(fantasyID2.text)),
-          scoreFantasyID3: await AddTeamRepoImpl()
-              .getScorePlayer(int.parse(fantasyID3.text)),
-          scoreFantasyID4: await AddTeamRepoImpl()
-              .getScorePlayer(int.parse(fantasyID4.text)),
+
         ));
 
     response.fold((failure) {
@@ -151,7 +138,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     captain.text = team.captain!.toString();
     idTeam = team.id!;
     countryController.text = team.country!;
-
   }
 
   addOrUpdateTeam(context) async {
@@ -181,17 +167,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     teamUpdate.managerID = mangerId.text;
 
 
-    teamUpdate.scoreCaptain =
-        await AddTeamRepoImpl().getScorePlayer(int.parse(captain.text));
-    teamUpdate.scoreFantasyID1 =
-        await AddTeamRepoImpl().getScorePlayer(int.parse(fantasyID1.text));
-    teamUpdate.scoreFantasyID2 =
-        await AddTeamRepoImpl().getScorePlayer(int.parse(fantasyID2.text));
-    teamUpdate.scoreFantasyID3 =
-        await AddTeamRepoImpl().getScorePlayer(int.parse(fantasyID3.text));
-    teamUpdate.scoreFantasyID4 =
-        await AddTeamRepoImpl().getScorePlayer(int.parse(fantasyID4.text));
-
     var response = await addTeamRepoImpl.updateTeam(
       id: idTeam,
       teamModel: teamUpdate,
@@ -218,8 +193,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
 
   getTeams({bool refrish = false, String? championShipSelected}) async {
     emit(LoadingGetTeamsState());
-    var response = await addTeamRepoImpl.getTeams(
-        refrish: refrish);
+    var response = await addTeamRepoImpl.getTeams(refrish: refrish);
     response.fold((failure) {
       isLoading = true;
       emit(FailureGetTeamsState(failure));
@@ -324,7 +298,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     if (pathImageTeam == null && !isUpdate) {
       errorValidation.add('من فضلك ادخل صورة الفريق');
     }
-  
 
     return errorValidation;
   }
@@ -358,25 +331,9 @@ class AddTeamCubit extends Cubit<AddTeamState> {
         fantasyID3: counter++,
         fantasyID4: counter++,
         managerID: '123',
-        scoreCaptain: 0,
-        scoreFantasyID1: 0,
-        scoreFantasyID2: 0,
-        scoreFantasyID3: 0,
-        scoreFantasyID4: 0,
-        isTeams1000: true,
         pathImage:
             'https://firebasestorage.googleapis.com/v0/b/crazy-fantasy-97ec8.appspot.com/o/1688990399391.jpg?alt=media&token=f90ef88e-a643-4e1d-9e5f-ef3cf8f6ee90',
       );
-
-      if (i <= 511) {
-        teamModel.isClassicLeague = true;
-        teamModel.isVipLeague = true;
-        teamModel.isCup = true;
-      } else {
-        teamModel.isClassicLeague = false;
-        teamModel.isVipLeague = false;
-        teamModel.isCup = false;
-      }
 
       futures.add(addTeamRepoImpl.addTeam(id: "cvg", teamModel: teamModel));
     }

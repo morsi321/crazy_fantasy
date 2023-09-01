@@ -8,6 +8,8 @@ void showTeamsSelected(context) {
   showDialog(
       context: context,
       builder: (context) {
+        final addOrgCubit = BlocProvider.of<AddOrganizerCubit>(context);
+
         return Dialog(
           backgroundColor: const Color.fromRGBO(28, 22, 54, 1),
           child: Container(
@@ -35,9 +37,20 @@ void showTeamsSelected(context) {
                   child: BlocBuilder<AddOrganizerCubit, AddOrganizerState>(
                     builder: (context, state) {
                       return ListSelectedItemTeamView(
-                        teams: BlocProvider
-                            .of<AddOrganizerCubit>(context)
-                            .teams,
+                        teams: addOrgCubit.isTeams1000 &&
+                                !(addOrgCubit.isVipLeague ||
+                                    addOrgCubit.isClassicLeague ||
+                                    addOrgCubit.isCup)
+                            ? addOrgCubit.teams1000
+                            : addOrgCubit.indexPageOrganizer == 2 &&
+                                    (addOrgCubit.isCup ||
+                                        addOrgCubit.isVipLeague ||
+                                        addOrgCubit.isClassicLeague)
+                                ? addOrgCubit.teams
+                                : addOrgCubit.indexPageOrganizer == 3 &&
+                                        addOrgCubit.isTeams1000
+                                    ? addOrgCubit.teams1000
+                                    : [],
                       );
                     },
                   ),

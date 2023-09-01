@@ -1,6 +1,8 @@
-import 'package:crazy_fantasy/feauters/Teams%20Data%20update/Data/repos/update_teams_repo_impl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
 
 class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
   const AppBarCustom({Key? key, required this.title})
@@ -31,9 +33,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: () async {
-                await UpdateTeamsRepoImpl().updateTeams(
-                    onSendProgress: (int countUpdate, int total) {},
-                    numGameWeek: 1);
+                teasttt();
               },
               icon: const Icon(
                 Icons.menu,
@@ -47,4 +47,21 @@ class _AppBarCustomState extends State<AppBarCustom> {
       ),
     );
   }
+}
+
+ teasttt() async {
+  DocumentSnapshot result = await FirebaseFirestore.instance
+      .collection("organizers")
+      .doc("thugGiza")
+      .collection("vip_league")
+      .doc("512-1")
+      .get();
+  Map tt = result.data() as Map;
+  for(int i=0;i<15;i++){
+    print("${i+1} => ${tt["groups"]["group2"][0]["matches"][i]}");
+
+    print("===="*20);
+  }
+
+
 }

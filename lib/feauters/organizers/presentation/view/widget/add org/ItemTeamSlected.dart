@@ -7,9 +7,6 @@ import '../../../../../../core/models/team.dart';
 import '../../../../../../core/widget/cash_image_network.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
-
-
 class ListSelectedItemTeamView extends StatelessWidget {
   const ListSelectedItemTeamView({super.key, required this.teams});
 
@@ -18,7 +15,7 @@ class ListSelectedItemTeamView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: teams.length ,
+        itemCount: teams.length,
         itemBuilder: (context, index) {
           return SelectedItemTeam(
             team: teams[index],
@@ -40,6 +37,7 @@ class SelectedItemTeam extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final addOrgCubit = BlocProvider.of<AddOrganizerCubit>(context);
     return Padding(
       padding: const EdgeInsets.only(
         bottom: 5.0,
@@ -55,14 +53,46 @@ class SelectedItemTeam extends StatelessWidget {
                 team: team,
                 index: index,
               ),
+              addOrgCubit.isTeams1000 &&
+                  !(addOrgCubit.isVipLeague ||
+                      addOrgCubit.isClassicLeague ||
+                      addOrgCubit.isCup)
+                  ? const SizedBox()
+                  : addOrgCubit.indexPageOrganizer == 2 &&
+                  (addOrgCubit.isCup ||
+                      addOrgCubit.isVipLeague ||
+                      addOrgCubit.isClassicLeague)
+                  ? IconButton(
+                  onPressed: ()=>addOrgCubit.changeHeadingInTeams(team),
+                  icon: Icon(
+                    Icons.workspace_premium,
+                    size: 30,
+                    color: team.isHeading == null || !team.isHeading!
+                        ? Colors.grey.withOpacity(0.1)
+                        : Colors.yellow,
+                  ))
+                  : addOrgCubit.indexPageOrganizer == 3 &&
+                  addOrgCubit.isTeams1000
+                  ? const SizedBox()
+                  : const SizedBox(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   IconButton(
-                      onPressed: () {
-                        BlocProvider.of<AddOrganizerCubit>(context)
-                            .removeTeamInBag(team,);
-                      },
+                      onPressed: () => addOrgCubit.isTeams1000 &&
+                              !(addOrgCubit.isVipLeague ||
+                                  addOrgCubit.isClassicLeague ||
+                                  addOrgCubit.isCup)
+                          ? addOrgCubit.removeTeamInBag1000(team)
+                          : addOrgCubit.indexPageOrganizer == 2 &&
+                                  (addOrgCubit.isCup ||
+                                      addOrgCubit.isVipLeague ||
+                                      addOrgCubit.isClassicLeague)
+                              ? addOrgCubit.removeTeamInBag(team)
+                              : addOrgCubit.indexPageOrganizer == 3 &&
+                                      addOrgCubit.isTeams1000
+                                  ? addOrgCubit.removeTeamInBag1000(team)
+                                  : () {},
                       icon: const Icon(
                         Icons.delete,
                         color: Colors.red,

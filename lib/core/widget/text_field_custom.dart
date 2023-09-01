@@ -18,7 +18,7 @@ class TextFromCustom extends StatelessWidget {
       this.suffixIcon,
       this.obscureText,
       this.onChanged,
-      this.hintText})
+      this.hintText, this.onFieldSubmitted})
       : super(key: key);
   final double? height;
   final double? width;
@@ -34,6 +34,7 @@ class TextFromCustom extends StatelessWidget {
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
+ final void Function(String)? onFieldSubmitted;
   final String? hintText;
 
   @override
@@ -49,6 +50,7 @@ class TextFromCustom extends StatelessWidget {
             style: style,
             readOnly: enable ?? false,
             validator: validator,
+            onFieldSubmitted:onFieldSubmitted,
 
             decoration: InputDecoration(
               hintText: hintText,

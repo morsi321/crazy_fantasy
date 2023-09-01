@@ -18,7 +18,7 @@ class AddOrganizerWidget extends StatelessWidget {
     final addOrganizerCubit = context.read<AddOrganizerCubit>();
     return WillPopScope(
       onWillPop: () async {
-        addOrganizerCubit.changeIndexPageOrganizer(true);
+        addOrganizerCubit.checkValidationAddOrg(true,context);
         return true;
       },
       child: Padding(
@@ -68,6 +68,12 @@ class AddOrganizerWidget extends StatelessWidget {
                 LabelAndTextForm(
                   label: ' فيس بوك ',
                   controller: addOrganizerCubit.faceBook,
+                  enable: addOrganizerCubit.isView,
+                ),
+                const SizedBox(height: 20),
+                LabelAndTextForm(
+                  label: ' يوتيوب ',
+                  controller: addOrganizerCubit.youtube,
                   enable: addOrganizerCubit.isView,
                 ),
                 const SizedBox(height: 20),

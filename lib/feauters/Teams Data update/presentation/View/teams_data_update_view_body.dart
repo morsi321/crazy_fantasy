@@ -1,10 +1,9 @@
 import 'package:crazy_fantasy/core/widget/background_image.dart';
-import 'package:crazy_fantasy/feauters/Teams%20Data%20update/presentation/View/widget/button_update_teams.dart';
-import 'package:crazy_fantasy/feauters/Teams%20Data%20update/presentation/View/widget/show_last_update.dart';
-import 'package:crazy_fantasy/feauters/Teams%20Data%20update/presentation/View/widget/start_season.dart';
+import 'package:crazy_fantasy/feauters/Teams%20Data%20update/presentation/View/widget/list_card_org.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/widget/dailog_error.dart';
 import '../view model/update_data_team_cubit.dart';
 
 class TeamsDataUpdateViewBody extends StatefulWidget {
@@ -18,7 +17,7 @@ class TeamsDataUpdateViewBody extends StatefulWidget {
 class _TeamsDataUpdateViewBodyState extends State<TeamsDataUpdateViewBody> {
   @override
   void initState() {
-    context.read<UpdateDataTeamCubit>().getCurrentGameWeek();
+    context.read<UpdateDataTeamCubit>().getAllOrgs();
     super.initState();
   }
 
@@ -29,20 +28,30 @@ class _TeamsDataUpdateViewBodyState extends State<TeamsDataUpdateViewBody> {
       child: BackgroundImage(
         child: BlocBuilder<UpdateDataTeamCubit, UpdateDataTeamState>(
           builder: (context, state) {
-            return Column(
-              children: [
-                const SizedBox(
-                  height: 50,
-                ),
-                const ShowLastUpdate(),
-                const SizedBox(
-                  height: 50,
-                ),
-                BlocProvider.of<UpdateDataTeamCubit>(context).gameWeek != 909
-                    ? const ButtonUpdateTeams()
-                    : const StartSeason(),
-              ],
-            );
+            if (state is GetAllOrgsLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if(state is FailureGetAllOrgs){
+              dialogError(context,"حدث خطاء غير متوقع برجا محاوله مره اخري", () => context.read<UpdateDataTeamCubit>().getAllOrgs());
+            }
+
+
+            return const ListOfCardOrganizes();
+            // return Column(
+            //   children: [
+            //     const SizedBox(
+            //       height: 50,
+            //     ),
+            //     const ShowLastUpdate(),
+            //     const SizedBox(
+            //       height: 50,
+            //     ),
+            //     BlocProvider.of<UpdateDataTeamCubit>(context).gameWeek != 909
+            //         ? const ButtonUpdateTeams()
+            //         : const StartSeason(),
+            //   ],
+            // );
           },
         ),
       ),

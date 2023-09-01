@@ -1,95 +1,277 @@
 import 'dart:math';
 
-import 'package:dartz/dartz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import '../../../organizers/Data/models/orgnizer_model.dart';
 import 'vip_repo.dart';
 
-class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
-  Map groups = {};
+class OrganizeVipChampionshipRepoImpl
+    implements OrganizeVipChampionshipRepo {
+  @override
+  Future handeVip512({required Organizer org}) async {
+      if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
+        await finishGameWeek(
+            orgName: org.id!,
+            numGameWeek: org.numGameWeek!,
+            numRound: org.countTeams!);
+      } else if (org.numGameWeek! == 15) {
+        await finishGameWeek(
+            orgName: org.id!,
+            numGameWeek: org.numGameWeek!,
+            numRound: org.countTeams!);
+        await doSecondRound(org: org.id!, numRound: org.countTeams!);
+      } else if (org.numGameWeek! == 16) {
+        await finishGameWeekInRound(
+            numRound: 256, org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 17) {
+        await finishGameWeekInRound(
+            numRound: 256, org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 128, org: org.id!);
+      } else if (org.numGameWeek! == 18) {
+        await finishGameWeekInRound(
+            numRound: 128, org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 19) {
+        await finishGameWeekInRound(
+            numRound: 128, org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 64, org: org.id!);
+      } else if (org.numGameWeek! == 20) {
+        await finishGameWeekInRound(
+            numRound: 64, org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 21) {
+        await finishGameWeekInRound(
+            numRound: 64, org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 32, org: org.id!);
+      } else if (org.numGameWeek! == 22) {
+        await finishGameWeekInRound(
+            numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 23) {
+        await finishGameWeekInRound(
+            numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 16, org: org.id!);
+      } else if (org.numGameWeek! == 24) {
+        await finishGameWeekInRound(
+            numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 25) {
+        await finishGameWeekInRound(
+            numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound8(org: org.id!);
+      } else if (org.numGameWeek! >= 26 && org.numGameWeek! <= 31) {
+        await finishGameWeeKInLastRound(
+            org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 32) {
+        await finishGameWeeKInLastRound(
+            org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound4(numRound: 4, org: org.id!);
+      } else if (org.numGameWeek! == 33) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+      } else if (org.numGameWeek! == 34) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+        await doRound(numRound: 2, org: org.id!);
+      } else if (org.numGameWeek! == 35 || org.numGameWeek! == 36) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
+      }
+
+  }
 
   @override
-  Future<Either<String, String>> handeVip(
-      {required int gameWeek, required String org}) async {
-    try {
-      if (gameWeek >= 1 && gameWeek <= 15) {
-        await finishGameWeek(org: org);
-      } else if (gameWeek == 16) {
-        await doRound256(org: org);
+  Future handeVip256({required Organizer org}) async {
+      if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
+        await finishGameWeek(
+            orgName: org.id!,
+            numGameWeek: org.numGameWeek!,
+            numRound: org.countTeams!);
+      } else if (org.numGameWeek! == 15) {
+        await finishGameWeek(
+            orgName: org.id!,
+            numGameWeek: org.numGameWeek!,
+            numRound: org.countTeams!);
+        await doSecondRound(org: org.id!, numRound: org.countTeams!);
+      } else if (org.numGameWeek! == 16 || org.numGameWeek! == 17) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 128,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 18) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 128,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 64, org: org.id!);
+      } else if (org.numGameWeek! == 19 || org.numGameWeek! == 20) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 64,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 21) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 64,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 32, org: org.id!);
+      } else if (org.numGameWeek! == 22) {
+        await finishGameWeekInRound(
+            numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 23) {
+        await finishGameWeekInRound(
+            numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 16, org: org.id!);
+      } else if (org.numGameWeek! == 24) {
+        await finishGameWeekInRound(
+            numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 25) {
+        await finishGameWeekInRound(
+            numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound8(org: org.id!);
+      } else if (org.numGameWeek! >= 26 && org.numGameWeek! <= 31) {
+        await finishGameWeeKInLastRound(
+            org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 32) {
+        await finishGameWeeKInLastRound(
+            org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound4(numRound: 4, org: org.id!);
+      } else if (org.numGameWeek! == 33) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+      } else if (org.numGameWeek! == 34) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+        await doRound(numRound: 2, org: org.id!);
+      } else if (org.numGameWeek! == 35 || org.numGameWeek! == 36) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
+      }
 
-        await finishGameWeekInRound(numRound: 256, org: org);
-      } else if (gameWeek == 17) {
-        await finishGameWeekInRound(numRound: 256, org: org);
-      } else if (gameWeek == 18) {
-        await doRound(numRound: 128, org: org);
-        await finishGameWeekInRound(numRound: 128, org: org);
-      } else if (gameWeek == 19) {
-        await finishGameWeekInRound(numRound: 128, org: org);
-      } else if (gameWeek == 20) {
-        await doRound(numRound: 64, org: org);
-        await finishGameWeekInRound(numRound: 64, org: org);
-      } else if (gameWeek == 21) {
-        await finishGameWeekInRound(numRound: 64, org: org);
-      } else if (gameWeek == 22) {
-        await doRound(numRound: 32, org: org);
-        await finishGameWeekInRound(numRound: 32, org: org);
-      } else if (gameWeek == 23) {
-        await finishGameWeekInRound(numRound: 32, org: org);
-      } else if (gameWeek == 24) {
-        await doRound(numRound: 16, org: org);
-        await finishGameWeekInRound(numRound: 16, org: org);
-      } else if (gameWeek == 25) {
-        await finishGameWeekInRound(numRound: 16, org: org);
-      } else if (gameWeek == 26) {
-        await doRound8(org: org);
-        await finishGameWeeKInLastRound(org: org);
-      } else if (gameWeek > 26 && gameWeek <= 32) {
-        await finishGameWeeKInLastRound(org: org);
+
+  }
+
+  @override
+  Future handeVip128({required Organizer org}) async {
+      if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
+        await finishGameWeek(
+            orgName: org.id!,
+            numGameWeek: org.numGameWeek!,
+            numRound: org.countTeams!);
+      } else if (org.numGameWeek! == 15) {
+        await finishGameWeek(
+            orgName: org.id!,
+            numGameWeek: org.numGameWeek!,
+            numRound: org.countTeams!);
+        await doSecondRound(org: org.id!, numRound: org.countTeams!);
+      } else if (org.numGameWeek! >= 16 && org.numGameWeek! <= 17) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 64,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 18) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 64,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 32, org: org.id!);
+      } else if (org.numGameWeek! == 19 || org.numGameWeek! == 20) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 32,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 21) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 32,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+        await doRound(numRound: 16, org: org.id!);
+      } else if (org.numGameWeek! == 22 || org.numGameWeek! == 23) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 16,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 24) {
+        await finishGameWeekInRound(
+            isBestOf3: true,
+            numRound: 16,
+            org: org.id!,
+            numGameWeek: org.numGameWeek!);
+        await doRound8(org: org.id!);
+      } else if (org.numGameWeek! >= 25 && org.numGameWeek! <= 30) {
+        await finishGameWeeKInLastRound(
+            isVip128: true, org: org.id!, numGameWeek: org.numGameWeek!);
+      } else if (org.numGameWeek! == 31) {
+        await finishGameWeeKInLastRound(
+            org: org.id!, numGameWeek: org.numGameWeek!);
+        await doRound4(numRound: 4, org: org.id!);
+      } else if (org.numGameWeek! == 32) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+      } else if (org.numGameWeek! == 33) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+        await doRound(numRound: 2, org: org.id!);
+      } else if (org.numGameWeek! == 34 || org.numGameWeek! == 35) {
+        await finishGameWeekInRound(
+            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
       }
-      return const Right('تم تنظيم الجولة بنجاح');
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-      return const Left('حدث خطأ ما برجاء المحاولة مرة اخري');
+
+  }
+
+  @override
+  Future createVip({required Organizer org}) async {
+    Stopwatch stopwatch = Stopwatch()..start();
+    String numRound1 = '';
+    String numRound2 = '';
+    int countHead = 0;
+    if (org.countTeams == "512") {
+      numRound1 = '512-1';
+      numRound2 = '512-2';
+      countHead = 32;
+    } else if (org.countTeams == "256") {
+      numRound1 = '256-1';
+      numRound2 = '256-2';
+      countHead = 16;
+    } else if (org.countTeams == "128") {
+      numRound1 = '128-1';
+      numRound2 = '128-2';
+      countHead = 8;
+    }
+
+    (List<Map>, List<Map>) teams =
+        await getVipLeagueTeams(teamsId: org.otherChampionshipsTeams!);
+    List<Map> headTeam = teams.$1;
+    List<Map> othersTeam = teams.$2;
+    Map groupWithMatches = await groupDivision(
+        othersTeams: othersTeam, teamsHead: headTeam, countHead: countHead);
+    Map<dynamic, dynamic> matches = matchesDivision(groupWithMatches);
+    var groups = halfGroups(matches);
+    Map half1Group = groups.$1;
+    Map half2Group = groups.$2;
+    List<Future> futures = [
+      addGroupsInFireStore(
+          data: half1Group, nameRound: numRound1, org: org.id!),
+      addGroupsInFireStore(data: half2Group, nameRound: numRound2, org: org.id!)
+    ];
+
+    await Future.wait(futures);
+
+    stopwatch.stop();
+    if (kDebugMode) {
+      print('time: ${stopwatch.elapsedMilliseconds}');
     }
   }
 
   @override
-  Future createVip({required String org}) async {
-    try {
-      Stopwatch stopwatch = Stopwatch()..start();
-      List<Map> teams = await getVipLeagueTeams();
-      teams = shuffleTeams(teams);
-
-      Map groupWithMatches = await groupDivision(teams: teams);
-      Map<dynamic, dynamic> matches = matchesDivision(groupWithMatches);
-      Map half1Group = halfGroups(matches).$1;
-      Map half2Group = halfGroups(matches).$2;
-
-      List<Future> futures = [
-        addGroupsInFireStore(
-            data: half1Group, nameRound: 'الدور 511', org: org),
-        addGroupsInFireStore(data: half2Group, nameRound: 'الدور 512', org: org)
-      ];
-
-      Future.wait(futures);
-
-      stopwatch.stop();
-      if (kDebugMode) {
-        print('time: ${stopwatch.elapsedMilliseconds}');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
-  }
-
-  @override
-  Future doRound256({required String org}) async {
-    Map half1 = await getRound(numRound: 511, org: org);
-    Map half2 = await getRound(numRound: 512, org: org);
+  Future doSecondRound({required String org, required String numRound}) async {
+    Map half1 = await getRound(numRound: "$numRound-1", org: org);
+    Map half2 = await getRound(numRound: "$numRound-2", org: org);
 
     Map mergeGroups = merge2Groups(half1["groups"], half2["groups"]);
 
@@ -100,72 +282,81 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         org: org,
         key: "matches",
         data: matches["matches"],
-        nameRound: 'الدور 256');
+        nameRound: '${int.parse(numRound) ~/ 2}');
+  }
 
-    try {} catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
+  doRound4({required int numRound, required String org}) async {
+    Map matches = await getRound(numRound: "${numRound * 2}", org: org);
+
+    List qualifiedTeams = await selectQualifiedTeamsInLastRound(matches);
+    List<Map> teams = [];
+    for (var team in qualifiedTeams) {
+      teams.add({
+        "id": team['id'],
+        'name': team['name'],
+        'imagePath': team['imagePath']
+      });
     }
+
+    // print(teams);
+    teams= shuffleTeams(teams);
+    // print(teams);
+    Map matchesRandom = await divisionOfMatchesRandom(teams);
+    print(matchesRandom);
+    await addGroupsInFireStore(
+        org: org,
+        key: "matches",
+        data: matchesRandom["matches"],
+        nameRound: '$numRound');
   }
 
   @override
   Future doRound({required int numRound, required String org}) async {
-    try {
-      Map matches = await getRound(numRound: numRound * 2, org: org);
-      List<Map> teams128 = await qualifiedTeams(matches);
-      teams128 = shuffleTeams(teams128);
-      Map matchesRandom = await divisionOfMatchesRandom(teams128);
+      Map matches = await getRound(numRound: "${numRound * 2}", org: org);
+      print(matches);
+      List<Map> teams = await qualifiedTeams(matches);
+      teams = shuffleTeams(teams);
+      Map matchesRandom = await divisionOfMatchesRandom(teams);
+      print(matchesRandom);
       await addGroupsInFireStore(
           key: "matches",
           org: org,
           data: matchesRandom["matches"],
-          nameRound: 'الدور $numRound');
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
+          nameRound: '$numRound');
+
+
   }
 
   @override
   Future doRound8({required String org}) async {
-    try {
-      Map matches = await getRound(numRound: 16, org: org);
+      Map matches = await getRound(numRound: "16", org: org);
       List<Map> teams8 = await qualifiedTeams(matches);
       individuallyDivisionMatches(teams8);
       await addGroupsInFireStore(
-        key: "individuallyTeams",
+        key: "matches",
         org: org,
         data: teams8,
-        nameRound: 'الدور 8',
+        nameRound: '8',
       );
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
+
   }
 
   getCurrentGameWeek() async {
-    try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection("infoApp")
           .doc("gameWeek")
           .get();
       int numGameWeek = documentSnapshot['gameWeek'];
       return numGameWeek;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
+
+
+
   }
 
   merge2Groups(Map group1, Map group2) {
     Map mergeGroups = {};
-    for (int i = 1; i <= 32; i++) {
-      if (i <= 16) {
+    for (int i = 1; i <= group1.length * 2; i++) {
+      if (i <= group1.length) {
         mergeGroups['group$i'] = group1['group$i'];
       } else {
         mergeGroups['group$i'] = group2['group$i'];
@@ -202,12 +393,13 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           "homeTeam": teams[i]['id'],
           "awayTeam": teams[j]['id'],
           "nameHomeTeam": teams[i]['name'],
+          "gameWeekHome": [],
+          "gameWeekAway": [],
           "nameAwayTeam": teams[j]['name'],
           "image2": teams[j]['imagePath'],
           "image1": teams[i]['imagePath'],
           "homeTeamGoals": 0,
           "awayTeamGoals": 0,
-          "isFinished": false,
         });
       }
       teams[i]['matches'] = matches;
@@ -221,6 +413,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     Map matches = {
       'matches': [],
     };
+
     int numMatches = teams.length ~/ 2;
     for (int i = 0; i < numMatches; i++) {
       matches['matches'].add({
@@ -228,11 +421,14 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         'nameTeamB': teams[numMatches + i]['name'],
         'imageTeamA': teams[i]['imagePath'],
         'imageTeamB': teams[numMatches + i]['imagePath'],
+        'gameWeekA': [],
+        'gameWeekB': [],
         'teamAId': teams[i]['id'],
         'teamBId': teams[numMatches + i]['id'],
         'teamAGoals': 0,
         'teamBGoals': 0,
       });
+
     }
     return matches;
   }
@@ -240,177 +436,248 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
   qualifiedTeams(
     Map matches,
   ) async {
-    try {
-      Stopwatch stopwatch = Stopwatch()..start();
-      List<Future> futures = [];
+    Stopwatch stopwatch = Stopwatch()..start();
+    List<Future> futures = [];
 
-      List<Map> qualifiedTeams = [];
+    List<Map> qualifiedTeams = [];
 
-      matches['matches'].forEach((match) async {
-        futures.add(Future(() async {
-          int score1 = match["teamAGoals"];
-          int score2 = match["teamBGoals"];
+    matches['matches'].forEach((match) async {
+      futures.add(Future(() async {
+        int score1 = match["teamAGoals"];
+        int score2 = match["teamBGoals"];
 
-          if (score1 > score2) {
-            qualifiedTeams.add(
-              {
-                "id": match['teamAId'],
-                'name': match['nameTeamA'],
-                'imagePath': match['imageTeamA']
-              },
-            );
-          } else if (score1 < score2) {
-            qualifiedTeams.add({
-              "id": match['teamBId'],
-              'name': match['nameTeamB'],
-              'imagePath': match['imageTeamB']
-            });
-          }
-        }));
-      });
+        if (score1 > score2) {
+          qualifiedTeams.add(
+            {
+              "id": match['teamAId'],
+              'name': match['nameTeamA'],
+              'imagePath': match['imageTeamA']
+            },
+          );
+        } else {
+          qualifiedTeams.add({
+            "id": match['teamBId'],
+            'name': match['nameTeamB'],
+            'imagePath': match['imageTeamB']
+          });
+        }
+      }));
+    });
 
-      await Future.wait(futures);
+    await Future.wait(futures);
 
-      stopwatch.stop();
-      if (kDebugMode) {
-        print('doRound2 executed in ${stopwatch.elapsedMilliseconds} ms');
-      }
-      return qualifiedTeams;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
+    stopwatch.stop();
+    if (kDebugMode) {
+      print('doRound2 executed in ${stopwatch.elapsedMilliseconds} ms');
     }
+    return qualifiedTeams;
   }
 
   @override
-  finishGameWeekInRound({required int numRound, required String org}) async {
-    try {
-      Map matches = await getRound(numRound: numRound, org: org);
-      int numGameWeek = await getCurrentGameWeek();
-
-      await regScores(matches: matches, increment: 3, numGameWeek: numGameWeek);
-
-      await addGroupsInFireStore(
-          org: org,
-          data: matches['matches'],
-          nameRound: "الدور $numRound",
-          key: "matches");
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
+  finishGameWeekInRound(
+      {required int numRound,
+      required String org,
+      bool isBestOf3 = false,
+      required int numGameWeek}) async {
+    Map matches = await getRound(numRound: "$numRound", org: org);
+    if (isBestOf3) {
+      matches = await bestOf3(
+          matches: matches, numGameWeek: numGameWeek, nameOrg: org);
+    } else {
+      await roundTrip(matches: matches, numGameWeek: numGameWeek, nameOrg: org);
     }
 
-    // regScores(matches)
+    await addGroupsInFireStore(
+        org: org,
+        data: matches['matches'],
+        nameRound: "$numRound",
+        key: "matches");
+
   }
 
-  regScores(
+  roundTrip(
       {required Map matches,
-      required int increment,
+      required String nameOrg,
       required numGameWeek}) async {
-    try {
-      Stopwatch stopwatch = Stopwatch()..start();
+    Stopwatch stopwatch = Stopwatch()..start();
+    List<Future> futures = [];
+
+    matches['matches'].forEach((match) {
+      futures.add(Future(() async {
+        int scoreA =
+            await getPointsGameWeekTeam(match['teamAId'], numGameWeek, nameOrg);
+        int scoreB =
+            await getPointsGameWeekTeam(match["teamBId"], numGameWeek, nameOrg);
+        match['teamAGoals'] += scoreA;
+        match['teamBGoals'] += scoreB;
+        match['gameWeekA'].add({
+          "$numGameWeek": scoreA,
+        });
+        match['gameWeekB'].add({
+          "$numGameWeek": scoreB,
+        });
+
+        if (match['teamAGoals'] > match['teamBGoals']) {
+          match["isTeamAWinner"] = true;
+          match["isTeamBWinner"] = false;
+        } else if (match['teamAGoals'] < match['teamBGoals']) {
+          match["isTeamAWinner"] = false;
+          match["isTeamBWinner"] = true;
+        } else {
+          match["isTeamAWinner"] = false;
+          match["isTeamBWinner"] = false;
+        }
+      }));
+    });
+    await Future.wait(futures);
+
+    stopwatch.stop();
+    if (kDebugMode) {
+      print('doRound2 executed in ${stopwatch.elapsedMilliseconds} ms');
+    }
+    return matches;
+  }
+
+  bestOf3(
+      {required Map matches,
+      required String nameOrg,
+      required numGameWeek}) async {
       List<Future> futures = [];
 
       matches['matches'].forEach((match) {
-        // print(match);
         futures.add(Future(() async {
-          int score1 =
-              await getPointsGameWeekTeam(match['teamAId'], numGameWeek);
-          int score2 =
-              await getPointsGameWeekTeam(match["teamBId"], numGameWeek);
+          int scoreA = await getPointsGameWeekTeam(
+              match['teamAId'], numGameWeek, nameOrg);
+          int scoreB = await getPointsGameWeekTeam(
+              match["teamBId"], numGameWeek, nameOrg);
 
-          if (score1 > score2) {
-            match['teamAGoals'] = match['teamAGoals'] + increment;
-            match['teamBGoals'] = 0;
-          } else if (score1 < score2) {
-            match['teamAGoals'] = 0;
-            match['teamBGoals'] = match['teamBGoals'] + increment;
+          match['gameWeekA'].add({
+            "$numGameWeek": scoreA,
+          });
+          match['gameWeekB'].add({
+            "$numGameWeek": scoreB,
+          });
+
+          if (scoreA > scoreB) {
+            match['teamAGoals'] = match['teamAGoals'] + 1;
+          } else if (scoreA < scoreB) {
+            match['teamBGoals'] = match['teamBGoals'] + 1;
+          }
+          if (match['teamAGoals'] > match['teamBGoals']) {
+            match["isTeamAWinner"] = true;
+            match["isTeamBWinner"] = false;
+          } else if (match['teamAGoals'] < match['teamBGoals']) {
+            match["isTeamAWinner"] = false;
+            match["isTeamBWinner"] = true;
           } else {
-            if (increment == 3) {
-              match['teamAGoals'] = match['teamAGoals'] + 1;
-              match['teamBGoals'] = match['teamBGoals'] + 1;
-            } else {
-              match['teamAGoals'] = match['teamAGoals'] - 1;
-              match['teamBGoals'] = match['teamBGoals'] - 1;
-            }
+            match["isTeamAWinner"] = false;
+            match["isTeamBWinner"] = false;
           }
         }));
       });
       await Future.wait(futures);
 
-      stopwatch.stop();
-      if (kDebugMode) {
-        print('doRound2 executed in ${stopwatch.elapsedMilliseconds} ms');
-      }
+
       return matches;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
+
+
   }
 
-  Future getVipLeagueTeams() async {
-    try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('teams')
-          .where('isVipLeague', isEqualTo: true)
-          .get();
-      List<DocumentSnapshot> teamsDoc = querySnapshot.docs;
-      List<Map> teams = teamsDoc
-          .map(
-            (snapshot) => {
-              "id": snapshot.id,
-              'name': snapshot['name'],
-              'imagePath': snapshot['path']
-            },
-          )
-          .toList();
-      return teams;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
+  getVipLeagueTeams({required List<Map> teamsId}) async {
+      List<Future> futures = [];
+      List<Map> othersTeams = [];
+      List<Map> teamsHead = [];
+      for (Map id in teamsId) {
+        futures.add(Future(() async {
+          Map team = await getInfoTeam(id['id']);
+          if (id['isHeading'] == true) {
+            teamsHead.add(team);
+          } else {
+            othersTeams.add(team);
+          }
+        }));
       }
-      return e.toString();
+
+      await Future.wait(futures);
+
+      return (teamsHead, othersTeams);
+
+  }
+
+  getInfoTeam(String idTeam) async {
+    try {
+      DocumentSnapshot documentReference = await FirebaseFirestore.instance
+          .collection("teams")
+          .doc(idTeam)
+          .get();
+      Map team = documentReference.data() as Map;
+      team["id"] = documentReference.reference.id;
+
+      return team;
+    } catch (e) {
+      DocumentSnapshot documentReference = await FirebaseFirestore.instance
+          .collection("teams")
+          .doc(idTeam)
+          .get();
+      Map team = documentReference.data() as Map;
+      team["id"] = documentReference.reference.id;
+
+      return team;
     }
   }
 
   groupDivision({
-    required List<Map> teams,
+    required List<Map> othersTeams,
+    required List<Map> teamsHead,
+    required int countHead,
   }) async {
-    int numberOfTeamsInGroup = 16;
-    createGroups();
-    try {
-      for (var i = 0; i < teams.length; i++) {
-        if (i < numberOfTeamsInGroup) {
-          groups["group${numberOfTeamsInGroup ~/ 16}"].add({
-            "teamId": teams[i]['id'],
-            "name": teams[i]['name'],
-            "imagePath": teams[i]['imagePath'],
+    Map groups = createGroups(countHead);
+    groups = addHeadTeamsInGroups(groups, teamsHead, countHead);
+    int numberOfGroups = 1;
+      for (var i = 0; i < othersTeams.length; i++) {
+        if (groups["group$numberOfGroups"].length == 16) {
+          numberOfGroups++;
+          groups["group$numberOfGroups"].add({
+            "teamId": othersTeams[i]['id'],
+            "name": othersTeams[i]['name'],
+            "imagePath": othersTeams[i]['path'].split('/').last,
             "points": 0,
             "matches": [],
           });
         } else {
-          numberOfTeamsInGroup += 16;
-          groups["group${numberOfTeamsInGroup ~/ 16}"].add({
-            "teamId": teams[i]['id'],
-            "name": teams[i]['name'],
-            "imagePath": teams[i]['imagePath'],
+          groups["group$numberOfGroups"].add({
+            "teamId": othersTeams[i]['id'],
+            "name": othersTeams[i]['name'],
+            "imagePath": othersTeams[i]['path'].split('/').last,
             "points": 0,
             "matches": [],
           });
         }
       }
-      // Map newGroups = removeEmptyGroup(groups);
 
       return groups;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
+
+  }
+
+  addHeadTeamsInGroups(
+    Map groups,
+    List<Map> teamsHead,
+    int countHead,
+  ) {
+    if (teamsHead.length > countHead) {
+      teamsHead = teamsHead.take(countHead).toList();
     }
+
+    for (int i = 0; i < teamsHead.length; i++) {
+      groups['group${i + 1}'].add({
+        "teamId": teamsHead[i]['id'],
+        "name": teamsHead[i]['name'],
+        "imagePath": teamsHead[i]['path'],
+        "points": 0,
+        "matches": [],
+      });
+    }
+    return groups;
   }
 
   matchesDivisionCross(Map groups) {
@@ -418,8 +685,10 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       'matches': [],
     };
 
-    for (int i = 1; i <= 32; i += 2) {
-      for (int k = 0; k < groups['group${33 - i}'].length; k++) {
+    for (int i = 1; i <= groups.length; i += 2) {
+      for (int k = 0;
+          k < groups['group${(groups.length + 1) - i}'].length;
+          k++) {
         matches['matches'].add({
           "teamAId": groups['group$i'][k]['teamId'],
           "teamBId": groups['group${i + 1}'][7 - k]['teamId'],
@@ -427,9 +696,12 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           "nameTeamB": groups['group${i + 1}'][7 - k]['name'],
           'imageTeamA': groups['group$i'][k]['imagePath'],
           'imageTeamB': groups['group${i + 1}'][7 - k]['imagePath'],
+          'gameWeekA': [],
+          'gameWeekB': [],
+          'isTeamAWinner': false,
+          'isTeamBWinner': false,
           "teamAGoals": 0,
           "teamBGoals": 0,
-          "isFinished": false,
         });
       }
     }
@@ -451,17 +723,15 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
             "awayTeam": teams["group${i + 1}"][k]['teamId'],
             "nameHomeTeam": teams["group${i + 1}"][j]['name'],
             "nameAwayTeam": teams["group${i + 1}"][k]['name'],
-            "image2": teams["group${i + 1}"][k]['imagePath'].split('/').last,
+            "image2": teams["group${i + 1}"][k]['imagePath'],
             "homeTeamGoals": 0,
             "awayTeamGoals": 0,
-            "isFinished": false,
           });
         }
         teams["group${i + 1}"][j]['matches'] = matches;
         matches = [];
       }
     }
-    // print(teams["group2"][1]['matches']);
 
     stopwatch.stop();
     print('matchesDivision executed in ${stopwatch.elapsedMilliseconds}');
@@ -469,89 +739,82 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     return teams;
   }
 
-  selectQualifiedTeams(Map scoreGroups) {
-    try {
-      Map sortedGroups = {};
-      scoreGroups.forEach((key, value) {
-        value
-            .sort((a, b) => (b['points'] as int).compareTo(a['points'] as int));
-        sortedGroups[key] = value.take(8).toList();
-      });
-      return sortedGroups;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
-
-    // sortedGroups now holds the sorted groups
+  selectQualifiedTeams(
+    Map scoreGroups,
+  ) {
+    Map sortedGroups = {};
+    scoreGroups.forEach((key, value) {
+      value.sort((a, b) => (b['points'] as int).compareTo(a['points'] as int));
+      sortedGroups[key] = value.take(8).toList();
+    });
+    return sortedGroups;
   }
 
-  getRound({required int numRound, required String org}) async {
-    try {
+  selectQualifiedTeamsInLastRound(Map scoreTeams ,) {
+    List sortedTeams = scoreTeams['matches'];
+
+    sortedTeams
+        .sort((a, b) => (b['points'] as int).compareTo(a['points'] as int));
+    List qualifiedTeams = sortedTeams.take(4).toList();
+
+    return qualifiedTeams;
+  }
+
+  getRound({required String numRound, required String org}) async {
       DocumentReference documentReference = FirebaseFirestore.instance
-          .collection(org)
-          .doc("vip_league")
-          .collection("vip_rounds")
-          .doc("الدور $numRound");
+          .collection("organizers")
+          .doc(org)
+          .collection("vip_league")
+          .doc(numRound);
 
       Map groups = (await documentReference.get()).data() as Map;
 
       return groups;
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
+
+
   }
 
   @override
-  finishGameWeek({required String org}) async {
-    try {
-      int numGameWeek = await getCurrentGameWeek() - 1;
+  finishGameWeek(
+      {required String orgName,
+      required int numGameWeek,
+      required String numRound}) async {
+    Map newResult = await selectWinner(
+      org: orgName,
+      numGameWeek: numGameWeek,
+      numRound: numRound,
+    );
+    var result = halfGroups(newResult);
 
-      Map newResult = await selectWinner(
-        org: org,
-        numGameWeek: numGameWeek,
-      );
-      var result = halfGroups(newResult);
-      Map half1Group = result.$1;
-      Map half2Group = result.$2;
-      await addGroupsInFireStore(
-          data: half1Group, nameRound: 'الدور 511', org: org);
+    Map half1Group = result.$1;
+    Map half2Group = result.$2;
 
-      await addGroupsInFireStore(
-          data: half2Group, nameRound: 'الدور 512', org: org);
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
+    await addGroupsInFireStore(
+        data: half1Group, nameRound: '$numRound-1', org: orgName);
+
+    await addGroupsInFireStore(
+        data: half2Group, nameRound: '$numRound-2', org: orgName);
   }
 
   @override
-  finishGameWeeKInLastRound({required String org}) async {
-    try {
-      int numGameWeek = await getCurrentGameWeek();
-      numGameWeek = (38 - numGameWeek) - 4;
-      List newResult = await setResultGameWeekInLastRound(
-          numGameWeek: numGameWeek, org: org);
-      await addGroupsInFireStore(
-          org: org,
-          key: 'individuallyTeams',
-          data: newResult,
-          nameRound: 'الدور 8');
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
+  finishGameWeeKInLastRound(
+      {required String org,
+      required int numGameWeek,
+
+      bool isVip128 = false}) async {
+    int realNumGameWeek = numGameWeek;
+    numGameWeek = (38 - numGameWeek) - (isVip128 ? 5 : 4);
+    List newResult =
+        await setResultGameWeekInLastRound(numGameWeek: numGameWeek, org: org, realNumGameWeek: realNumGameWeek);
+    await addGroupsInFireStore(
+        org: org, key: 'matches', data: newResult, nameRound: '8');
   }
 
   setResultGameWeekInLastRound(
-      {required int numGameWeek, required String org}) async {
-    Map dataRound = await getRound(numRound: 8, org: org);
-    List teams = dataRound['individuallyTeams'];
+      {required int numGameWeek, required String org, required int realNumGameWeek}) async {
+    Map dataRound = await getRound(numRound: "8", org: org);
+
+    List teams = dataRound['matches'];
 
     numGameWeek = (numGameWeek - 8).abs();
 
@@ -562,9 +825,15 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         if (j == numGameWeek) {
           futures.add(Future(() async {
             int scoreHomeTeam = await getPointsGameWeekTeam(
-                teams[i]['matches'][j]['homeTeam'], numGameWeek);
+                teams[i]['matches'][j]['homeTeam'], numGameWeek + 1, org);
             int scoreAwayTeam = await getPointsGameWeekTeam(
-                teams[i]['matches'][j]['awayTeam'], numGameWeek);
+                teams[i]['matches'][j]['awayTeam'], numGameWeek + 1, org);
+            teams[i]['matches'][numGameWeek]['gameWeekHome'].add({
+              "$realNumGameWeek": scoreHomeTeam,
+            });
+            teams[i]['matches'][numGameWeek]['gameWeekAway'].add({
+              "$realNumGameWeek": scoreAwayTeam,
+            });
 
             if (scoreHomeTeam > scoreAwayTeam) {
               teams[i]['matches'][numGameWeek]['homeTeamGoals'] = 3;
@@ -576,7 +845,6 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
               teams[i]['matches'][numGameWeek]['homeTeamGoals'] = 1;
               teams[i]['matches'][numGameWeek]['awayTeamGoals'] = 1;
             }
-            teams[i]['matches'][numGameWeek]['isFinished'] = true;
             teams[i]['points'] +=
                 teams[i]['matches'][numGameWeek]['homeTeamGoals'];
           }));
@@ -588,29 +856,14 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     return teams;
   }
 
-  // @override
-  // removeFirstGameWeek() async {
-  //   try {
-  //     int numGameWeek = await getCurrentGameWeek() - 2;
-  //     Map newResult =
-  //         await selectWinner(numGameWeek: numGameWeek, remove: true,org: org);
-  //     var result = halfGroups(newResult);
-  //     Map half1Group = result.$1;
-  //     Map half2Group = result.$2;
-  //     // await addGroupsInFireStore(data: half1Group, nameRound: 'الدور 511');
-  //     //
-  //     // await addGroupsInFireStore(data: half2Group, nameRound: 'الدور 512');
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print(e.toString());
-  //     }
-  //   }
-  // }
-
-  selectWinner({required int numGameWeek, required String org}) async {
-    Map half1 = await getRound(numRound: 511, org: org);
-    Map half2 = await getRound(numRound: 512, org: org);
+  selectWinner(
+      {required int numGameWeek,
+      required String org,
+      required String numRound}) async {
+    Map half1 = await getRound(numRound: "$numRound-1", org: org);
+    Map half2 = await getRound(numRound: "$numRound-2", org: org);
     Map merge2Group = merge2Groups(half1['groups'], half2['groups']);
+    numGameWeek = numGameWeek - 1;
 
     List<Future> futures = [];
 
@@ -620,9 +873,9 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           if (j == numGameWeek) {
             futures.add(Future(() async {
               int scoreHomeTeam = await getPointsGameWeekTeam(
-                  group[i]['matches'][j]['homeTeam'], numGameWeek + 1);
+                  group[i]['matches'][j]['homeTeam'], numGameWeek + 1, org);
               int scoreAwayTeam = await getPointsGameWeekTeam(
-                  group[i]['matches'][j]['awayTeam'], numGameWeek + 1);
+                  group[i]['matches'][j]['awayTeam'], numGameWeek + 1, org);
 
               if (scoreHomeTeam > scoreAwayTeam) {
                 group[i]['matches'][numGameWeek]['homeTeamGoals'] = 3;
@@ -630,8 +883,6 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
                 group[i]['points'] +=
                     group[i]['matches'][numGameWeek]['homeTeamGoals'];
-
-                print(group[i]['points']);
               } else if (scoreHomeTeam < scoreAwayTeam) {
                 group[i]['matches'][numGameWeek]['homeTeamGoals'] = 0;
                 group[i]['matches'][numGameWeek]['awayTeamGoals'] = 3;
@@ -641,7 +892,6 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
                 group[i]['points'] +=
                     group[i]['matches'][numGameWeek]['homeTeamGoals'];
               }
-              group[i]['matches'][numGameWeek]['isFinished'] = true;
             }));
           }
         }
@@ -656,50 +906,33 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       required String nameRound,
       String? key,
       required String org}) async {
-    try {
-      FirebaseFirestore.instance
-          .collection(org)
-          .doc("vip_league")
-          .collection("vip_rounds")
-          .doc(nameRound)
-          .set({
-        "isFinished": false,
-        key ?? "groups": data,
-      });
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
-  }
-
-  // regRound(int numRound) async {
-  //   DocumentReference fire = FirebaseFirestore.instance
-  //       .collection("Crazy_fantasy")
-  //       .doc("data_$numRound");
-  //   fire.set({"isRound": true});
-  // }
-
-  getPointsGameWeekTeam(String teamId, int numGameWeek) async {
-    try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection("teams")
-          .doc(teamId)
-          .get();
-      // print(documentSnapshot['totalScore']);
-      return documentSnapshot['gameWeek$numGameWeek'];
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    }
-  }
-
-  clearGroups() {
-    groups.forEach((key, value) {
-      groups[key] = [];
+    FirebaseFirestore.instance
+        .collection("organizers")
+        .doc(org)
+        .collection("vip_league")
+        .doc(nameRound)
+        .set({
+      key ?? "groups": data,
     });
   }
+
+  getPointsGameWeekTeam(String teamId, int numGameWeek, String nameOrg) async {
+      ///teams/00PtfoO0Sq5wmqvIxN9u/organizers/Crazy fantasy
+      ///
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('teams')
+          .doc(teamId)
+          .collection("organizers")
+          .doc(nameOrg)
+          .get();
+
+      int points =
+          documentSnapshot["vip"]['gameWeek']["gameWeek$numGameWeek"]["score"];
+      return points;
+
+  }
+
+
 
   removeEmptyGroup(Map<dynamic, dynamic> groups) {
     Map newGroups = {};
@@ -712,10 +945,12 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     return newGroups;
   }
 
-  void createGroups() {
-    for (var i = 1; i <= 32; i++) {
+  Map createGroups(int countTeam) {
+    Map groups = {};
+    for (var i = 1; i <= countTeam; i++) {
       groups["group$i"] = [];
     }
+    return groups;
   }
 
   List<T> shuffleTeams<T>(List<T> teams) {

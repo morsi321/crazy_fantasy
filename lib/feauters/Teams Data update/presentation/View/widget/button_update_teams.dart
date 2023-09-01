@@ -1,14 +1,20 @@
 import 'package:crazy_fantasy/core/widget/button_custom.dart';
 import 'package:crazy_fantasy/feauters/Teams%20Data%20update/presentation/View/widget/Uploader_widget.dart';
+import 'package:crazy_fantasy/feauters/Teams%20Data%20update/presentation/View/widget/start_season.dart';
+import 'package:crazy_fantasy/feauters/organizers/Data/models/orgnizer_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../core/widget/dailog_error.dart';
 import '../../view model/update_data_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ButtonUpdateTeams extends StatelessWidget {
-  const ButtonUpdateTeams({super.key});
+  const ButtonUpdateTeams({
+    super.key,
+    required this.org,
+  });
+
+  final Organizer org;
 
   @override
   Widget build(BuildContext context) {
@@ -25,23 +31,12 @@ class ButtonUpdateTeams extends StatelessWidget {
                     ),
                   )
                 : const SizedBox(),
-            BlocConsumer<UpdateDataTeamCubit, UpdateDataTeamState>(
-              listener: (context, state) {
-                if (state is FailureGetCurrentGameWeek) {
-                  dialogError(
-                      context,
-                      state.message,
-                      () => context
-                          .read<UpdateDataTeamCubit>()
-                          .getCurrentGameWeek());
-                }
-              },
+            BlocBuilder<UpdateDataTeamCubit, UpdateDataTeamState>(
               builder: (context, state) {
-                if(state is GetCurrentGameWeekLoading )
-                  {
-                    return const CircularProgressIndicator();
-                  }
-                return ButtonCustom(
+                if (state is GetCurrentGameWeekLoading) {
+                  return const CircularProgressIndicator();
+                }
+                return org.numGameWeek! >=1?  ButtonCustom(
                     color: Colors.red,
                     colorText: Colors.white,
                     width: 250,
@@ -49,9 +44,11 @@ class ButtonUpdateTeams extends StatelessWidget {
                     height: 60,
                     fontSize: 20,
                     onTap: () => BlocProvider.of<UpdateDataTeamCubit>(context)
-                        .updateAllTeams(),
-                    label: "بدا الجولة ${context.read<UpdateDataTeamCubit>()
-                        .gameWeek!+1 }");
+                            .updateTeamOrg(
+                          org: org,
+                        ),
+                    label: "انهاء الجولة ${org.numGameWeek}"):
+                StartSeason(org: org);
               },
             ),
           ],

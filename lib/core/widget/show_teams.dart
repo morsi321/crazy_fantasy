@@ -37,7 +37,7 @@ class _ShowTeamsState extends State<ShowTeams> {
         BlocConsumer<AddTeamCubit, AddTeamState>(
           listener: (context, state) {},
           builder: (context, state) {
-            if (state is LoadingCrudChampionState) {
+            if (state is LoadingGetTeamsState) {
               return const Center(
                 child: CircularProgressIndicator(),
               );

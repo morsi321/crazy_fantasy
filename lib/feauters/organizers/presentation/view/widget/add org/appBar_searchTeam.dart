@@ -11,7 +11,8 @@ import '../../../../../../core/widget/icon_with_counter.dart';
 import '../../../../../teams/presentation/view model/add_team_cubit.dart';
 
 class AppBarSearchTeam extends StatelessWidget {
-  const AppBarSearchTeam({super.key});
+  const AppBarSearchTeam({super.key, required this.counter});
+ final int counter ;
 
 
   @override
@@ -47,9 +48,7 @@ class AppBarSearchTeam extends StatelessWidget {
                   showTeamsSelected(context);
                 },
                 icon: IconWithCounter(
-                  icon: Icons.diversity_2, counter: BlocProvider
-                    .of<AddOrganizerCubit>(context).teams
-                    .length,
+                  icon: Icons.diversity_2, counter: counter,
 
                 ),
               );

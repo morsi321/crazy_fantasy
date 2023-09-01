@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:crazy_fantasy/core/widget/my_snackBar.dart';
+import 'package:crazy_fantasy/feauters/organizers/Data/repos/organizers_in_teams/OrganizersRepoImpl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 
@@ -12,10 +13,11 @@ import '../../../../core/servies/image_picker_servies.dart';
 import '../../../../core/widget/bootom_sheet_custom.dart';
 import '../../../teams/presentation/view/widget/dailog_validation.dart';
 import '../../Data/models/orgnizer_model.dart';
-import '../../Data/repos/addOrganizerRepoImpl.dart';
+import '../../Data/repos/addOrg/addOrganizerRepoImpl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../view/widget/add org/add_oragnizer_Widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'add_orgaizer_state.dart';
 
@@ -27,11 +29,17 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   TextEditingController faceBook = TextEditingController();
   TextEditingController twiter = TextEditingController();
   TextEditingController instagram = TextEditingController();
+  TextEditingController youtube = TextEditingController();
   TextEditingController tiktok = TextEditingController();
   TextEditingController description = TextEditingController();
 
   List<Team> teams = [];
   List<Team> teams1000 = [];
+  List<Team> teamsRemoves = [];
+  List<Team> teams1000Removes = [];
+  int numGameWeek = 0;
+
+  int countHeadingTeam = 0;
 
   bool isTeams1000 = false;
   bool isCup = false;
@@ -51,10 +59,18 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   String idOrganizer = "";
 
   addTeamInBag(Team team, context) {
+    if (teams.length >= int.parse(countTeams)) {
+      mySnackBar(
+        context,
+        duration: 1,
+        message: "لا يمكنك اضافة اكثر من $countTeams فريق",
+      );
+      return;
+    }
     if (teams.where((t) => t.id == team.id).isNotEmpty) {
       mySnackBar(
         context,
-        duration:1 ,
+        duration: 1,
         message: "هذا الفريق موجود بالفعل",
       );
     } else {
@@ -62,9 +78,45 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
       emit(AddTeamOrgState());
     }
   }
+
+  addFor1000Team(Team team, context) {
+    if (teams1000.where((t) => t.id == team.id).isNotEmpty) {
+      mySnackBar(
+        context,
+        duration: 1,
+        message: "هذا الفريق موجود بالفعل",
+      );
+    } else {
+      teams1000.add(team);
+      emit(AddTeamOrgState());
+    }
+  }
+
   removeTeamInBag(Team team) {
     teams.removeWhere((t) => t.id == team.id);
-    emit(RemoveImageOrgState());
+
+    isUpdate ? teamsRemoves.add(team) : () {};
+    emit(RemoveTeamOrgState());
+  }
+
+  removeTeamInBag1000(Team team) {
+    teams1000.removeWhere((t) => t.id == team.id);
+    isUpdate ? teams1000Removes.add(team) : () {};
+    emit(RemoveTeamOrgState());
+  }
+
+  removeOrgFromTeam({required String id}) async {
+    List<Future> futures = [
+      OrganizersRepoImpl().removeOrgOthersChampions(
+        teams: convertListTeamToListID(teamsRemoves),
+        nameOrg: id,
+      ),
+      OrganizersRepoImpl().removeOrgChampion1000Team(
+        teams: convertListTeamToListID(teams1000Removes),
+        nameOrg: id,
+      ),
+    ];
+    await Future.wait(futures);
   }
 
   changeCountTeams(String value) {
@@ -72,13 +124,21 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     emit(ChangeCountTeamsState());
   }
 
-  checkValidationAddTeam(context) async {
+  checkValidationAddOrg(
+    bool back,
+    context,
+  ) async {
+    if (indexPageOrganizer != 1 || back) {
+      changeIndexPageOrganizers(back, context);
+      return;
+    }
+
     List<String> errorValidation = validationAddTeam();
 
     if (errorValidation.isNotEmpty) {
       showDailogValidtion(context: context, errorsValidation: errorValidation);
     } else {
-      await addOrUpdateOrganize(context);
+      changeIndexPageOrganizers(back, context);
     }
   }
 
@@ -111,19 +171,53 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     isVipLeague = false;
   }
 
-  void changeIndexPageOrganizer(bool back) {
+  convertListTeamToListID(List<Team> teams) {
+    List<String> listID = [];
+    for (var element in teams) {
+      listID.add(element.id!);
+    }
+    return listID;
+  }
+
+  convertListTeamToListOrg(List<Team> teams) {
+    List<Map> listOrg = [];
+    for (var element in teams) {
+      listOrg.add({
+        "id": element.id,
+        "isHeading": element.isHeading ?? false,
+      });
+    }
+    return listOrg;
+  }
+
+  void changeIndexPageOrganizers(bool back, context) {
+    if (indexPageOrganizer == 2 &&
+        !back &&
+        teams.length < int.parse(countTeams)) {
+      mySnackBar(
+        context,
+        message: "يجب اضافة $countTeams فريق",
+      );
+
+      return;
+    }
     if (back) {
       indexPageOrganizer--;
     } else {
       indexPageOrganizer++;
     }
-    print(indexPageOrganizer);
+
     emit(ChangeIndexPageOrganizerState());
   }
 
-  deleteOrg(String id) async {
+  deleteOrg(
+      {required String id,
+      required List<String> teamOtherChampions,
+      required List<String> team1000}) async {
     emit(CrudOrganizerLoadingState());
-    var result = await AddOrganizerRepoImpl().deleteOrganizer(id: id);
+    var result = await AddOrganizerRepoImpl().deleteOrganizer(
+        id: id, idTeams: mergeTwoList(teamOtherChampions, team1000));
+
     result.fold((l) {
       emit(CrudOrganizerErrorState(l));
     }, (r) {
@@ -138,12 +232,37 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     fetchDataOrganizer(organizer);
   }
 
+  addOrgInTeams() async {
+    List<String> champions = [];
+    if (isClassicLeague) {
+      champions.add("classic");
+    }
+    if (isVipLeague) {
+      champions.add("vip");
+    }
+    if (isCup) {
+      champions.add("cup");
+    }
+
+    OrganizersRepoImpl().addOrganizersInTeamsForOthersChampions(
+        teams: convertListTeamToListID(teams),
+        nameOrg: name.text.replaceAll(' ', ''),
+        championShip: champions);
+    OrganizersRepoImpl().addOrganizersInTeamsForChamp1000Team(
+      teams: convertListTeamToListID(teams1000),
+      nameOrg: name.text.replaceAll(' ', ''),
+    );
+  }
+
   addOrUpdateOrganize(context) async {
+    await addOrgInTeams();
     if (isUpdate) {
+      await removeOrgFromTeam(id: idOrganizer);
+
+
       await updateOrganizer(id: idOrganizer);
     } else {
-      await addOrganizer();
-      clearData();
+      await addOrganizer(context);
     }
   }
 
@@ -164,7 +283,7 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   }
 
   void editOrganizer(Organizer organizer, context) {
-    showBottomSheetCustom(context, const AddOrganizerWidget());
+    indexPageOrganizer = 1;
     isUpdate = true;
     fetchDataOrganizer(organizer);
   }
@@ -178,8 +297,71 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     twiter.text = organizer.urlTwitter!;
     instagram.text = organizer.urlInstagram!;
     tiktok.text = organizer.urlTiktok!;
+    // youtube.text = organizer.urlYoutube!;
     description.text = organizer.description!;
+    numGameWeek = organizer.numGameWeek!;
+
     pathImageTeamUpdate = organizer.image;
+    isTeams1000 = organizer.isTeam1000League!;
+    isCup = organizer.isCupLeague!;
+    isClassicLeague = organizer.isClassicLeague!;
+    isVipLeague = organizer.isVipLeague!;
+
+    fetchTeamsOrg(organizer);
+  }
+
+  fetchTeamsOrg(
+    Organizer organizer,
+  ) {
+    emit(FetchTeamsOrgLoadingState());
+    try {
+      List<Future> futures = [
+        getTeamsOthersChampions(organizer.otherChampionshipsTeams!),
+        getTeamsByListId(organizer.teams1000Id!)
+      ];
+
+      Future.wait(futures).then((value) =>
+          {teams = value[0], teams1000 = value[1], emit(FetchTeamsOrgState())});
+    } catch (e) {
+      emit(FetchTeamsOrgErrorState("خطا غير متوقع حاول مره اخري"));
+    }
+  }
+
+  getTeamsByListId(List<String> idTeam) async {
+    List<Team> teams = [];
+    List<Future> futures = [];
+    for (var element in idTeam) {
+      futures.add(FirebaseFirestore.instance
+          .collection("teams")
+          .doc(element)
+          .get()
+          .then((value) {
+        String idDoc = value.reference.id;
+
+        teams.add(Team.fromJson(value.data()!, idDoc, isHead: false));
+      }));
+    }
+    await Future.wait(futures);
+    return teams;
+  }
+
+  getTeamsOthersChampions(List<Map> infoTeam) async {
+    List<Team> teams = [];
+    List<Future> futures = [];
+    for (var element in infoTeam) {
+      futures.add(FirebaseFirestore.instance
+          .collection("teams")
+          .doc(element["id"])
+          .get()
+          .then((value) {
+        String idDoc = value.reference.id;
+
+        teams.add(
+            Team.fromJson(value.data()!, idDoc, isHead: element["isHeading"]));
+      }));
+    }
+    await Future.wait(futures);
+    return teams;
   }
 
   clearData() {
@@ -194,6 +376,9 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     pathImageTeamUpdate = null;
     isUpdate = false;
     imagePath = null;
+    clearChamopionships();
+    teams.clear();
+    teams1000.clear();
   }
 
   Future<void> updateOrganizer({String? id}) async {
@@ -210,11 +395,19 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     organizer.name = name.text;
     organizer.phone = phone.text;
     organizer.whatsApp = whatsApp.text;
+    organizer.numGameWeek= numGameWeek;
     organizer.urlFacebook = faceBook.text;
     organizer.urlTwitter = twiter.text;
     organizer.urlInstagram = instagram.text;
     organizer.urlTiktok = tiktok.text;
     organizer.description = description.text;
+    organizer.isTeam1000League = isTeams1000;
+    organizer.isCupLeague = isCup;
+    organizer.isClassicLeague = isClassicLeague;
+    organizer.isVipLeague = isVipLeague;
+    organizer.otherChampionshipsTeams = convertListTeamToListOrg(teams);
+    organizer.teams1000Id = convertListTeamToListID(teams1000);
+    organizer.countTeams = countTeams;
 
     var result = await AddOrganizerRepoImpl().updateOrganizer(
       organizerModel: organizer,
@@ -224,6 +417,8 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
       emit(CrudOrganizerErrorState(l));
     }, (r) {
       getOrganizers();
+      clearData();
+      indexPageOrganizer = 0;
       emit(CrudOrganizerSuccessState(r));
     });
   }
@@ -234,30 +429,77 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     emit(RemoveImageOrgState());
   }
 
-  addOrganizer() async {
-    emit(CrudOrganizerLoadingState());
-    String urlImage = await uploadImageToFirebaseStorage(File(imagePath!));
+  checkCountTeam(context) {
+    if (indexPageOrganizer == 2 &&
+        (isCup || isVipLeague || isClassicLeague || isCup) &&
+        teams.length < 15) {
+      mySnackBar(
+        context,
+        message: "يجب اضافة $countTeams فريق",
+      );
+      return false;
+    } else if ((indexPageOrganizer == 2 &&
+                !(isCup && isVipLeague && isClassicLeague && isCup) ||
+            indexPageOrganizer == 3) &&
+        teams1000.length < 10) {
+      mySnackBar(
+        context,
+        message: "   علي الاقل يجب اضافة 10 فريق",
+      );
+      return false;
+    }
+    return true;
+  }
 
-    AddOrganizerRepoImpl addOrganizerRepoImpl = AddOrganizerRepoImpl();
-    var response = await addOrganizerRepoImpl.addOrganizer(
-      organizerModel: Organizer(
-        name: name.text,
-        phone: phone.text,
-        whatsApp: whatsApp.text,
-        urlFacebook: faceBook.text,
-        urlTwitter: twiter.text,
-        urlInstagram: instagram.text,
-        urlTiktok: tiktok.text,
-        description: description.text,
-        image: urlImage,
-      ),
-    );
-    response.fold((l) {
-      emit(CrudOrganizerErrorState(l));
-    }, (r) {
-      getOrganizers();
-      emit(CrudOrganizerSuccessState(r));
-    });
+  addOrganizer(context) async {
+    bool isCompletedTeams = checkCountTeam(context);
+
+    if (isCompletedTeams) {
+      emit(CrudOrganizerLoadingState());
+      String urlImage = await uploadImageToFirebaseStorage(File(imagePath!));
+
+      AddOrganizerRepoImpl addOrganizerRepoImpl = AddOrganizerRepoImpl();
+      var response = await addOrganizerRepoImpl.addOrganizer(
+        organizerModel: Organizer(
+          name: name.text,
+          phone: phone.text,
+          whatsApp: whatsApp.text,
+          urlFacebook: faceBook.text,
+          numGameWeek: numGameWeek,
+          urlYoutube: youtube.text,
+          urlTwitter: twiter.text,
+          urlInstagram: instagram.text,
+          urlTiktok: tiktok.text,
+          description: description.text,
+          image: urlImage,
+          isClassicLeague: isClassicLeague,
+          isVipLeague: isVipLeague,
+          isCupLeague: isCup,
+          isTeam1000League: isTeams1000,
+          countTeams: countTeams,
+          teams1000Id: convertListTeamToListID(teams1000),
+          otherChampionshipsTeams: convertListTeamToListOrg(teams),
+        ),
+      );
+
+      response.fold((l) {
+        emit(CrudOrganizerErrorState(l));
+      }, (r) {
+        getOrganizers();
+        indexPageOrganizer = 0;
+        emit(CrudOrganizerSuccessState(r));
+      });
+    }
+  }
+
+  void changeHeadingInTeams(Team team) {
+    for (var element in teams) {
+      if (element.id == team.id) {
+        element.isHeading =
+            element.isHeading == null ? true : !element.isHeading!;
+      }
+    }
+    emit(ChangeHeadingGroupState());
   }
 
   Future<String> uploadImageToFirebaseStorage(File image) async {
@@ -286,10 +528,23 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     if (description.text.isEmpty) {
       errorValidation.add('من فضلك ادخل الوصف');
     }
-    if (imagePath == '') {
+    if (imagePath == null && !isUpdate) {
       errorValidation.add('من فضلك ادخل صورة المنظم');
+    } else if (imagePath == null && isUpdate && pathImageTeamUpdate == null) {
+      errorValidation.add('من فضلك ادخل صورة المنظم');
+    }
+    if (!(isTeams1000 || isVipLeague || isCup || isClassicLeague)) {
+      errorValidation.add('يجب اختيار دوري واحد علي الاقل');
     }
 
     return errorValidation;
+  }
+
+  mergeTwoList(List<String> list1, List<String> list2) {
+    List<String> list = [];
+    list.addAll(list1);
+    list.addAll(list2);
+    list = list.toSet().toList();
+    return list;
   }
 }

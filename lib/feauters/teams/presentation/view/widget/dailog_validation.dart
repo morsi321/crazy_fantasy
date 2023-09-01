@@ -21,10 +21,13 @@ void showDailogValidtion(
                             size: 30,
                           ),
                           const SizedBox(width: 10),
-                          Text(
-                            e,
-                            style: const TextStyle(
-                                color: Colors.red, fontSize: 16,fontFamily: "Janna" ),
+                          Expanded(
+                            child: Text(
+                              e,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 16,fontFamily: "Janna" ),
+                            ),
                           ),
                         ],
                       ),

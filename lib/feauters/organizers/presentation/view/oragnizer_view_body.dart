@@ -16,19 +16,21 @@ class OrganizerViewBody extends StatelessWidget {
       builder: (context, state) {
         return IndexedStack(
           clipBehavior: Clip.none,
-
-          index:addOrgCubit
-              .indexPageOrganizer,
-          children:  [
+          index: addOrgCubit.indexPageOrganizer,
+          children: [
             Visibility(
                 visible: addOrgCubit.indexPageOrganizer == 0,
                 child: const ShowOrganizer()),
-             Visibility(
-                 visible: addOrgCubit.indexPageOrganizer == 1,
-                 child: const AddOrganizerWidget()),
+            Visibility(
+                visible: addOrgCubit.indexPageOrganizer == 1,
+                child: const AddOrganizerWidget()),
             Visibility(
                 visible: addOrgCubit.indexPageOrganizer == 2,
                 child: const SelectTeams()),
+            Visibility(
+                visible: addOrgCubit.indexPageOrganizer == 3,
+                child: const SelectTeams()),
+
           ],
         );
       },

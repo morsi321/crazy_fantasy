@@ -21,11 +21,26 @@ class AppBarOrg extends StatefulWidget implements PreferredSizeWidget {
 class _AppBarOrgState extends State<AppBarOrg> {
   @override
   Widget build(BuildContext context) {
+    final addOrgCubit = context.read<AddOrganizerCubit>();
     return BlocBuilder<AddOrganizerCubit, AddOrganizerState>(
       builder: (context, state) {
-        if (BlocProvider.of<AddOrganizerCubit>(context).indexPageOrganizer ==
-            2) {
-          return const AppBarSearchTeam();
+        if (addOrgCubit.indexPageOrganizer >= 2) {
+          return AppBarSearchTeam(
+            counter: addOrgCubit.isTeams1000 &&
+                    !(addOrgCubit.isVipLeague ||
+                        addOrgCubit.isClassicLeague ||
+                        addOrgCubit.isCup)
+                ? addOrgCubit.teams1000.length
+                : addOrgCubit.indexPageOrganizer == 2 &&
+                        (addOrgCubit.isCup ||
+                            addOrgCubit.isVipLeague ||
+                            addOrgCubit.isClassicLeague)
+                    ? addOrgCubit.teams.length
+                    : addOrgCubit.indexPageOrganizer == 3 &&
+                            addOrgCubit.isTeams1000
+                        ? addOrgCubit.teams1000.length
+                        : 0,
+          );
         } else {
           return const AppBarCustom(
             title: 'المنظمين',

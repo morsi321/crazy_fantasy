@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
+import 'package:crazy_fantasy/feauters/organizers/Data/models/orgnizer_model.dart';
 import 'package:meta/meta.dart';
 
+import '../../../organizers/Data/repos/addOrg/addOrganizerRepoImpl.dart';
 import '../../Data/repos/update_teams_repo_impl.dart';
 
 part 'update_data_team_state.dart';
@@ -8,66 +10,50 @@ part 'update_data_team_state.dart';
 class UpdateDataTeamCubit extends Cubit<UpdateDataTeamState> {
   UpdateDataTeamCubit() : super(UpdateDataTeamInitial());
   String lastDateUpdate = '';
+  List<Organizer> organizers = [];
 
   int? gameWeek;
 
-  getLastDateUpdate() async {
-    emit(GetLastDateLoading());
-    var response = await UpdateTeamsRepoImpl().getLastUpdate();
-    response.fold((failure) {
-      emit(FailureGetLastDateUpdate(message: failure));
-    }, (lastDateUpdate) {
-      this.lastDateUpdate = lastDateUpdate;
-      emit(SuccessfulGetLastDateUpdate());
-    });
-  }
-
-  getCurrentGameWeek() {
-    emit(GetCurrentGameWeekLoading());
-    UpdateTeamsRepoImpl().getCurrentGameWeek().then((value) {
-      value.fold((failure) {
-        emit(FailureGetCurrentGameWeek(message: failure));
-      }, (gameWeek) {
-        this.gameWeek = gameWeek;
-
-        emit(SuccessfulGetCurrentGameWeek());
-      });
-    });
-  }
-
-  startSeason() async {
+  startSeason({required Organizer org}) async {
     emit(StartSeasonLoading());
-    var response = await UpdateTeamsRepoImpl().startSeason();
+    var response = await UpdateTeamsRepoImpl().startSeason(org: org);
     response.fold((failure) {
       emit(FailureStartSeason(message: failure));
-    }, (s) async {
-      List<Future> futures = [
-        getLastDateUpdate(),
-        getCurrentGameWeek(),
-      ];
-      await Future.wait(futures);
+    }, (_) async {
+      await getAllOrgs();
       emit(SuccessfulStartSeason());
     });
   }
 
-  updateAllTeams() async {
+  updateTeamOrg({required Organizer org}) async {
     emit(UpdateAllTeamLoading(sent: 0, total: 1));
     var response = await UpdateTeamsRepoImpl().finishGameWeek(
-        onSendProgress: (int sent, int total) {
-      emit(UpdateAllTeamLoading(
-        sent: sent,
-        total: total,
-      ));
-    });
+      org: org,
+      onSendProgress: (int sent, int total) {
+        emit(UpdateAllTeamLoading(
+          sent: sent,
+          total: total,
+        ));
+      },
+    );
     response.fold((failure) {
       emit(FailureUpdateAllTeam(message: failure));
     }, (s) async {
-      List<Future> futures = [
-        getLastDateUpdate(),
-        getCurrentGameWeek(),
-      ];
-      await Future.wait(futures);
+      await getAllOrgs();
       emit(SuccessfulUpdateAllTeam(message: s));
+    });
+  }
+
+
+  getAllOrgs() {
+    emit(GetAllOrgsLoading());
+    AddOrganizerRepoImpl().getOrganizer().then((value) {
+      value.fold((failure) {
+        emit(FailureGetAllOrgs(message: failure));
+      }, (orgs) {
+        organizers = orgs;
+        emit(SuccessfulGetAllOrgs());
+      });
     });
   }
 }

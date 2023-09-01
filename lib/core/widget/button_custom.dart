@@ -44,7 +44,8 @@ class ButtonCustom extends StatelessWidget {
               style: TextStyle(
                   color: colorText,
                   fontSize: fontSize,
-                  fontWeight: FontWeight.w600),
+                  fontFamily: "Janna",
+                  fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               width: 5,

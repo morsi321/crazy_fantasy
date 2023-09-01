@@ -7,6 +7,7 @@ class AddOrganizerInitial extends AddOrganizerState {}
 class AddImageOrganizerState extends AddOrganizerState {}
 class RemoveImageOrgState extends AddOrganizerState {}
 class CrudOrganizerLoadingState extends AddOrganizerState {}
+class ChangeHeadingGroupState extends AddOrganizerState {}
 class GetOrganizerLoadingState extends AddOrganizerState {}
 class ChangeIndexPageOrganizerState extends AddOrganizerState {}
 class CrudOrganizerSuccessState extends AddOrganizerState {
@@ -33,5 +34,13 @@ class ChangeIsVipLeagueState extends AddOrganizerState {}
 class ChangeCountTeamsState extends AddOrganizerState {}
 class AddTeamOrgState extends AddOrganizerState {}
 class RemoveTeamOrgState extends AddOrganizerState {}
+class FetchTeamsOrgLoadingState extends AddOrganizerState {}
+class  FetchTeamsOrgState extends AddOrganizerState {}
+class  FetchTeamsOrgErrorState extends AddOrganizerState {
+  final String error;
+
+  FetchTeamsOrgErrorState(this.error);
+}
+
 
 
