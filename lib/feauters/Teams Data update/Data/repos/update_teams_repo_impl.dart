@@ -33,16 +33,15 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     required Organizer org,
   }) async {
     try {
-      // int numGameWeek = await getGameWeek(idOrg: org.id!);
-      // await updateTeams(
-      //     idOrg: org.id!,
-      //     onSendProgress: onSendProgress,
-      //     numGameWeek: numGameWeek,
-      //     idTeams: mergeTwoListWithOutDuplicate(
-      //         org.otherChampionshipsTeams!
-      //             .map((e) => e["id"] as String)
-      //             .toList(),
-      //         org.teams1000Id!));
+      int numGameWeek = await getGameWeek(idOrg: org.id!);
+      await updateTeams(
+          idOrg: org.id!,
+          numGameWeek: numGameWeek,
+          idTeams: mergeTwoListWithOutDuplicate(
+              org.otherChampionshipsTeams!
+                  .map((e) => e["id"] as String)
+                  .toList(),
+              org.teams1000Id!));
       await handelChampionship(org: org);
       await updateNumGameWeek(idOrg: org.id!);
 
@@ -67,10 +66,6 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
 
   updateTeams(
       {required String idOrg,
-      required void Function(
-        int countUpdate,
-        int total,
-      ) onSendProgress,
       required int numGameWeek,
       required List<String> idTeams}) async {
     List<DocumentSnapshot> teamsDocs = await getALLTeams(idTeams: idTeams);
@@ -106,8 +101,10 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
   }
 
   getGameWeekTeamScores(
-      List<DocumentSnapshot<Object?>> documents, int numGameWeek, String idOrg,
-      ) async {
+    List<DocumentSnapshot<Object?>> documents,
+    int numGameWeek,
+    String idOrg,
+  ) async {
     List<Future> futures = [];
     List<Map> teamsScores = [];
     Stopwatch stopwatch = Stopwatch()..start();
@@ -132,7 +129,6 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     if (kDebugMode) {
       print("time${stopwatch.elapsedMilliseconds}");
     }
-
 
     return teamsScores;
   }

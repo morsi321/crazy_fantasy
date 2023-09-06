@@ -28,7 +28,7 @@ class ButtonUpdateTeams extends StatelessWidget {
           context.pop();
           mySnackBar(context,
               message:
-                  "حدث خطأ ما غير متوقع في انهاء جوله رقم ${org.numGameWeek}");
+                  "حدث خطأ ما غير متوقع في انهاء جوله رقم");
         } else if (state is SuccessfulUpdateAllTeam) {
           context.pop();
           mySnackBar(context, message: "تم انهاء جوله  بنجاح");

@@ -4,223 +4,218 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../organizers/Data/models/orgnizer_model.dart';
 import 'vip_repo.dart';
 
-class OrganizeVipChampionshipRepoImpl
-    implements OrganizeVipChampionshipRepo {
+class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
   @override
   Future handeVip512({required Organizer org}) async {
-      if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
-        await finishGameWeek(
-            orgName: org.id!,
-            numGameWeek: org.numGameWeek!,
-            numRound: org.countTeams!);
-      } else if (org.numGameWeek! == 15) {
-        await finishGameWeek(
-            orgName: org.id!,
-            numGameWeek: org.numGameWeek!,
-            numRound: org.countTeams!);
-        await doSecondRound(org: org.id!, numRound: org.countTeams!);
-      } else if (org.numGameWeek! == 16) {
-        await finishGameWeekInRound(
-            numRound: 256, org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 17) {
-        await finishGameWeekInRound(
-            numRound: 256, org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 128, org: org.id!);
-      } else if (org.numGameWeek! == 18) {
-        await finishGameWeekInRound(
-            numRound: 128, org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 19) {
-        await finishGameWeekInRound(
-            numRound: 128, org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 64, org: org.id!);
-      } else if (org.numGameWeek! == 20) {
-        await finishGameWeekInRound(
-            numRound: 64, org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 21) {
-        await finishGameWeekInRound(
-            numRound: 64, org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 32, org: org.id!);
-      } else if (org.numGameWeek! == 22) {
-        await finishGameWeekInRound(
-            numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 23) {
-        await finishGameWeekInRound(
-            numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 16, org: org.id!);
-      } else if (org.numGameWeek! == 24) {
-        await finishGameWeekInRound(
-            numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 25) {
-        await finishGameWeekInRound(
-            numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound8(org: org.id!);
-      } else if (org.numGameWeek! >= 26 && org.numGameWeek! <= 31) {
-        await finishGameWeeKInLastRound(
-            org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 32) {
-        await finishGameWeeKInLastRound(
-            org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound4(numRound: 4, org: org.id!);
-      } else if (org.numGameWeek! == 33) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-      } else if (org.numGameWeek! == 34) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-        await doRound(numRound: 2, org: org.id!);
-      } else if (org.numGameWeek! == 35 || org.numGameWeek! == 36) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
-      }
-
+    if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
+      await finishGameWeek(
+          orgName: org.id!,
+          numGameWeek: org.numGameWeek!,
+          numRound: org.countTeams!);
+    } else if (org.numGameWeek! == 15) {
+      await finishGameWeek(
+          orgName: org.id!,
+          numGameWeek: org.numGameWeek!,
+          numRound: org.countTeams!);
+      await doSecondRound(org: org.id!, numRound: org.countTeams!);
+    } else if (org.numGameWeek! == 16) {
+      await finishGameWeekInRound(
+          numRound: 256, org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 17) {
+      await finishGameWeekInRound(
+          numRound: 256, org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 128, org: org.id!);
+    } else if (org.numGameWeek! == 18) {
+      await finishGameWeekInRound(
+          numRound: 128, org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 19) {
+      await finishGameWeekInRound(
+          numRound: 128, org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 64, org: org.id!);
+    } else if (org.numGameWeek! == 20) {
+      await finishGameWeekInRound(
+          numRound: 64, org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 21) {
+      await finishGameWeekInRound(
+          numRound: 64, org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 32, org: org.id!);
+    } else if (org.numGameWeek! == 22) {
+      await finishGameWeekInRound(
+          numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 23) {
+      await finishGameWeekInRound(
+          numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 16, org: org.id!);
+    } else if (org.numGameWeek! == 24) {
+      await finishGameWeekInRound(
+          numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 25) {
+      await finishGameWeekInRound(
+          numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound8(org: org.id!);
+    } else if (org.numGameWeek! >= 26 && org.numGameWeek! <= 31) {
+      await finishGameWeeKInLastRound(
+          org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 32) {
+      await finishGameWeeKInLastRound(
+          org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound4(numRound: 4, org: org.id!);
+    } else if (org.numGameWeek! == 33) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+    } else if (org.numGameWeek! == 34) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+      await doRound(numRound: 2, org: org.id!);
+    } else if (org.numGameWeek! == 35 || org.numGameWeek! == 36) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
+    }
   }
 
   @override
   Future handeVip256({required Organizer org}) async {
-      if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
-        await finishGameWeek(
-            orgName: org.id!,
-            numGameWeek: org.numGameWeek!,
-            numRound: org.countTeams!);
-      } else if (org.numGameWeek! == 15) {
-        await finishGameWeek(
-            orgName: org.id!,
-            numGameWeek: org.numGameWeek!,
-            numRound: org.countTeams!);
-        await doSecondRound(org: org.id!, numRound: org.countTeams!);
-      } else if (org.numGameWeek! == 16 || org.numGameWeek! == 17) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 128,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 18) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 128,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 64, org: org.id!);
-      } else if (org.numGameWeek! == 19 || org.numGameWeek! == 20) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 64,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 21) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 64,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 32, org: org.id!);
-      } else if (org.numGameWeek! == 22) {
-        await finishGameWeekInRound(
-            numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 23) {
-        await finishGameWeekInRound(
-            numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 16, org: org.id!);
-      } else if (org.numGameWeek! == 24) {
-        await finishGameWeekInRound(
-            numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 25) {
-        await finishGameWeekInRound(
-            numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound8(org: org.id!);
-      } else if (org.numGameWeek! >= 26 && org.numGameWeek! <= 31) {
-        await finishGameWeeKInLastRound(
-            org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 32) {
-        await finishGameWeeKInLastRound(
-            org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound4(numRound: 4, org: org.id!);
-      } else if (org.numGameWeek! == 33) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-      } else if (org.numGameWeek! == 34) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-        await doRound(numRound: 2, org: org.id!);
-      } else if (org.numGameWeek! == 35 || org.numGameWeek! == 36) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
-      }
-
-
+    if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
+      await finishGameWeek(
+          orgName: org.id!,
+          numGameWeek: org.numGameWeek!,
+          numRound: org.countTeams!);
+    } else if (org.numGameWeek! == 15) {
+      await finishGameWeek(
+          orgName: org.id!,
+          numGameWeek: org.numGameWeek!,
+          numRound: org.countTeams!);
+      await doSecondRound(org: org.id!, numRound: org.countTeams!);
+    } else if (org.numGameWeek! == 16 || org.numGameWeek! == 17) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 128,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 18) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 128,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 64, org: org.id!);
+    } else if (org.numGameWeek! == 19 || org.numGameWeek! == 20) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 64,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 21) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 64,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 32, org: org.id!);
+    } else if (org.numGameWeek! == 22) {
+      await finishGameWeekInRound(
+          numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 23) {
+      await finishGameWeekInRound(
+          numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 16, org: org.id!);
+    } else if (org.numGameWeek! == 24) {
+      await finishGameWeekInRound(
+          numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 25) {
+      await finishGameWeekInRound(
+          numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound8(org: org.id!);
+    } else if (org.numGameWeek! >= 26 && org.numGameWeek! <= 31) {
+      await finishGameWeeKInLastRound(
+          org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 32) {
+      await finishGameWeeKInLastRound(
+          org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound4(numRound: 4, org: org.id!);
+    } else if (org.numGameWeek! == 33) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+    } else if (org.numGameWeek! == 34) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+      await doRound(numRound: 2, org: org.id!);
+    } else if (org.numGameWeek! == 35 || org.numGameWeek! == 36) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
+    }
   }
 
   @override
   Future handeVip128({required Organizer org}) async {
-      if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
-        await finishGameWeek(
-            orgName: org.id!,
-            numGameWeek: org.numGameWeek!,
-            numRound: org.countTeams!);
-      } else if (org.numGameWeek! == 15) {
-        await finishGameWeek(
-            orgName: org.id!,
-            numGameWeek: org.numGameWeek!,
-            numRound: org.countTeams!);
-        await doSecondRound(org: org.id!, numRound: org.countTeams!);
-      } else if (org.numGameWeek! >= 16 && org.numGameWeek! <= 17) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 64,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 18) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 64,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 32, org: org.id!);
-      } else if (org.numGameWeek! == 19 || org.numGameWeek! == 20) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 32,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 21) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 32,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-        await doRound(numRound: 16, org: org.id!);
-      } else if (org.numGameWeek! == 22 || org.numGameWeek! == 23) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 16,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 24) {
-        await finishGameWeekInRound(
-            isBestOf3: true,
-            numRound: 16,
-            org: org.id!,
-            numGameWeek: org.numGameWeek!);
-        await doRound8(org: org.id!);
-      } else if (org.numGameWeek! >= 25 && org.numGameWeek! <= 30) {
-        await finishGameWeeKInLastRound(
-            isVip128: true, org: org.id!, numGameWeek: org.numGameWeek!);
-      } else if (org.numGameWeek! == 31) {
-        await finishGameWeeKInLastRound(
-            org: org.id!, numGameWeek: org.numGameWeek!);
-        await doRound4(numRound: 4, org: org.id!);
-      } else if (org.numGameWeek! == 32) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-      } else if (org.numGameWeek! == 33) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-        await doRound(numRound: 2, org: org.id!);
-      } else if (org.numGameWeek! == 34 || org.numGameWeek! == 35) {
-        await finishGameWeekInRound(
-            org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
-      }
-
+    if (org.numGameWeek! >= 1 && org.numGameWeek! <= 14) {
+      await finishGameWeek(
+          orgName: org.id!,
+          numGameWeek: org.numGameWeek!,
+          numRound: org.countTeams!);
+    } else if (org.numGameWeek! == 15) {
+      await finishGameWeek(
+          orgName: org.id!,
+          numGameWeek: org.numGameWeek!,
+          numRound: org.countTeams!);
+      await doSecondRound(org: org.id!, numRound: org.countTeams!);
+    } else if (org.numGameWeek! >= 16 && org.numGameWeek! <= 17) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 64,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 18) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 64,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 32, org: org.id!);
+    } else if (org.numGameWeek! == 19 || org.numGameWeek! == 20) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 32,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 21) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 32,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+      await doRound(numRound: 16, org: org.id!);
+    } else if (org.numGameWeek! == 22 || org.numGameWeek! == 23) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 16,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 24) {
+      await finishGameWeekInRound(
+          isBestOf3: true,
+          numRound: 16,
+          org: org.id!,
+          numGameWeek: org.numGameWeek!);
+      await doRound8(org: org.id!);
+    } else if (org.numGameWeek! >= 25 && org.numGameWeek! <= 30) {
+      await finishGameWeeKInLastRound(
+          isVip128: true, org: org.id!, numGameWeek: org.numGameWeek!);
+    } else if (org.numGameWeek! == 31) {
+      await finishGameWeeKInLastRound(
+          org: org.id!, numGameWeek: org.numGameWeek!);
+      await doRound4(numRound: 4, org: org.id!);
+    } else if (org.numGameWeek! == 32) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+    } else if (org.numGameWeek! == 33) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
+      await doRound(numRound: 2, org: org.id!);
+    } else if (org.numGameWeek! == 34 || org.numGameWeek! == 35) {
+      await finishGameWeekInRound(
+          org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
+    }
   }
 
   @override
@@ -259,8 +254,7 @@ class OrganizeVipChampionshipRepoImpl
     ];
 
     await Future.wait(futures);
-
-
+    regRound(org: org.id!, numRound: org.countTeams!, name: "دور المجموعات");
   }
 
   @override
@@ -278,6 +272,7 @@ class OrganizeVipChampionshipRepoImpl
         key: "matches",
         data: matches["matches"],
         nameRound: '${int.parse(numRound) ~/ 2}');
+    regRound(org: org, numRound: numRound, name: "الدور الاقصائي");
   }
 
   doRound4({required int numRound, required String org}) async {
@@ -293,54 +288,75 @@ class OrganizeVipChampionshipRepoImpl
       });
     }
 
-    teams= shuffleTeams(teams);
+    teams = shuffleTeams(teams);
     Map matchesRandom = await divisionOfMatchesRandom(teams);
     await addGroupsInFireStore(
         org: org,
         key: "matches",
         data: matchesRandom["matches"],
         nameRound: '$numRound');
+
+    regRound(org: org, numRound: "4", name: "الدور النصف نهائي");
   }
 
   @override
   Future doRound({required int numRound, required String org}) async {
-      Map matches = await getRound(numRound: "${numRound * 2}", org: org);
-      List<Map> teams = await qualifiedTeams(matches);
-      teams = shuffleTeams(teams);
-      Map matchesRandom = await divisionOfMatchesRandom(teams);
-      await addGroupsInFireStore(
-          key: "matches",
-          org: org,
-          data: matchesRandom["matches"],
-          nameRound: '$numRound');
-
-
+    Map matches = await getRound(numRound: "${numRound * 2}", org: org);
+    List<Map> teams = await qualifiedTeams(matches);
+    teams = shuffleTeams(teams);
+    Map matchesRandom = await divisionOfMatchesRandom(teams);
+    await addGroupsInFireStore(
+        key: "matches",
+        org: org,
+        data: matchesRandom["matches"],
+        nameRound: '$numRound');
+    if (numRound == 2) {
+      regRound(org: org, numRound: "$numRound", name: "الدور النهائي");
+    } else {
+      regRound(org: org, numRound: '$numRound', name: "الدور الاقصائي");
+    }
   }
 
   @override
   Future doRound8({required String org}) async {
-      Map matches = await getRound(numRound: "16", org: org);
-      List<Map> teams8 = await qualifiedTeams(matches);
-      individuallyDivisionMatches(teams8);
-      await addGroupsInFireStore(
-        key: "matches",
-        org: org,
-        data: teams8,
-        nameRound: '8',
-      );
+    Map matches = await getRound(numRound: "16", org: org);
+    List<Map> teams8 = await qualifiedTeams(matches);
+    individuallyDivisionMatches(teams8);
+    await addGroupsInFireStore(
+      key: "matches",
+      org: org,
+      data: teams8,
+      nameRound: '8',
+    );
+    regRound(org: org, numRound: "8", name: "الدور ثمن نهائي");
+  }
 
+  regRound(
+      {required String org,
+      required String numRound,
+      required String name}) async {
+    FirebaseFirestore.instance
+        .collection("organizers")
+        .doc(org)
+        .collection("vip_league")
+        .doc("leagues")
+        .set(
+      {
+        "leagues": FieldValue.arrayUnion([
+          {"numRound": numRound, "name": name}
+        ]),
+      },
+      SetOptions(merge: true),
+    );
   }
 
   getCurrentGameWeek() async {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection("infoApp")
-          .doc("gameWeek")
-          .get();
-      int numGameWeek = documentSnapshot['gameWeek'];
-      return numGameWeek;
-
-
-
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection("infoApp")
+        .doc("gameWeek")
+        .get();
+    int numGameWeek = documentSnapshot['gameWeek'];
+    return numGameWeek;
   }
 
   merge2Groups(Map group1, Map group2) {
@@ -418,7 +434,6 @@ class OrganizeVipChampionshipRepoImpl
         'teamAGoals': 0,
         'teamBGoals': 0,
       });
-
     }
     return matches;
   }
@@ -455,7 +470,6 @@ class OrganizeVipChampionshipRepoImpl
 
     await Future.wait(futures);
 
-
     return qualifiedTeams;
   }
 
@@ -478,7 +492,6 @@ class OrganizeVipChampionshipRepoImpl
         data: matches['matches'],
         nameRound: "$numRound",
         key: "matches");
-
   }
 
   roundTrip(
@@ -523,66 +536,62 @@ class OrganizeVipChampionshipRepoImpl
       {required Map matches,
       required String nameOrg,
       required numGameWeek}) async {
-      List<Future> futures = [];
+    List<Future> futures = [];
 
-      matches['matches'].forEach((match) {
-        futures.add(Future(() async {
-          int scoreA = await getPointsGameWeekTeam(
-              match['teamAId'], numGameWeek, nameOrg);
-          int scoreB = await getPointsGameWeekTeam(
-              match["teamBId"], numGameWeek, nameOrg);
+    matches['matches'].forEach((match) {
+      futures.add(Future(() async {
+        int scoreA =
+            await getPointsGameWeekTeam(match['teamAId'], numGameWeek, nameOrg);
+        int scoreB =
+            await getPointsGameWeekTeam(match["teamBId"], numGameWeek, nameOrg);
 
-          match['gameWeekA'].add({
-            "$numGameWeek": scoreA,
-          });
-          match['gameWeekB'].add({
-            "$numGameWeek": scoreB,
-          });
+        match['gameWeekA'].add({
+          "$numGameWeek": scoreA,
+        });
+        match['gameWeekB'].add({
+          "$numGameWeek": scoreB,
+        });
 
-          if (scoreA > scoreB) {
-            match['teamAGoals'] = match['teamAGoals'] + 1;
-          } else if (scoreA < scoreB) {
-            match['teamBGoals'] = match['teamBGoals'] + 1;
-          }
-          if (match['teamAGoals'] > match['teamBGoals']) {
-            match["isTeamAWinner"] = true;
-            match["isTeamBWinner"] = false;
-          } else if (match['teamAGoals'] < match['teamBGoals']) {
-            match["isTeamAWinner"] = false;
-            match["isTeamBWinner"] = true;
-          } else {
-            match["isTeamAWinner"] = false;
-            match["isTeamBWinner"] = false;
-          }
-        }));
-      });
-      await Future.wait(futures);
+        if (scoreA > scoreB) {
+          match['teamAGoals'] = match['teamAGoals'] + 1;
+        } else if (scoreA < scoreB) {
+          match['teamBGoals'] = match['teamBGoals'] + 1;
+        }
+        if (match['teamAGoals'] > match['teamBGoals']) {
+          match["isTeamAWinner"] = true;
+          match["isTeamBWinner"] = false;
+        } else if (match['teamAGoals'] < match['teamBGoals']) {
+          match["isTeamAWinner"] = false;
+          match["isTeamBWinner"] = true;
+        } else {
+          match["isTeamAWinner"] = false;
+          match["isTeamBWinner"] = false;
+        }
+      }));
+    });
+    await Future.wait(futures);
 
-
-      return matches;
-
-
+    return matches;
   }
 
   getVipLeagueTeams({required List<Map> teamsId}) async {
-      List<Future> futures = [];
-      List<Map> othersTeams = [];
-      List<Map> teamsHead = [];
-      for (Map id in teamsId) {
-        futures.add(Future(() async {
-          Map team = await getInfoTeam(id['id']);
-          if (id['isHeading'] == true) {
-            teamsHead.add(team);
-          } else {
-            othersTeams.add(team);
-          }
-        }));
-      }
+    List<Future> futures = [];
+    List<Map> othersTeams = [];
+    List<Map> teamsHead = [];
+    for (Map id in teamsId) {
+      futures.add(Future(() async {
+        Map team = await getInfoTeam(id['id']);
+        if (id['isHeading'] == true) {
+          teamsHead.add(team);
+        } else {
+          othersTeams.add(team);
+        }
+      }));
+    }
 
-      await Future.wait(futures);
+    await Future.wait(futures);
 
-      return (teamsHead, othersTeams);
-
+    return (teamsHead, othersTeams);
   }
 
   getInfoTeam(String idTeam) async {
@@ -615,29 +624,28 @@ class OrganizeVipChampionshipRepoImpl
     Map groups = createGroups(countHead);
     groups = addHeadTeamsInGroups(groups, teamsHead, countHead);
     int numberOfGroups = 1;
-      for (var i = 0; i < othersTeams.length; i++) {
-        if (groups["group$numberOfGroups"].length == 16) {
-          numberOfGroups++;
-          groups["group$numberOfGroups"].add({
-            "teamId": othersTeams[i]['id'],
-            "name": othersTeams[i]['name'],
-            "imagePath": othersTeams[i]['path'].split('/').last,
-            "points": 0,
-            "matches": [],
-          });
-        } else {
-          groups["group$numberOfGroups"].add({
-            "teamId": othersTeams[i]['id'],
-            "name": othersTeams[i]['name'],
-            "imagePath": othersTeams[i]['path'].split('/').last,
-            "points": 0,
-            "matches": [],
-          });
-        }
+    for (var i = 0; i < othersTeams.length; i++) {
+      if (groups["group$numberOfGroups"].length == 16) {
+        numberOfGroups++;
+        groups["group$numberOfGroups"].add({
+          "teamId": othersTeams[i]['id'],
+          "name": othersTeams[i]['name'],
+          "imagePath": othersTeams[i]['path'].split('/').last,
+          "points": 0,
+          "matches": [],
+        });
+      } else {
+        groups["group$numberOfGroups"].add({
+          "teamId": othersTeams[i]['id'],
+          "name": othersTeams[i]['name'],
+          "imagePath": othersTeams[i]['path'].split('/').last,
+          "points": 0,
+          "matches": [],
+        });
       }
+    }
 
-      return groups;
-
+    return groups;
   }
 
   addHeadTeamsInGroups(
@@ -713,7 +721,6 @@ class OrganizeVipChampionshipRepoImpl
       }
     }
 
-
     return teams;
   }
 
@@ -728,7 +735,9 @@ class OrganizeVipChampionshipRepoImpl
     return sortedGroups;
   }
 
-  selectQualifiedTeamsInLastRound(Map scoreTeams ,) {
+  selectQualifiedTeamsInLastRound(
+    Map scoreTeams,
+  ) {
     List sortedTeams = scoreTeams['matches'];
 
     sortedTeams
@@ -739,17 +748,15 @@ class OrganizeVipChampionshipRepoImpl
   }
 
   getRound({required String numRound, required String org}) async {
-      DocumentReference documentReference = FirebaseFirestore.instance
-          .collection("organizers")
-          .doc(org)
-          .collection("vip_league")
-          .doc(numRound);
+    DocumentReference documentReference = FirebaseFirestore.instance
+        .collection("organizers")
+        .doc(org)
+        .collection("vip_league")
+        .doc(numRound);
 
-      Map groups = (await documentReference.get()).data() as Map;
+    Map groups = (await documentReference.get()).data() as Map;
 
-      return groups;
-
-
+    return groups;
   }
 
   @override
@@ -778,18 +785,19 @@ class OrganizeVipChampionshipRepoImpl
   finishGameWeeKInLastRound(
       {required String org,
       required int numGameWeek,
-
       bool isVip128 = false}) async {
     int realNumGameWeek = numGameWeek;
     numGameWeek = (38 - numGameWeek) - (isVip128 ? 5 : 4);
-    List newResult =
-        await setResultGameWeekInLastRound(numGameWeek: numGameWeek, org: org, realNumGameWeek: realNumGameWeek);
+    List newResult = await setResultGameWeekInLastRound(
+        numGameWeek: numGameWeek, org: org, realNumGameWeek: realNumGameWeek);
     await addGroupsInFireStore(
         org: org, key: 'matches', data: newResult, nameRound: '8');
   }
 
   setResultGameWeekInLastRound(
-      {required int numGameWeek, required String org, required int realNumGameWeek}) async {
+      {required int numGameWeek,
+      required String org,
+      required int realNumGameWeek}) async {
     Map dataRound = await getRound(numRound: "8", org: org);
 
     List teams = dataRound['matches'];
@@ -895,22 +903,19 @@ class OrganizeVipChampionshipRepoImpl
   }
 
   getPointsGameWeekTeam(String teamId, int numGameWeek, String nameOrg) async {
-      ///teams/00PtfoO0Sq5wmqvIxN9u/organizers/Crazy fantasy
-      ///
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('teams')
-          .doc(teamId)
-          .collection("organizers")
-          .doc(nameOrg)
-          .get();
+    ///teams/00PtfoO0Sq5wmqvIxN9u/organizers/Crazy fantasy
+    ///
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('teams')
+        .doc(teamId)
+        .collection("organizers")
+        .doc(nameOrg)
+        .get();
 
-      int points =
-          documentSnapshot["vip"]['gameWeek']["gameWeek$numGameWeek"]["score"];
-      return points;
-
+    int points =
+        documentSnapshot["vip"]['gameWeek']["gameWeek$numGameWeek"]["score"];
+    return points;
   }
-
-
 
   removeEmptyGroup(Map<dynamic, dynamic> groups) {
     Map newGroups = {};

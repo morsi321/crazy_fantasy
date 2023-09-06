@@ -32,26 +32,14 @@ class _TeamsDataUpdateViewBodyState extends State<TeamsDataUpdateViewBody> {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if(state is FailureGetAllOrgs){
-              dialogError(context,"حدث خطاء غير متوقع برجا محاوله مره اخري", () => context.read<UpdateDataTeamCubit>().getAllOrgs());
+            } else if (state is FailureGetAllOrgs) {
+              dialogError(context, "حدث خطاء غير متوقع برجا محاوله مره اخري",
+                  () => context.read<UpdateDataTeamCubit>().getAllOrgs());
             }
 
-
             return const ListOfCardOrganizes();
-            // return Column(
-            //   children: [
-            //     const SizedBox(
-            //       height: 50,
-            //     ),
-            //     const ShowLastUpdate(),
-            //     const SizedBox(
-            //       height: 50,
-            //     ),
-            //     BlocProvider.of<UpdateDataTeamCubit>(context).gameWeek != 909
-            //         ? const ButtonUpdateTeams()
-            //         : const StartSeason(),
-            //   ],
-            // );
+
+
           },
         ),
       ),
