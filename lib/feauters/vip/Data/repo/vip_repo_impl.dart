@@ -290,10 +290,12 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     List qualifiedTeams = await selectQualifiedTeamsInLastRound(matches);
     List<Map> teams = [];
     for (var team in qualifiedTeams) {
+
       teams.add({
-        "id": team['id'],
+        "teamId": team['teamId'],
         'name': team['name'],
-        'imagePath': team['imagePath']
+        'imagePath': team['imagePath'],
+        "country":team['country']
       });
     }
 
@@ -416,16 +418,18 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       for (int j = 0; j < teams.length; j++) {
         if (i == j) continue;
         matches.add({
-          "teamA": teams[i]['id'],
-          "teamB": teams[j]['id'],
+          "teamA": teams[i]['teamId'],
+          "teamB": teams[j]['teamId'],
           "nameA": teams[i]['name'],
+          "countryA":teams[i]['country'],
+          "countryB":teams[j]['country'],
           "gameWeekA": [],
           "gameWeekB": [],
           "nameB": teams[j]['name'],
           "image2": teams[j]['imagePath'],
-          "image1": teams[i]['imagePath'],
-          "teamAGoals": 0,
-          "teamBGoals": 0,
+          // "image1": teams[i]['imagePath'],
+          "teamGoalsA": 0,
+          "teamGoalsB": 0,
         });
       }
       teams[i]['matches'] = matches;
@@ -442,15 +446,18 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
     int numMatches = teams.length ~/ 2;
     for (int i = 0; i < numMatches; i++) {
+
       matches['matches'].add({
         'nameA': teams[i]['name'],
         'nameB': teams[numMatches + i]['name'],
         'imageTeamA': teams[i]['imagePath'],
         'imageTeamB': teams[numMatches + i]['imagePath'],
+        'countryA':teams[i]['country'],
+        'countryB':teams[numMatches + i]['country'],
         'gameWeekA': [],
         'gameWeekB': [],
-        'teamA': teams[i]['id'],
-        'teamB': teams[numMatches + i]['id'],
+        'teamA': teams[i]['teamId'],
+        'teamB': teams[numMatches + i]['teamId'],
         'teamAGoals': 0,
         'teamBGoals': 0,
       });
@@ -469,20 +476,22 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       futures.add(Future(() async {
         int score1 = match["teamAGoals"];
         int score2 = match["teamBGoals"];
-
         if (score1 > score2) {
           qualifiedTeams.add(
             {
-              "id": match['teamA'],
+              "teamId": match['teamA'],
               'name': match['nameA'],
-              'imagePath': match['imageTeamA']
+              'imagePath': match['imageTeamA'],
+              'country':match['countryA']
             },
           );
         } else {
           qualifiedTeams.add({
-            "id": match['teamB'],
+            "teamId": match['teamB'],
             'name': match['nameB'],
-            'imagePath': match['imageTeamB']
+            'imagePath': match['imageTeamB'],
+            'country':match['countryB']
+
           });
         }
       }));
@@ -504,8 +513,9 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       matches = await bestOf3(
           matches: matches, numGameWeek: numGameWeek, nameOrg: org);
     } else {
-      await roundTrip(matches: matches, numGameWeek: numGameWeek, nameOrg: org);
+   matches=   await roundTrip(matches: matches, numGameWeek: numGameWeek, nameOrg: org);
     }
+
 
     await addGroupsInFireStore(
         org: org,
@@ -699,6 +709,8 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         matches['matches'].add({
           "teamA": groups['group$i'][k]['teamId'],
           "teamB": groups['group${i + 1}'][7 - k]['teamId'],
+          "countryA": groups['group$i'][k]['country'],
+          "countryB": groups['group${i + 1}'][7 - k]['country'],
           "nameA": groups['group$i'][k]['name'],
           "nameB": groups['group${i + 1}'][7 - k]['name'],
           'imageTeamA': groups['group$i'][k]['imagePath'],
@@ -728,6 +740,9 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
             "nameA": teams["group${i + 1}"][j]['name'],
             "nameB": teams["group${i + 1}"][k]['name'],
             "image2": teams["group${i + 1}"][k]['imagePath'],
+            "countryA": teams["group${i + 1}"][j]['country'],
+            "countryB": teams["group${i + 1}"][k]['country'],
+
             "teamGoalsA": 0,
             "teamGoalsB": 0,
           });
@@ -818,6 +833,8 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     numGameWeek = (38 - numGameWeek) - (isVip128 ? 5 : 4);
     List newResult = await setResultGameWeekInLastRound(
         numGameWeek: numGameWeek, org: org, realNumGameWeek: realNumGameWeek);
+    newResult =sortTeams({"matches":newResult})['matches'];
+
     await addGroupsInFireStore(
         org: org, key: 'matches', data: newResult, nameRound: '8');
   }
@@ -839,31 +856,29 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         if (j == numGameWeek) {
           futures.add(Future(() async {
             Map teamA = await getPointsGameWeekTeam(
-                teams[i]['matches'][j]['homeTeam'], numGameWeek + 1, org);
+                teams[i]['matches'][j]['teamA'], numGameWeek + 1, org);
             Map teamB = await getPointsGameWeekTeam(
-                teams[i]['matches'][j]['awayTeam'], numGameWeek + 1, org);
+                teams[i]['matches'][j]['teamB'], numGameWeek + 1, org);
             int scoreHomeTeam = teamA['score'];
             int scoreAwayTeam = teamB['score'];
 
-            teams[i]['matches'][numGameWeek]['gameWeekHome'].add({
-              "$realNumGameWeek": scoreHomeTeam,
-            });
-            teams[i]['matches'][numGameWeek]['gameWeekAway'].add({
-              "$realNumGameWeek": scoreAwayTeam,
-            });
+            // teams[i]['matches'][numGameWeek]['gameWeekHome'].add({
+            //   "$realNumGameWeek": scoreHomeTeam,
+            // });
+            // teams[i]['matches'][numGameWeek]['gameWeekAway'].add({
+            //   "$realNumGameWeek": scoreAwayTeam,
+            // });
 
             if (scoreHomeTeam > scoreAwayTeam) {
-              teams[i]['matches'][numGameWeek]['homeTeamGoals'] = 3;
-              teams[i]['matches'][numGameWeek]['awayTeamGoals'] = 0;
+              teams[i]['matches'][numGameWeek]['teamGoalsA'] = 3;
             } else if (scoreHomeTeam < scoreAwayTeam) {
-              teams[i]['matches'][numGameWeek]['homeTeamGoals'] = 0;
-              teams[i]['matches'][numGameWeek]['awayTeamGoals'] = 3;
+              teams[i]['matches'][numGameWeek]['teamGoalsB'] = 3;
             } else {
-              teams[i]['matches'][numGameWeek]['homeTeamGoals'] = 1;
-              teams[i]['matches'][numGameWeek]['awayTeamGoals'] = 1;
+              teams[i]['matches'][numGameWeek]['teamGoalsA'] = 1;
+              teams[i]['matches'][numGameWeek]['teamGoalsB'] = 1;
             }
             teams[i]['points'] +=
-                teams[i]['matches'][numGameWeek]['homeTeamGoals'];
+                teams[i]['matches'][numGameWeek]['teamGoalsA'];
           }));
           // group[i]['points'] += totalPoints;
         }
