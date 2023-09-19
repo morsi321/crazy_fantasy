@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../models/orgnizer_model.dart';
+import '../organizers_in_teams/OrganizersRepoImpl.dart';
 import 'addOrganizerRepo.dart';
 
 class AddOrganizerRepoImpl implements AddOrganizerRepo {
@@ -32,21 +33,32 @@ class AddOrganizerRepoImpl implements AddOrganizerRepo {
           .doc(id)
           .delete();
       await deleteOrgForAllTeams(id: id, teamsId: idTeams);
-      return const Right('تم حذف المنظم بنجاح');
+      print("i am here");
+      OrganizersRepoImpl().closeUpdateTeams(
+          teamsId: idTeams, isCloseUpdate: false);
+             return const Right('تم حذف المنظم بنجاح');
     } catch (e) {
+      print(e);
       return left("حدث خطأ ما يرجى المحاولة مرة أخرى");
     }
   }
 
   @override
-  Future<Either<String, String>> updateOrganizer(
-      {required String id, required Organizer organizerModel}) async {
+  Future<Either<String, String>> updateOrganizer({
+    bool isCloseUpdate = false,
+    required Organizer organizerModel,
+  }) async {
     // TODO: implement updateOrganizer
     try {
+
       await FirebaseFirestore.instance
           .collection('organizers')
-          .doc(id)
-          .set(organizerModel.toJson());
+          .doc(organizerModel.id)
+          .set(
+              isCloseUpdate
+                  ? organizerModel.toJsonWhenCloseEdit()
+                  : organizerModel.toJson(),
+              SetOptions(merge: true));
       return const Right('تم تعديل المنظم بنجاح');
     } catch (e) {
       return left("حدث خطأ ما يرجى المحاولة مرة أخرى");
@@ -89,6 +101,7 @@ class AddOrganizerRepoImpl implements AddOrganizerRepo {
       {required List<String> teamsId, required String id}) async {
     List<Future> futures = [];
     for (var team in teamsId) {
+      print(team);
       futures.add(deleteOrg(teamId: team, nameOrg: id));
     }
     await Future.wait(futures);

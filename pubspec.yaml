@@ -56,6 +56,13 @@ dev_dependencies:
   firebase_ui_auth:
   flutter_bloc:
   bloc:
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon_admin.png"
+  min_sdk_android: 21 # android min sdk min:16, defau
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

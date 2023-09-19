@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/constance/url.dart';
 import '../../../../core/servies/api_services.dart';
+import '../../../Cup/Data/repos/cup_reop_impl.dart';
 import '../../../vip/Data/repo/vip_repo_impl.dart';
 import 'updateTeamsRepos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,8 +16,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
   @override
   Future<Either<String, String>> startSeason({required Organizer org}) async {
+    List<Future> futures = [];
     try {
-      await OrganizeVipChampionshipRepoImpl().createVip(org: org);
+      futures = [
+        OrganizeVipChampionshipRepoImpl().createVip(org: org),
+        OrganizeCupChampionshipRepoImpl().createCup(org: org)
+      ];
+      await Future.wait(futures);
+      // await closeUpdate(idOrg: org.id!);
+
       await updateNumGameWeek(idOrg: org.id!);
 
       return const Right('تم بداء الموسم بنجاح');
@@ -33,17 +41,20 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     required Organizer org,
   }) async {
     try {
-      int numGameWeek = await getGameWeek(idOrg: org.id!);
-      await updateTeams(
-          idOrg: org.id!,
-          numGameWeek: numGameWeek,
-          idTeams: mergeTwoListWithOutDuplicate(
-              org.otherChampionshipsTeams!
-                  .map((e) => e["id"] as String)
-                  .toList(),
-              org.teams1000Id!));
-      await handelChampionship(org: org);
-      await updateNumGameWeek(idOrg: org.id!);
+      // await updateTeams(
+      //     isRealTimeUpdate: org.isUpdateRealTime,
+      //     idOrg: org.id!,
+      //     numGameWeek: org.numGameWeek!,
+      //     idTeams: mergeTwoListWithOutDuplicate(
+      //         org.otherChampionshipsTeams!
+      //             .map((e) => e["id"] as String)
+      //             .toList(),
+      //         org.teams1000Id!));
+// 245 397
+      await handelChampionship(
+        org: org,
+      );
+      !org.isUpdateRealTime! ? await updateNumGameWeek(idOrg: org.id!) : () {};
 
       return const Right('finishGameWeek');
     } catch (e) {
@@ -54,19 +65,40 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     }
   }
 
-  handelChampionship({required Organizer org}) async {
+  closeUpdate({required idOrg}) async {
+    FirebaseFirestore.instance
+        .collection("organizers")
+        .doc(idOrg)
+        .set({"isCloseUpdate": true}, SetOptions(merge: true));
+  }
+
+  handelChampionship({
+    required Organizer org,
+  }) async {
+    List<Future> futures = [];
     if (org.countTeams == "512") {
-      await OrganizeVipChampionshipRepoImpl().handeVip512(org: org);
+      futures = [
+        OrganizeVipChampionshipRepoImpl().handeVip512(org: org),
+        OrganizeCupChampionshipRepoImpl().handeCup512(org: org)
+      ];
     } else if (org.countTeams == "256") {
-      await OrganizeVipChampionshipRepoImpl().handeVip256(org: org);
+      futures = [
+        // OrganizeVipChampionshipRepoImpl().handeVip256(org: org),
+        OrganizeCupChampionshipRepoImpl().handeCup256(org: org)
+      ];
     } else if (org.countTeams == "128") {
-      await OrganizeVipChampionshipRepoImpl().handeVip128(org: org);
+      futures = [
+        OrganizeVipChampionshipRepoImpl().handeVip128(org: org),
+        OrganizeCupChampionshipRepoImpl().handeCup128(org: org)
+      ];
     }
+    await Future.wait(futures);
   }
 
   updateTeams(
       {required String idOrg,
       required int numGameWeek,
+      required isRealTimeUpdate,
       required List<String> idTeams}) async {
     List<DocumentSnapshot> teamsDocs = await getALLTeams(idTeams: idTeams);
 
@@ -77,14 +109,12 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     );
     List<Map> championsTeamOrg =
         await getChampionsTeamOrg(idOrg: idOrg, detailsTeams: teamScores);
-    List<Map> newScoresOrgTeam =
-        handelOrg(orgTeamsDetails: championsTeamOrg, numGameWeek: numGameWeek);
-    await putResult(newScoresOrgTeam, idOrg);
+    List<Map> newScoresOrgTeam = handelOrg(
+        orgTeamsDetails: championsTeamOrg,
+        numGameWeek: numGameWeek,
+        isRealTimeUpdate: isRealTimeUpdate);
 
-    // getOrgForAllTeams();
-    // await updateAllTeamsInFireBase(
-    //     onSendProgress: (value) => onSendProgress(value, total));
-    // await registerLastUpdate();
+    await putResult(newScoresOrgTeam, idOrg);
   }
 
   getGameWeek({required String idOrg}) async {
@@ -178,7 +208,10 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     }
   }
 
-  handelOrg({required List<Map> orgTeamsDetails, required int numGameWeek}) {
+  handelOrg(
+      {required List<Map> orgTeamsDetails,
+      required int numGameWeek,
+      required bool isRealTimeUpdate}) {
     List<Map> newScoresOrgTeams = [];
     for (Map team in orgTeamsDetails) {
       List<String> nameChampionShips =
@@ -187,6 +220,10 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
       for (var champion in nameChampionShips) {
         if (team[team.keys.first]["champions"][champion]["chosen"] ==
             "captain") {
+          team[team.keys.first]["champions"][champion]["totalPoints"] -=
+              team[team.keys.first]["champions"][champion]["gameWeek"]
+                      ["gameWeek$numGameWeek"]?["score"] ??
+                  0;
           int doubleCaptain = PropertiesTeamRepoImpl()
               .doubleScore(scores: team[team.keys.first]["gameWeekScoresTeam"]);
 
@@ -201,24 +238,39 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
                   doubleCaptain;
         } else if (team[team.keys.first]["champions"][champion]["chosen"] ==
             "tripleCaptain") {
+          team[team.keys.first]["champions"][champion]["totalPoints"] -=
+              team[team.keys.first]["champions"][champion]["gameWeek"]
+                      ["gameWeek$numGameWeek"]?["score"] ??
+                  0;
+          if (!isRealTimeUpdate) {
+            team[team.keys.first]["champions"][champion]["tripleCaptain"] =
+                false;
+            team[team.keys.first]["champions"][champion]["chosen"] = "captain";
+          }
+
           int tripleCaptain = PropertiesTeamRepoImpl()
               .tripleScore(scores: team[team.keys.first]["gameWeekScoresTeam"]);
+
           team[team.keys.first]["champions"][champion]["gameWeek"] = {
             "gameWeek$numGameWeek": {
               "score": tripleCaptain,
               "type": "tripleCaptain",
             }
           };
-          team[team.keys.first]["champions"][champion]["chosen"] = "captain";
-
-          team[team.keys.first]["champions"][champion]["tripleCaptain"] = false;
 
           team[team.keys.first]["champions"][champion]["totalPoints"] =
               team[team.keys.first]["champions"][champion]["totalPoints"] +
                   tripleCaptain;
         } else if (team[team.keys.first]["champions"][champion]["chosen"] ==
             "maxCaptain") {
-          team[team.keys.first]["champions"][champion]["chosen"] = "captain";
+          team[team.keys.first]["champions"][champion]["totalPoints"] -=
+              team[team.keys.first]["champions"][champion]["gameWeek"]
+                      ["gameWeek$numGameWeek"]?["score"] ??
+                  0;
+          if (isRealTimeUpdate) {
+            team[team.keys.first]["champions"][champion]["maxCaptain"] = false;
+            team[team.keys.first]["champions"][champion]["chosen"] = "captain";
+          }
 
           int maxCaptain = PropertiesTeamRepoImpl().maximumScore(
               scores: team[team.keys.first]["gameWeekScoresTeam"]);
@@ -226,7 +278,6 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
             "gameWeek$numGameWeek": {"score": maxCaptain, "type": "maxCaptain"}
           };
 
-          team[team.keys.first]["champions"][champion]["maxCaptain"] = false;
           team[team.keys.first]["champions"][champion]["totalPoints"] =
               team[team.keys.first]["champions"][champion]["totalPoints"] +
                   maxCaptain;
@@ -278,10 +329,12 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
 
   putResult(List<Map> newScoreOrgTeams, String nameOrg) async {
     List<Future> futures = [];
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    firestore.settings = const Settings(persistenceEnabled: false);
     for (var team in newScoreOrgTeams) {
       String idTeam = team.keys.first;
 
-      futures.add(FirebaseFirestore.instance
+      futures.add(firestore
           .collection('teams')
           .doc(idTeam)
           .collection("organizers")

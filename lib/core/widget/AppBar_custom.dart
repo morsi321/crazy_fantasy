@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 
+
 class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
   const AppBarCustom({Key? key, required this.title})
       : preferredSize = const Size.fromHeight(kToolbarHeight),
@@ -24,26 +25,21 @@ class _AppBarCustomState extends State<AppBarCustom> {
     return PreferredSize(
       preferredSize: const Size.fromHeight(170),
       child: AppBar(
+
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            size: 25,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
         title: Text(widget.title,
             style: const TextStyle(
                 fontSize: 22, fontFamily: 'janna', color: Colors.white)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 15.0),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-                teasttt();
-              },
-              icon: const Icon(
-                Icons.menu,
-                size: 30,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
         backgroundColor: const Color.fromRGBO(28, 22, 54, .9),
       ),
     );

@@ -16,6 +16,8 @@ class Organizer {
   bool? isClassicLeague;
   bool? isTeam1000League;
   int? numGameWeek;
+  bool? isCloseUpdate;
+  bool ?isUpdateRealTime;
 
   List<Map>? otherChampionshipsTeams;
   List<String>? teams1000Id;
@@ -39,11 +41,14 @@ class Organizer {
     this.countTeams,
     this.otherChampionshipsTeams,
     this.teams1000Id,
+    this.isCloseUpdate,
+    this.isUpdateRealTime,
   });
 
   Organizer.fromJson(Map<String, dynamic> json, {required String idOrganizer}) {
     id = idOrganizer;
     name = json['name'];
+    isCloseUpdate = json['isCloseUpdate'] ;
     numGameWeek = json['numGameWeek'];
     whatsApp = json['whatsApp'];
     phone = json['phone'];
@@ -61,13 +66,13 @@ class Organizer {
     isTeam1000League = json['isTeam1000League'];
     otherChampionshipsTeams = json['otherChampionshipsTeams'].cast<Map>();
     teams1000Id = json['teams1000Id'].cast<String>();
-
   }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['name'] = name;
     data['numGameWeek'] = numGameWeek;
+    data['isCloseUpdate'] = isCloseUpdate;
     data['whatsApp'] = whatsApp;
     data['phone'] = phone;
     data['image'] = image;
@@ -82,6 +87,26 @@ class Organizer {
     data['isCupLeague'] = isCupLeague;
     data['isVipLeague'] = isVipLeague;
     data['countTeam'] = countTeams;
+    data['isClassicLeague'] = isClassicLeague;
+    data['isTeam1000League'] = isTeam1000League;
+
+    return data;
+  }
+
+  Map<String, dynamic> toJsonWhenCloseEdit() {
+    final data = <String, dynamic>{};
+    data['name'] = name;
+    data['whatsApp'] = whatsApp;
+    data['phone'] = phone;
+    data['image'] = image;
+    data['description'] = description;
+    data['urlFacebook'] = urlFacebook;
+    data['urlTwitter'] = urlTwitter;
+    data['urlInstagram'] = urlInstagram;
+    data['urlYoutube'] = urlYoutube;
+    data['urlTiktok'] = urlTiktok;
+    data['isCupLeague'] = isCupLeague;
+    data['isVipLeague'] = isVipLeague;
     data['isClassicLeague'] = isClassicLeague;
     data['isTeam1000League'] = isTeam1000League;
 

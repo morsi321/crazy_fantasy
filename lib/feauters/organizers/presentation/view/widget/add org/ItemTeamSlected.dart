@@ -83,15 +83,15 @@ class SelectedItemTeam extends StatelessWidget {
                               !(addOrgCubit.isVipLeague ||
                                   addOrgCubit.isClassicLeague ||
                                   addOrgCubit.isCup)
-                          ? addOrgCubit.removeTeamInBag1000(team)
+                          ? addOrgCubit.removeTeamInBag1000(team,context)
                           : addOrgCubit.indexPageOrganizer == 2 &&
                                   (addOrgCubit.isCup ||
                                       addOrgCubit.isVipLeague ||
                                       addOrgCubit.isClassicLeague)
-                              ? addOrgCubit.removeTeamInBag(team)
+                              ? addOrgCubit.removeTeamInBag(team,context)
                               : addOrgCubit.indexPageOrganizer == 3 &&
                                       addOrgCubit.isTeams1000
-                                  ? addOrgCubit.removeTeamInBag1000(team)
+                                  ? addOrgCubit.removeTeamInBag1000(team,context)
                                   : () {},
                       icon: const Icon(
                         Icons.delete,

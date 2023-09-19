@@ -8,7 +8,7 @@ abstract class AddOrganizerRepo {
   Future<Either<String, String>> deleteOrganizer(
       {required String id ,required List<String> idTeams,});
   Future<Either<String, String>> updateOrganizer(
-      {required String id, required Organizer organizerModel});
+      { bool isCloseUpdate, required Organizer organizerModel});
   Future<Either<String, List<Organizer>>> getOrganizer();
 
 

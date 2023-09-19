@@ -11,10 +11,12 @@ import '../../../../core/models/team.dart';
 import '../../../../core/servies/comperison_image.dart';
 import '../../../../core/servies/image_picker_servies.dart';
 import '../../../../core/widget/bootom_sheet_custom.dart';
+import '../../../teams/presentation/view model/add_team_cubit.dart';
 import '../../../teams/presentation/view/widget/dailog_validation.dart';
 import '../../Data/models/orgnizer_model.dart';
 import '../../Data/repos/addOrg/addOrganizerRepoImpl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../view/widget/add org/add_oragnizer_Widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -57,8 +59,19 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   String? imagePath;
   List<Organizer> organizers = [];
   String idOrganizer = "";
+  bool isCloseUpdate = false;
 
   addTeamInBag(Team team, context) {
+    print("isCloseUpdate");
+    print(isCloseUpdate);
+    if (isCloseUpdate) {
+      mySnackBar(
+        context,
+        duration: 1,
+        message: "لا يمكنك اضافة فريق بعد البدء في الموسم",
+      );
+      return;
+    }
     if (teams.length >= int.parse(countTeams)) {
       mySnackBar(
         context,
@@ -75,11 +88,20 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
       );
     } else {
       teams.add(team);
+      BlocProvider.of<AddTeamCubit>(context).removeTeamFromShow(team);
       emit(AddTeamOrgState());
     }
   }
 
   addFor1000Team(Team team, context) {
+    if (isCloseUpdate) {
+      mySnackBar(
+        context,
+        duration: 1,
+        message: "لا يمكنك اضافة فريق بعد البدء في الموسم",
+      );
+      return;
+    }
     if (teams1000.where((t) => t.id == team.id).isNotEmpty) {
       mySnackBar(
         context,
@@ -88,20 +110,40 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
       );
     } else {
       teams1000.add(team);
+      BlocProvider.of<AddTeamCubit>(context).removeTeamFromShow(team);
       emit(AddTeamOrgState());
     }
   }
 
-  removeTeamInBag(Team team) {
+  removeTeamInBag(Team team, context) {
+    if (isCloseUpdate) {
+      mySnackBar(
+        context,
+        duration: 1,
+        message: "لا يمكنك حدف فريق بعد البدء في الموسم",
+      );
+      return;
+    }
     teams.removeWhere((t) => t.id == team.id);
 
     isUpdate ? teamsRemoves.add(team) : () {};
+    BlocProvider.of<AddTeamCubit>(context).addTeamToShow(team);
     emit(RemoveTeamOrgState());
   }
 
-  removeTeamInBag1000(Team team) {
+  removeTeamInBag1000(Team team, context) {
+    if (isCloseUpdate) {
+      mySnackBar(
+        context,
+        duration: 1,
+        message: "لا يمكنك حدف فريق بعد البدء في الموسم",
+      );
+      return;
+    }
     teams1000.removeWhere((t) => t.id == team.id);
     isUpdate ? teams1000Removes.add(team) : () {};
+    BlocProvider.of<AddTeamCubit>(context).addTeamToShow(team);
+
     emit(RemoveTeamOrgState());
   }
 
@@ -190,24 +232,35 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     return listOrg;
   }
 
-  void changeIndexPageOrganizers(bool back, context) {
-    if (indexPageOrganizer == 2 &&
-        !back &&
-        teams.length < int.parse(countTeams)) {
-      mySnackBar(
-        context,
-        message: "يجب اضافة $countTeams فريق",
-      );
+  void changeIndexPageOrganizers(bool back, context) async {
+    // FocusManager.instance.primaryFocus?.unfocus();
 
-      return;
-    }
+    // if (indexPageOrganizer == 2 &&
+    //     !back &&
+    //     teams.length < int.parse(countTeams)) {
+    //   mySnackBar(
+    //     context,
+    //     message: "يجب اضافة $countTeams فريق",
+    //   );
+    //
+    //   return;
+    // }
+
     if (back) {
       indexPageOrganizer--;
+      indexPageOrganizer == 0 ? clearData() : () {};
     } else {
       indexPageOrganizer++;
     }
-
     emit(ChangeIndexPageOrganizerState());
+
+    if (indexPageOrganizer == 2) {
+      await BlocProvider.of<AddTeamCubit>(context).getTeams(teamsdelete: teams);
+    }
+    if (indexPageOrganizer == 3) {
+      await BlocProvider.of<AddTeamCubit>(context)
+          .getTeams(teamsdelete: teams1000);
+    }
   }
 
   deleteOrg(
@@ -244,6 +297,10 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
       champions.add("cup");
     }
 
+    OrganizersRepoImpl().closeUpdateTeams(
+        teamsId: mergeTwoList(
+            convertListTeamToListID(teams), convertListTeamToListID(teams1000)),
+        isCloseUpdate: true);
     OrganizersRepoImpl().addOrganizersInTeamsForOthersChampions(
         teams: convertListTeamToListID(teams),
         nameOrg: name.text.replaceAll(' ', ''),
@@ -255,13 +312,17 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   }
 
   addOrUpdateOrganize(context) async {
-    await addOrgInTeams();
     if (isUpdate) {
-      await removeOrgFromTeam(id: idOrganizer);
+      !isCloseUpdate
+          ? {
+              await addOrgInTeams(),
+              await removeOrgFromTeam(id: idOrganizer),
+            }
+          : () {};
 
-
-      await updateOrganizer(id: idOrganizer);
+      await updateOrganizer();
     } else {
+      await addOrgInTeams();
       await addOrganizer(context);
     }
   }
@@ -297,10 +358,11 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     twiter.text = organizer.urlTwitter!;
     instagram.text = organizer.urlInstagram!;
     tiktok.text = organizer.urlTiktok!;
-    // youtube.text = organizer.urlYoutube!;
+    youtube.text = organizer.urlYoutube!;
     description.text = organizer.description!;
     numGameWeek = organizer.numGameWeek!;
-
+    countTeams = organizer.countTeams!;
+    isCloseUpdate = organizer.isCloseUpdate!;
     pathImageTeamUpdate = organizer.image;
     isTeams1000 = organizer.isTeam1000League!;
     isCup = organizer.isCupLeague!;
@@ -373,15 +435,23 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     instagram.clear();
     tiktok.clear();
     description.clear();
+    idOrganizer = "";
+    countHeadingTeam = 0;
+
     pathImageTeamUpdate = null;
     isUpdate = false;
     imagePath = null;
     clearChamopionships();
     teams.clear();
     teams1000.clear();
+    teamsRemoves.clear();
+    teams1000Removes.clear();
+    numGameWeek = 0;
+    countTeams = "256";
+    isCloseUpdate = false;
   }
 
-  Future<void> updateOrganizer({String? id}) async {
+  Future<void> updateOrganizer() async {
     emit(CrudOrganizerLoadingState());
 
     Organizer organizer = Organizer();
@@ -392,10 +462,12 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     } else {
       organizer.image = pathImageTeamUpdate;
     }
+    organizer.id = idOrganizer;
     organizer.name = name.text;
     organizer.phone = phone.text;
     organizer.whatsApp = whatsApp.text;
-    organizer.numGameWeek= numGameWeek;
+    organizer.urlYoutube = youtube.text;
+    organizer.numGameWeek = numGameWeek;
     organizer.urlFacebook = faceBook.text;
     organizer.urlTwitter = twiter.text;
     organizer.urlInstagram = instagram.text;
@@ -403,15 +475,19 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     organizer.description = description.text;
     organizer.isTeam1000League = isTeams1000;
     organizer.isCupLeague = isCup;
+    organizer.isCloseUpdate = isCloseUpdate;
+
     organizer.isClassicLeague = isClassicLeague;
     organizer.isVipLeague = isVipLeague;
-    organizer.otherChampionshipsTeams = convertListTeamToListOrg(teams);
-    organizer.teams1000Id = convertListTeamToListID(teams1000);
-    organizer.countTeams = countTeams;
+    if (!isCloseUpdate) {
+      organizer.countTeams = countTeams;
+      organizer.otherChampionshipsTeams = convertListTeamToListOrg(teams);
+      organizer.teams1000Id = convertListTeamToListID(teams1000);
+    }
 
     var result = await AddOrganizerRepoImpl().updateOrganizer(
       organizerModel: organizer,
-      id: id!,
+      isCloseUpdate: isCloseUpdate,
     );
     result.fold((l) {
       emit(CrudOrganizerErrorState(l));
@@ -462,6 +538,7 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
       var response = await addOrganizerRepoImpl.addOrganizer(
         organizerModel: Organizer(
           name: name.text,
+          isCloseUpdate: isCloseUpdate,
           phone: phone.text,
           whatsApp: whatsApp.text,
           urlFacebook: faceBook.text,

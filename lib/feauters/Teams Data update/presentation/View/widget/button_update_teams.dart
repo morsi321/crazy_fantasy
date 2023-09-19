@@ -10,6 +10,8 @@ import 'package:go_router/go_router.dart';
 import '../../view model/update_data_team_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'dailog_update.dart';
+
 class ButtonUpdateTeams extends StatelessWidget {
   const ButtonUpdateTeams({
     super.key,
@@ -27,8 +29,7 @@ class ButtonUpdateTeams extends StatelessWidget {
         } else if (state is FailureUpdateAllTeam) {
           context.pop();
           mySnackBar(context,
-              message:
-                  "حدث خطأ ما غير متوقع في انهاء جوله رقم");
+              message: "حدث خطأ ما غير متوقع في انهاء جوله رقم");
         } else if (state is SuccessfulUpdateAllTeam) {
           context.pop();
           mySnackBar(context, message: "تم انهاء جوله  بنجاح");
@@ -37,18 +38,40 @@ class ButtonUpdateTeams extends StatelessWidget {
       child: Column(
         children: [
           org.numGameWeek! >= 1
-              ? ButtonCustom(
-                  color: Colors.red,
-                  colorText: Colors.white,
-                  width: 250,
-                  borderRadius: BorderRadius.circular(6),
-                  height: 60,
-                  fontSize: 20,
-                  onTap: () => BlocProvider.of<UpdateDataTeamCubit>(context)
-                          .updateTeamOrg(
-                        org: org,
-                      ),
-                  label: "انهاء الجولة ${org.numGameWeek}")
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ButtonCustom(
+                        color: Colors.red,
+                        colorText: Colors.white,
+                        width: 100,
+                        borderRadius:
+                            BorderRadius.horizontal(left: Radius.circular(6)),
+                        height: 60,
+                        fontSize: 20,
+                        onTap: () => showDailogUpdateOrg(context, org: org),
+                        label: "انهاء ${org.numGameWeek}"),
+                    SizedBox(
+                      width: 3,
+                    ),
+                    ButtonCustom(
+                        color: Colors.red,
+                        colorText: Colors.white,
+                        width: 200,
+                        borderRadius:
+                            BorderRadius.horizontal(right: Radius.circular(6)),
+                        height: 60,
+                        fontSize: 20,
+                        onTap: () {
+                          org.isUpdateRealTime = true;
+                          BlocProvider.of<UpdateDataTeamCubit>(context)
+                              .updateTeamOrg(
+                            org: org,
+                          );
+                        },
+                        label: "تحديث اثناء اللعب"),
+                  ],
+                )
               : StartSeason(org: org)
         ],
       ),

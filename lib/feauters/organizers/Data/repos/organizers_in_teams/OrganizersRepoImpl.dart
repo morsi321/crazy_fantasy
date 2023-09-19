@@ -27,6 +27,19 @@ class OrganizersRepoImpl implements OrganizerRepo {
     return champs;
   }
 
+  closeUpdateTeams({required List<String> teamsId,required bool isCloseUpdate}) async {
+    List<Future> futures = [];
+    for(var teamId in teamsId){
+   futures.add(    FirebaseFirestore.instance
+          .collection('teams')
+          .doc(teamId)
+          .update({"isCloseUpdate": isCloseUpdate}));
+    }
+    await Future.wait(futures);
+
+  }
+
+
   addOrgInTeams(
       {required List<String> teams,
       required String nameOrg,

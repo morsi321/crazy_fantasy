@@ -26,7 +26,7 @@ class ImageTeam extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       url: BlocProvider.of<AddTeamCubit>(context)
                           .pathImageTeamUpdate!),
-                !  BlocProvider.of<AddTeamCubit>(context).isView?                IconButton(
+                  !BlocProvider.of<AddTeamCubit>(context).isView && ! BlocProvider.of<AddTeamCubit>(context).isCloseUpdate  ?                IconButton(
                       onPressed: ()=>BlocProvider.of<AddTeamCubit>(context)
                           .removeImageTeam(),
                       icon: const Icon(

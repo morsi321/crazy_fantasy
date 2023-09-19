@@ -20,25 +20,39 @@ class AppBarSearchTeam extends StatelessWidget {
     return PreferredSize(
       preferredSize: const Size.fromHeight(170),
       child: AppBar(
-        title: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: TextFromCustom(
-            onChanged: (value) {
-              BlocProvider.of<AddTeamCubit>(context).search(value);
-            },
-            width: double.infinity,
-            height: 55,
-            hintText: "Search",
-            disableBorder: true,
-            suffixIcon: const Icon(
-              Icons.search,
-              color: Colors.white,
+        automaticallyImplyLeading: false,
+
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: TextFromCustom(
+                onFieldSubmitted: (value) {
+
+                },
+                onChanged: (value) {
+                  BlocProvider.of<AddTeamCubit>(context).search(value);
+                  if (value.isEmpty) {
+                    BlocProvider.of<AddTeamCubit>(context).teamsSearch.clear();
+                  }
+                },
+                width: 300,
+                height: 55,
+                hintText: "Search",
+                disableBorder: true,
+                suffixIcon: const Icon(
+                  Icons.search,
+                  color: Colors.white,
+                ),
+                fillColor: Colors.white.withOpacity(.1),
+                label: '',
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
-            fillColor: Colors.white.withOpacity(.1),
-            label: '',
-            style: const TextStyle(color: Colors.white),
-          ),
+          ],
         ),
+
         actions: [
           BlocBuilder<AddOrganizerCubit, AddOrganizerState>(
             builder: (context, state) {
@@ -55,6 +69,8 @@ class AppBarSearchTeam extends StatelessWidget {
             },
           ),
         ],
+
+
         backgroundColor: const Color.fromRGBO(28, 22, 54, .9),
       ),
     );

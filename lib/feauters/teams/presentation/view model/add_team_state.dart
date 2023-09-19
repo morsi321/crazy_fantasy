@@ -27,6 +27,9 @@ class SuccessfulCrudState extends AddTeamState {
 class LoadingGetTeamsState extends AddTeamState {}
 class ChangeChampionshipSelectedState extends AddTeamState {}
 class ClearDataTeamState extends AddTeamState {}
+class RemoveTeamFromShowState extends AddTeamState {}
+class AddTeamToShowTeamState extends AddTeamState {}
+class RemoveListOfTeamState extends AddTeamState {}
 
 class SuccessfulGetTeamsState extends AddTeamState {
 }
@@ -35,6 +38,16 @@ class FailureGetTeamsState extends AddTeamState {
   final String message;
 
   FailureGetTeamsState(this.message);
+}
+class LoadingSearchState extends AddTeamState {}
+class SuccessfulSearchState extends AddTeamState {
+ final int length ;
+  SuccessfulSearchState({required this.length});
+}
+class FailureSeachState extends AddTeamState {
+  final String message;
+
+  FailureSeachState(this.message);
 }
 
 

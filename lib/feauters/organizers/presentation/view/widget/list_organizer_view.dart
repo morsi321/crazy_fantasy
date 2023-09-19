@@ -88,45 +88,40 @@ class InfoDataOrganizer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        BlocProvider.of<AddOrganizerCubit>(context).viewOrg(organizer, context);
-      },
-      child: SizedBox(
-        width: context.width * .7,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(
-              index.toString(),
-              style: const TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            SizedBox(
-              width: context.width * .52,
-              child: Row(
-                children: [
-                  CashImageNetwork(
-                      url: organizer.image!, width: 50, height: 50),
-                  const SizedBox(
-                    width: 15,
+    return SizedBox(
+      width: context.width * .7,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Text(
+            index.toString(),
+            style: const TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          SizedBox(
+            width: context.width * .52,
+            child: Row(
+              children: [
+                CashImageNetwork(
+                    url: organizer.image!, width: 50, height: 50),
+                const SizedBox(
+                  width: 15,
+                ),
+                Expanded(
+                  child: Text(
+                    organizer.name!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: 'janna'),
                   ),
-                  Expanded(
-                    child: Text(
-                      organizer.name!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontFamily: 'janna'),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

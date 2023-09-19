@@ -15,4 +15,6 @@ abstract class OrganizeVipChampionshipRepo {
   Future finishGameWeekInRound({required int numRound,required String org, required int numGameWeek});
   Future finishGameWeeKInLastRound({required String org, required int numGameWeek});
   Future finishGameWeek({required String orgName, required int numGameWeek, required String numRound});
+
+
 }

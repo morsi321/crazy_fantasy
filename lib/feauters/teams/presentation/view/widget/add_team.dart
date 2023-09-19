@@ -53,14 +53,16 @@ class AddTeam extends StatelessWidget {
                 label: 'اسم فريق ',
                 controller:
                     BlocProvider.of<AddTeamCubit>(context).nameTeamController,
-                enable: BlocProvider.of<AddTeamCubit>(context).isView,
+                enable: BlocProvider.of<AddTeamCubit>(context).isView ||
+                    BlocProvider.of<AddTeamCubit>(context).isCloseUpdate,
               ),
               const SizedBox(height: 20),
               LabelAndTextForm(
                 label: 'الدولة',
                 controller:
                     BlocProvider.of<AddTeamCubit>(context).countryController,
-                enable: BlocProvider.of<AddTeamCubit>(context).isView,
+                enable: BlocProvider.of<AddTeamCubit>(context).isView ||
+                    BlocProvider.of<AddTeamCubit>(context).isCloseUpdate,
               ),
               const SizedBox(height: 20),
               LabelAndTextForm(

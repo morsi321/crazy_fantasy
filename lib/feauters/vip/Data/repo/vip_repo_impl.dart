@@ -17,56 +17,59 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           orgName: org.id!,
           numGameWeek: org.numGameWeek!,
           numRound: org.countTeams!);
-      await doSecondRound(org: org.id!, numRound: org.countTeams!);
+      org.isUpdateRealTime!
+          ? null
+          : await doSecondRound(org: org.id!, numRound: org.countTeams!);
     } else if (org.numGameWeek! == 16) {
       await finishGameWeekInRound(
           numRound: 256, org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 17) {
       await finishGameWeekInRound(
           numRound: 256, org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 128, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 128, org: org.id!);
     } else if (org.numGameWeek! == 18) {
       await finishGameWeekInRound(
           numRound: 128, org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 19) {
       await finishGameWeekInRound(
           numRound: 128, org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 64, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 64, org: org.id!);
     } else if (org.numGameWeek! == 20) {
       await finishGameWeekInRound(
           numRound: 64, org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 21) {
       await finishGameWeekInRound(
           numRound: 64, org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 32, org: org.id!);
+
+      org.isUpdateRealTime! ? null : await doRound(numRound: 32, org: org.id!);
     } else if (org.numGameWeek! == 22) {
       await finishGameWeekInRound(
           numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 23) {
       await finishGameWeekInRound(
           numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 16, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 16, org: org.id!);
     } else if (org.numGameWeek! == 24) {
       await finishGameWeekInRound(
           numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 25) {
       await finishGameWeekInRound(
           numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound8(org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound8(org: org.id!);
     } else if (org.numGameWeek! >= 26 && org.numGameWeek! <= 31) {
       await finishGameWeeKInLastRound(
           org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 32) {
       await finishGameWeeKInLastRound(
           org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound4(numRound: 4, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound4(numRound: 4, org: org.id!);
     } else if (org.numGameWeek! == 33) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
     } else if (org.numGameWeek! == 34) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-      await doRound(numRound: 2, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 2, org: org.id!);
     } else if (org.numGameWeek! == 35 || org.numGameWeek! == 36) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
@@ -85,7 +88,9 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           orgName: org.id!,
           numGameWeek: org.numGameWeek!,
           numRound: org.countTeams!);
-      await doSecondRound(org: org.id!, numRound: org.countTeams!);
+      org.isUpdateRealTime!
+          ? null
+          : await doSecondRound(org: org.id!, numRound: org.countTeams!);
     } else if (org.numGameWeek! == 16 || org.numGameWeek! == 17) {
       await finishGameWeekInRound(
           isBestOf3: true,
@@ -98,7 +103,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           numRound: 128,
           org: org.id!,
           numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 64, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 64, org: org.id!);
     } else if (org.numGameWeek! == 19 || org.numGameWeek! == 20) {
       await finishGameWeekInRound(
           isBestOf3: true,
@@ -111,35 +116,35 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           numRound: 64,
           org: org.id!,
           numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 32, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 32, org: org.id!);
     } else if (org.numGameWeek! == 22) {
       await finishGameWeekInRound(
           numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 23) {
       await finishGameWeekInRound(
           numRound: 32, org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 16, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 16, org: org.id!);
     } else if (org.numGameWeek! == 24) {
       await finishGameWeekInRound(
           numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 25) {
       await finishGameWeekInRound(
           numRound: 16, org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound8(org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound8(org: org.id!);
     } else if (org.numGameWeek! >= 26 && org.numGameWeek! <= 31) {
       await finishGameWeeKInLastRound(
           org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 32) {
       await finishGameWeeKInLastRound(
           org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound4(numRound: 4, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound4(numRound: 4, org: org.id!);
     } else if (org.numGameWeek! == 33) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
     } else if (org.numGameWeek! == 34) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-      await doRound(numRound: 2, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 2, org: org.id!);
     } else if (org.numGameWeek! == 35 || org.numGameWeek! == 36) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
@@ -158,7 +163,9 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           orgName: org.id!,
           numGameWeek: org.numGameWeek!,
           numRound: org.countTeams!);
-      await doSecondRound(org: org.id!, numRound: org.countTeams!);
+      org.isUpdateRealTime!
+          ? null
+          : await doSecondRound(org: org.id!, numRound: org.countTeams!);
     } else if (org.numGameWeek! >= 16 && org.numGameWeek! <= 17) {
       await finishGameWeekInRound(
           isBestOf3: true,
@@ -171,7 +178,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           numRound: 64,
           org: org.id!,
           numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 32, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 32, org: org.id!);
     } else if (org.numGameWeek! == 19 || org.numGameWeek! == 20) {
       await finishGameWeekInRound(
           isBestOf3: true,
@@ -184,7 +191,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           numRound: 32,
           org: org.id!,
           numGameWeek: org.numGameWeek!);
-      await doRound(numRound: 16, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 16, org: org.id!);
     } else if (org.numGameWeek! == 22 || org.numGameWeek! == 23) {
       await finishGameWeekInRound(
           isBestOf3: true,
@@ -197,21 +204,21 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           numRound: 16,
           org: org.id!,
           numGameWeek: org.numGameWeek!);
-      await doRound8(org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound8(org: org.id!);
     } else if (org.numGameWeek! >= 25 && org.numGameWeek! <= 30) {
       await finishGameWeeKInLastRound(
           isVip128: true, org: org.id!, numGameWeek: org.numGameWeek!);
     } else if (org.numGameWeek! == 31) {
       await finishGameWeeKInLastRound(
           org: org.id!, numGameWeek: org.numGameWeek!);
-      await doRound4(numRound: 4, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound4(numRound: 4, org: org.id!);
     } else if (org.numGameWeek! == 32) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
     } else if (org.numGameWeek! == 33) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 4);
-      await doRound(numRound: 2, org: org.id!);
+      org.isUpdateRealTime! ? null : await doRound(numRound: 2, org: org.id!);
     } else if (org.numGameWeek! == 34 || org.numGameWeek! == 35) {
       await finishGameWeekInRound(
           org: org.id!, numGameWeek: org.numGameWeek!, numRound: 2);
@@ -237,10 +244,11 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       countHead = 8;
     }
 
-    (List<Map>, List<Map>) teams =
-        await getVipLeagueTeams(teamsId: org.otherChampionshipsTeams!);
+    (List<Map>, List<Map>) teams = await getVipLeagueTeams(
+        teamsId: org.otherChampionshipsTeams!, countHead: countHead);
     List<Map> headTeam = teams.$1;
     List<Map> othersTeam = teams.$2;
+
     Map groupWithMatches = await groupDivision(
         othersTeams: othersTeam, teamsHead: headTeam, countHead: countHead);
     Map<dynamic, dynamic> matches = matchesDivision(groupWithMatches);
@@ -277,6 +285,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         key: "matches",
         data: matches["matches"],
         nameRound: '$newNumRound');
+
     regRound(
         org: org,
         numRound: "$newNumRound",
@@ -290,12 +299,11 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     List qualifiedTeams = await selectQualifiedTeamsInLastRound(matches);
     List<Map> teams = [];
     for (var team in qualifiedTeams) {
-
       teams.add({
         "teamId": team['teamId'],
         'name': team['name'],
         'imagePath': team['imagePath'],
-        "country":team['country']
+        "country": team['country']
       });
     }
 
@@ -421,15 +429,13 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           "teamA": teams[i]['teamId'],
           "teamB": teams[j]['teamId'],
           "nameA": teams[i]['name'],
-          "countryA":teams[i]['country'],
-          "countryB":teams[j]['country'],
-          "gameWeekA": [],
-          "gameWeekB": [],
+          "countryA": teams[i]['country'],
+          "countryB": teams[j]['country'],
           "nameB": teams[j]['name'],
           "image2": teams[j]['imagePath'],
-          // "image1": teams[i]['imagePath'],
           "teamGoalsA": 0,
           "teamGoalsB": 0,
+          "minusPoints": 0,
         });
       }
       teams[i]['matches'] = matches;
@@ -446,20 +452,19 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
     int numMatches = teams.length ~/ 2;
     for (int i = 0; i < numMatches; i++) {
-
       matches['matches'].add({
         'nameA': teams[i]['name'],
         'nameB': teams[numMatches + i]['name'],
         'imageTeamA': teams[i]['imagePath'],
         'imageTeamB': teams[numMatches + i]['imagePath'],
-        'countryA':teams[i]['country'],
-        'countryB':teams[numMatches + i]['country'],
+        'countryA': teams[i]['country'],
+        'countryB': teams[numMatches + i]['country'],
         'gameWeekA': [],
         'gameWeekB': [],
         'teamA': teams[i]['teamId'],
         'teamB': teams[numMatches + i]['teamId'],
-        'teamAGoals': 0,
-        'teamBGoals': 0,
+        'teamGoalsA': 0,
+        'teamGoalsB': 0,
       });
     }
     return matches;
@@ -474,15 +479,16 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
     matches['matches'].forEach((match) async {
       futures.add(Future(() async {
-        int score1 = match["teamAGoals"];
-        int score2 = match["teamBGoals"];
+        int score1 = match["teamGoalsA"];
+        int score2 = match["teamGoalsB"];
         if (score1 > score2) {
           qualifiedTeams.add(
             {
               "teamId": match['teamA'],
               'name': match['nameA'],
               'imagePath': match['imageTeamA'],
-              'country':match['countryA']
+              'country': match['countryA'],
+              "minusPointsForAllGameWeek": 0,
             },
           );
         } else {
@@ -490,8 +496,8 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
             "teamId": match['teamB'],
             'name': match['nameB'],
             'imagePath': match['imageTeamB'],
-            'country':match['countryB']
-
+            'country': match['countryB'],
+            "minusPointsForAllGameWeek": 0,
           });
         }
       }));
@@ -509,13 +515,14 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       bool isBestOf3 = false,
       required int numGameWeek}) async {
     Map matches = await getRound(numRound: "$numRound", org: org);
+
     if (isBestOf3) {
       matches = await bestOf3(
           matches: matches, numGameWeek: numGameWeek, nameOrg: org);
     } else {
-   matches=   await roundTrip(matches: matches, numGameWeek: numGameWeek, nameOrg: org);
+      matches = await roundTrip(
+          matches: matches, numGameWeek: numGameWeek, nameOrg: org);
     }
-
 
     await addGroupsInFireStore(
         org: org,
@@ -532,27 +539,51 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
     matches['matches'].forEach((match) {
       futures.add(Future(() async {
+        int scoreALast = 0;
+        int scoreBLast = 0;
+        try {
+          scoreALast = match['gameWeekA']
+              .where((element) => element['numGameWeek'] == numGameWeek)
+              .toList()
+              .last['score'];
+          scoreBLast = match['gameWeekB']
+              .where((element) => element['numGameWeek'] == numGameWeek)
+              .toList()
+              .last['score'];
+        } catch (_) {
+          scoreALast = 0;
+          scoreBLast = 0;
+        }
+
+        match['teamGoalsA'] = match['teamGoalsA'] - scoreALast;
+        match['teamGoalsB'] = match['teamGoalsB'] - scoreBLast;
+
         Map teamA =
             await getPointsGameWeekTeam(match['teamA'], numGameWeek, nameOrg);
         Map teamB =
             await getPointsGameWeekTeam(match["teamB"], numGameWeek, nameOrg);
+
         int scoreA = teamA['score'];
         int scoreB = teamB['score'];
-        match['teamAGoals'] += scoreA;
-        match['teamBGoals'] += scoreB;
+        match['teamGoalsA'] += scoreA;
+        match['teamGoalsB'] += scoreB;
+
+        match['gameWeekA']
+            .removeWhere((element) => element["numGameWeek"] == numGameWeek);
+
         match['gameWeekA'].add({
           "numGameWeek": numGameWeek,
           "score": scoreA,
           "type": teamA['type'],
         });
+
+        match['gameWeekB']
+            .removeWhere((element) => element["numGameWeek"] == numGameWeek);
         match['gameWeekB'].add({
           "numGameWeek": numGameWeek,
           "score": scoreB,
           "type": teamB['type'],
-
         });
-
-
       }));
     });
     await Future.wait(futures);
@@ -560,7 +591,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     return matches;
   }
 
-  bestOf3(
+   bestOf3(
       {required Map matches,
       required String nameOrg,
       required numGameWeek}) async {
@@ -568,6 +599,29 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
     matches['matches'].forEach((match) {
       futures.add(Future(() async {
+        // delete last score
+        int scoreALast = 0;
+        int scoreBLast = 0;
+        try {
+          scoreALast = match['gameWeekA']
+              .where((element) => element['numGameWeek'] == numGameWeek)
+              .toList()
+              .last['score'];
+          scoreBLast = match['gameWeekB']
+              .where((element) => element['numGameWeek'] == numGameWeek)
+              .toList()
+              .last['score'];
+        } catch (_) {
+          scoreALast = 0;
+          scoreBLast = 0;
+        }
+
+        if (scoreALast > scoreBLast) {
+          match['teamGoalsA'] = match['teamGoalsA'] - 1;
+        } else if (scoreALast < scoreBLast) {
+          match['teamGoalsB'] = match['teamGoalsB'] - 1;
+        }
+
         Map teamA =
             await getPointsGameWeekTeam(match['teamA'], numGameWeek, nameOrg);
         Map teamB =
@@ -575,11 +629,17 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         int scoreA = teamA['score'];
         int scoreB = teamB['score'];
 
+        match['gameWeekA']
+            .removeWhere((element) => element["numGameWeek"] == numGameWeek);
+
         match['gameWeekA'].add({
           "numGameWeek": numGameWeek,
           "score": scoreA,
           "type": teamA['type'],
         });
+
+        match['gameWeekB']
+            .removeWhere((element) => element["numGameWeek"] == numGameWeek);
         match['gameWeekB'].add({
           "numGameWeek": numGameWeek,
           "score": scoreB,
@@ -587,11 +647,10 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         });
 
         if (scoreA > scoreB) {
-          match['teamAGoals'] = match['teamAGoals'] + 1;
+          match['teamGoalsA'] = match['teamGoalsA'] + 1;
         } else if (scoreA < scoreB) {
-          match['teamBGoals'] = match['teamBGoals'] + 1;
+          match['teamGoalsB'] = match['teamGoalsB'] + 1;
         }
-
       }));
     });
     await Future.wait(futures);
@@ -599,7 +658,8 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     return matches;
   }
 
-  getVipLeagueTeams({required List<Map> teamsId}) async {
+  getVipLeagueTeams(
+      {required List<Map> teamsId, required int countHead}) async {
     List<Future> futures = [];
     List<Map> othersTeams = [];
     List<Map> teamsHead = [];
@@ -615,6 +675,11 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     }
 
     await Future.wait(futures);
+
+    if (teamsHead.length > countHead) {
+      othersTeams = [...othersTeams, ...teamsHead.sublist(countHead)];
+      teamsHead = teamsHead.sublist(0, countHead);
+    }
 
     return (teamsHead, othersTeams);
   }
@@ -647,7 +712,9 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     required int countHead,
   }) async {
     Map groups = createGroups(countHead);
-    groups = addHeadTeamsInGroups(groups, teamsHead, countHead);
+    groups = addHeadTeamsInGroups(groups, teamsHead);
+
+    print(othersTeams.length);
     int numberOfGroups = 1;
     for (var i = 0; i < othersTeams.length; i++) {
       if (groups["group$numberOfGroups"].length == 16) {
@@ -657,41 +724,40 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           "name": othersTeams[i]['name'],
           "imagePath": othersTeams[i]['path'].split('/').last,
           "points": 0,
-          "country" : othersTeams[i]['country'],
+          "country": othersTeams[i]['country'],
+          "minusPointsForAllGameWeek": 0,
           "matches": [],
         });
       } else {
         groups["group$numberOfGroups"].add({
           "teamId": othersTeams[i]['id'],
-          "country" : othersTeams[i]['country'],
+          "country": othersTeams[i]['country'],
           "name": othersTeams[i]['name'],
           "imagePath": othersTeams[i]['path'].split('/').last,
           "points": 0,
+          "minusPointsForAllGameWeek": 0,
           "matches": [],
         });
       }
     }
 
+    print(groups['group8'].length);
     return groups;
   }
 
   addHeadTeamsInGroups(
     Map groups,
     List<Map> teamsHead,
-    int countHead,
   ) {
-    if (teamsHead.length > countHead) {
-      teamsHead = teamsHead.take(countHead).toList();
-    }
-
     for (int i = 0; i < teamsHead.length; i++) {
       groups['group${i + 1}'].add({
         "teamId": teamsHead[i]['id'],
         "name": teamsHead[i]['name'],
         "imagePath": teamsHead[i]['path'].split('/').last,
         "points": 0,
-        "country" : teamsHead[i]['country'],
+        "country": teamsHead[i]['country'],
         "matches": [],
+        "minusPointsForAllGameWeek": 0,
       });
     }
     return groups;
@@ -717,8 +783,8 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
           'imageTeamB': groups['group${i + 1}'][7 - k]['imagePath'],
           'gameWeekA': [],
           'gameWeekB': [],
-          "teamAGoals": 0,
-          "teamBGoals": 0,
+          "teamGoalsA": 0,
+          "teamGoalsB": 0,
         });
       }
     }
@@ -738,11 +804,11 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
             "teamA": teams["group${i + 1}"][j]['teamId'],
             "teamB": teams["group${i + 1}"][k]['teamId'],
             "nameA": teams["group${i + 1}"][j]['name'],
+            "minusPoints": 0,
             "nameB": teams["group${i + 1}"][k]['name'],
             "image2": teams["group${i + 1}"][k]['imagePath'],
             "countryA": teams["group${i + 1}"][j]['country'],
             "countryB": teams["group${i + 1}"][k]['country'],
-
             "teamGoalsA": 0,
             "teamGoalsB": 0,
           });
@@ -762,11 +828,26 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
     scoreGroups.forEach((key, value) {
       value.sort((a, b) => (b['points'] as int).compareTo(a['points'] as int));
-      sortedGroups[key] = shuffleTeams(value.take(8).toList());
+      if (value[7]['points'] == value[8]['points']) {
+        int i = 9;
+        while (value[7]['points'] == value[i]['points']) {
+          i++;
+        }
+        value = value.take(i + 1).toList();
+        value.sort((a, b) => (b['minusPointsForAllGameWeek'] as int)
+            .compareTo(a['minusPointsForAllGameWeek'] as int));
+
+        var qualifiedTeams = value.take(8).toList();
+
+        sortedGroups[key] = qualifiedTeams;
+      } else {
+        sortedGroups[key] = shuffleTeams(value.take(8).toList());
+      }
     });
 
     return sortedGroups;
   }
+
   sortTeams(Map scoreGroups) {
     Map sortedGroups = {};
     scoreGroups.forEach((key, value) {
@@ -814,8 +895,8 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
     Map half1Group = result.$1;
     Map half2Group = result.$2;
-    half1Group =sortTeams(half1Group);
-    half2Group =sortTeams(half2Group);
+    half1Group = sortTeams(half1Group);
+    half2Group = sortTeams(half2Group);
 
     await addGroupsInFireStore(
         data: half1Group, nameRound: '$numRound-1', org: orgName);
@@ -830,10 +911,11 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       required int numGameWeek,
       bool isVip128 = false}) async {
     int realNumGameWeek = numGameWeek;
+
     numGameWeek = (38 - numGameWeek) - (isVip128 ? 5 : 4);
     List newResult = await setResultGameWeekInLastRound(
         numGameWeek: numGameWeek, org: org, realNumGameWeek: realNumGameWeek);
-    newResult =sortTeams({"matches":newResult})['matches'];
+    newResult = sortTeams({"matches": newResult})['matches'];
 
     await addGroupsInFireStore(
         org: org, key: 'matches', data: newResult, nameRound: '8');
@@ -844,6 +926,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       required String org,
       required int realNumGameWeek}) async {
     Map dataRound = await getRound(numRound: "8", org: org);
+    print("realNumGameWeek $realNumGameWeek");
 
     List teams = dataRound['matches'];
 
@@ -855,24 +938,39 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       for (int j = 0; j < teams[i]['matches'].length; j++) {
         if (j == numGameWeek) {
           futures.add(Future(() async {
+            /// delete last points
+            if (teams[i]['matches'][numGameWeek]['teamGoalsA'] >
+                    teams[i]['matches'][numGameWeek]['teamGoalsB'] ||
+                teams[i]['matches'][numGameWeek]['teamGoalsA'] == 3) {
+              teams[i]['points'] -=
+                  teams[i]['matches'][numGameWeek]['teamGoalsA'];
+            }
+
+            print("numGameWeek $numGameWeek");
+
+            teams[i]["minusPointsForAllGameWeek"] -=
+                teams[i]['matches'][numGameWeek]['minusPoints'];
+
             Map teamA = await getPointsGameWeekTeam(
-                teams[i]['matches'][j]['teamA'], numGameWeek + 1, org);
+                teams[i]['matches'][j]['teamA'], realNumGameWeek, org);
+
             Map teamB = await getPointsGameWeekTeam(
-                teams[i]['matches'][j]['teamB'], numGameWeek + 1, org);
+                teams[i]['matches'][j]['teamB'], realNumGameWeek, org);
+
             int scoreHomeTeam = teamA['score'];
             int scoreAwayTeam = teamB['score'];
 
-            // teams[i]['matches'][numGameWeek]['gameWeekHome'].add({
-            //   "$realNumGameWeek": scoreHomeTeam,
-            // });
-            // teams[i]['matches'][numGameWeek]['gameWeekAway'].add({
-            //   "$realNumGameWeek": scoreAwayTeam,
-            // });
-
+            // minus points
+            teams[i]['matches'][numGameWeek]['minusPoints'] =
+                (scoreHomeTeam - scoreAwayTeam);
+            teams[i]["minusPointsForAllGameWeek"] +=
+                teams[i]['matches'][numGameWeek]['minusPoints'];
             if (scoreHomeTeam > scoreAwayTeam) {
               teams[i]['matches'][numGameWeek]['teamGoalsA'] = 3;
+              teams[i]['matches'][numGameWeek]['teamGoalsB'] = 0;
             } else if (scoreHomeTeam < scoreAwayTeam) {
               teams[i]['matches'][numGameWeek]['teamGoalsB'] = 3;
+              teams[i]['matches'][numGameWeek]['teamGoalsA'] = 0;
             } else {
               teams[i]['matches'][numGameWeek]['teamGoalsA'] = 1;
               teams[i]['matches'][numGameWeek]['teamGoalsB'] = 1;
@@ -880,7 +978,6 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
             teams[i]['points'] +=
                 teams[i]['matches'][numGameWeek]['teamGoalsA'];
           }));
-          // group[i]['points'] += totalPoints;
         }
       }
     }
@@ -904,20 +1001,41 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         for (int j = 0; j < group[i]['matches'].length; j++) {
           if (j == numGameWeek) {
             futures.add(Future(() async {
-              Map teamA= await getPointsGameWeekTeam(
+              /// delete last points
+              if (group[i]['matches'][numGameWeek]['teamGoalsA'] >
+                      group[i]['matches'][numGameWeek]['teamGoalsB'] ||
+                  group[i]['matches'][numGameWeek]['teamGoalsA'] == 3) {
+                group[i]['points'] -=
+                    group[i]['matches'][numGameWeek]['teamGoalsA'];
+              }
+
+              /// delete last minus points
+              group[i]["minusPointsForAllGameWeek"] -=
+                  group[i]['matches'][numGameWeek]['minusPoints'];
+
+              ///get score team a , team b
+              Map teamA = await getPointsGameWeekTeam(
                   group[i]['matches'][j]['teamA'], numGameWeek + 1, org);
               Map teamB = await getPointsGameWeekTeam(
                   group[i]['matches'][j]['teamB'], numGameWeek + 1, org);
+
               int scoreA = teamA['score'];
               int scoreB = teamB['score'];
 
+              // minus points
+              group[i]['matches'][numGameWeek]['minusPoints'] =
+                  (scoreA - scoreB);
+              group[i]["minusPointsForAllGameWeek"] += (scoreA - scoreB);
+
               if (scoreA > scoreB) {
                 group[i]['matches'][numGameWeek]['teamGoalsA'] = 3;
+                group[i]['matches'][numGameWeek]['teamGoalsB'] = 0;
 
                 group[i]['points'] +=
                     group[i]['matches'][numGameWeek]['teamGoalsA'];
               } else if (scoreA < scoreB) {
                 group[i]['matches'][numGameWeek]['teamGoalsB'] = 3;
+                group[i]['matches'][numGameWeek]['teamGoalsA'] = 0;
               } else {
                 group[i]['matches'][numGameWeek]['teamGoalsA'] = 1;
                 group[i]['matches'][numGameWeek]['teamGoalsB'] = 1;
@@ -948,9 +1066,9 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     });
   }
 
- Future<Map> getPointsGameWeekTeam(String teamId, int numGameWeek, String nameOrg) async {
-    ///teams/00PtfoO0Sq5wmqvIxN9u/organizers/Crazy fantasy
-    ///
+  Future<Map> getPointsGameWeekTeam(
+      String teamId, int numGameWeek, String nameOrg) async {
+    ///teams/00PtfoO0Sq5wmqvIxN9u/ organizers /Crazy fantasy
     DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
         .collection('teams')
         .doc(teamId)
@@ -960,10 +1078,10 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
     int points =
         documentSnapshot["vip"]['gameWeek']["gameWeek$numGameWeek"]["score"];
-    String type = documentSnapshot["vip"]['gameWeek']["gameWeek$numGameWeek"]
-        ["type"];
+    String type =
+        documentSnapshot["vip"]['gameWeek']["gameWeek$numGameWeek"]["type"];
     return {
-"score": points,
+      "score": points,
       "type": type,
     };
   }

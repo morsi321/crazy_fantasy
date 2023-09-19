@@ -3,17 +3,23 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
-void showDailogDeleteTeam(context, String id, String nameOrg,
-    List<String> otherChampionshipsTeams, List<String> teams1000Id) {
+void showDailogDeleteTeam(context, String id, String name, bool isCloseUpdate) {
   showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Team'),
-          content: const Text(
-            'Are you sure you want to delete this team?',
-            style: TextStyle(fontSize: 16),
+          title: const Directionality(
+
+              textDirection: TextDirection.rtl,
+              child: Text('حذف فريق', style: TextStyle(color: Colors.red))),
+          content: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Text(
+              isCloseUpdate
+                  ? "لا يمكنك حذف هذا فريق لانه تم تسجبله في بطوله"
+                  : 'هل تريد حذف فريق $name ',
+              style: const TextStyle(fontSize: 16),
+            ),
           ),
           actions: [
             TextButton(
@@ -23,7 +29,7 @@ void showDailogDeleteTeam(context, String id, String nameOrg,
                 child: const Text(
                   'Cancel',
                 )),
-            TextButton(
+            isCloseUpdate? const SizedBox() :        TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 BlocProvider.of<AddTeamCubit>(context).deleteTeam(

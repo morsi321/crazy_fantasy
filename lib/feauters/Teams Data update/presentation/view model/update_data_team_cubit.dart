@@ -25,7 +25,7 @@ class UpdateDataTeamCubit extends Cubit<UpdateDataTeamState> {
     });
   }
 
-  updateTeamOrg({required Organizer org}) async {
+  updateTeamOrg({required Organizer org,}) async {
     emit(UpdateAllTeamLoading());
     var response = await UpdateTeamsRepoImpl().finishGameWeek(
         org: org,);

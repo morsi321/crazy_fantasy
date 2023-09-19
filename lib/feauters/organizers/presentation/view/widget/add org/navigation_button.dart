@@ -17,20 +17,21 @@ class NavigationButton extends StatelessWidget {
         builder: (context, state) {
           return Row(
             children: [
+
               orgCubit.indexPageOrganizer != 0
-                  ? IconButtonCustom(
-                      height: 65,
-                      width: 68,
-                      borderRadius: BorderRadius.horizontal(
-                          left: const Radius.circular(10),
-                          right: orgCubit.indexPageOrganizer != 0
-                              ? const Radius.circular(0)
-                              : const Radius.circular(10)),
-                      color: Colors.white,
-                      icon: Icons.arrow_back_ios,
-                      onTap: () =>
-                          orgCubit.checkValidationAddOrg(true, context))
-                  : const SizedBox(),
+                      ? IconButtonCustom(
+                          height: 65,
+                          width: 68,
+                          borderRadius: BorderRadius.horizontal(
+                              left: const Radius.circular(10),
+                              right: orgCubit.indexPageOrganizer != 0
+                                  ? const Radius.circular(0)
+                                  : const Radius.circular(10)),
+                          color: Colors.white,
+                          icon: Icons.arrow_back_ios,
+                          onTap: () =>
+                              orgCubit.checkValidationAddOrg(true, context))
+                      : const SizedBox(),
               const SizedBox(
                 width: 3,
               ),
@@ -80,16 +81,18 @@ class SubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final orgCubit = BlocProvider.of<AddOrganizerCubit>(context);
+    final String label = orgCubit.isUpdate ? "تعديل منظم" : "اضافه منظم";
     return BlocBuilder<AddOrganizerCubit, AddOrganizerState>(
       builder: (context, state) {
         if (state is CrudOrganizerLoadingState) {
-          return   Row(
+          return Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ButtonCustom(
                 onTap: () {},
-                label: "اضافه منظم",
+                label: label,
                 fontSize: 20,
                 color: Colors.white,
                 height: 65,
@@ -100,24 +103,21 @@ class SubmitButton extends StatelessWidget {
                 width: 70,
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.horizontal(
-                      right: Radius.circular(10)),
+                  borderRadius:
+                      BorderRadius.horizontal(right: Radius.circular(10)),
                 ),
                 child: const Center(
                   child: CircularProgressIndicator(
                     color: Colors.black,
                   ),
                 ),
-
-
               )
             ],
           );
         }
         return ButtonCustom(
-          onTap: () =>
-             orgCubit.addOrUpdateOrganize(context),
-          label: orgCubit.isUpdate ? "تعديل منظم":"اضافه منظم",
+          onTap: () => orgCubit.addOrUpdateOrganize(context),
+          label: label,
           fontSize: 20,
           color: Colors.white,
           height: 65,

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
 /// Example:
@@ -15,6 +16,8 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
+
+
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
@@ -68,6 +71,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'crazy-fantasy-97ec8.appspot.com',
     iosClientId: '64139383562-jv06l1lh5lfjt0sejcgsj8e3kpinr9k0.apps.googleusercontent.com',
     iosBundleId: 'com.example.crazyFantasy',
+
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -79,4 +83,7 @@ class DefaultFirebaseOptions {
     iosClientId: '64139383562-c5tnfrvaknp5a7h43ae78vpgk66obbes.apps.googleusercontent.com',
     iosBundleId: 'com.example.crazyFantasy.RunnerTests',
   );
+
+
+
 }

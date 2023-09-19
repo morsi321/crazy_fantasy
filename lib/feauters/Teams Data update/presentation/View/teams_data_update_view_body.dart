@@ -26,20 +26,21 @@ class _TeamsDataUpdateViewBodyState extends State<TeamsDataUpdateViewBody> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18.0),
       child: BackgroundImage(
-        child: BlocBuilder<UpdateDataTeamCubit, UpdateDataTeamState>(
+        child: BlocConsumer<UpdateDataTeamCubit, UpdateDataTeamState>(
           builder: (context, state) {
             if (state is GetAllOrgsLoading) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (state is FailureGetAllOrgs) {
-              dialogError(context, "حدث خطاء غير متوقع برجا محاوله مره اخري",
-                  () => context.read<UpdateDataTeamCubit>().getAllOrgs());
             }
 
             return const ListOfCardOrganizes();
-
-
+          },
+          listener: (BuildContext context, UpdateDataTeamState state) {
+            if (state is FailureGetAllOrgs) {
+              dialogError(context, "حدث خطاء غير متوقع برجا محاوله مره اخري",
+                  () => context.read<UpdateDataTeamCubit>().getAllOrgs());
+            }
           },
         ),
       ),

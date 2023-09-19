@@ -7,13 +7,14 @@ class Team {
   int? fantasyID2;
   int? fantasyID3;
   bool? isHeading;
-
+  bool? isCloseUpdate;
   int? fantasyID4;
 
   String? managerID;
   int? captain;
 
   Team({
+    this.isCloseUpdate,
     this.id,
     this.name,
     this.country,
@@ -38,6 +39,8 @@ class Team {
       'fantasyID3': fantasyID3,
       'fantasyID4': fantasyID4,
       'managerID': managerID,
+      'isCloseUpdate': isCloseUpdate,
+
     };
   }
 
@@ -48,6 +51,7 @@ class Team {
   )   : id = idDoc,
         isHeading = isHead??false,
         name = json['name'],
+  isCloseUpdate = json['isCloseUpdate'],
         pathImage = json['path'],
         captain = json['captain'],
         fantasyID1 = json['fantasyID1'],

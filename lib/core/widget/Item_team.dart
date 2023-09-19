@@ -1,6 +1,7 @@
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:crazy_fantasy/core/widget/cash_image_network.dart';
 import 'package:crazy_fantasy/feauters/organizers/presentation/view%20Model/add_orgaizer_cubit.dart';
+import 'package:crazy_fantasy/feauters/organizers/presentation/view/widget/dailog_delete.dart';
 import 'package:flutter/material.dart';
 
 import '../models/team.dart';
@@ -18,13 +19,8 @@ class ListItemTeamView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        controller: BlocProvider.of<AddTeamCubit>(context).scrollController,
-        itemCount: teams.length +
-            (BlocProvider.of<AddTeamCubit>(context).isLoading ? 0 : 1),
+        itemCount: teams.length ,
         itemBuilder: (context, index) {
-          if (index == teams.length) {
-            return const Center(child: CircularProgressIndicator());
-          }
           return ItemTeam(
             forOrg: forOrg,
             team: teams[index],
@@ -100,7 +96,7 @@ class ItemTeam extends StatelessWidget {
                             )),
                         IconButton(
                             onPressed: () {
-                              // showDailogDelete(context, team.id!);
+                              showDailogDeleteTeam(context, team.id!, team.name!,team.isCloseUpdate!);
                             },
                             icon: const Icon(
                               Icons.delete,

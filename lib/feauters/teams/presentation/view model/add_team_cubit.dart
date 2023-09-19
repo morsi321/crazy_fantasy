@@ -27,16 +27,13 @@ class AddTeamCubit extends Cubit<AddTeamState> {
   bool isChangeChampionship = false;
 
   TextEditingController nameTeamController = TextEditingController();
-  TextEditingController countryController =
-      TextEditingController(text: "مصر");
+  TextEditingController countryController = TextEditingController(text: "مصر");
   TextEditingController fantasyID1 = TextEditingController();
   TextEditingController fantasyID2 = TextEditingController();
   TextEditingController fantasyID3 = TextEditingController();
   TextEditingController fantasyID4 = TextEditingController();
   TextEditingController captain = TextEditingController();
   TextEditingController mangerId = TextEditingController();
-
-  ScrollController scrollController = ScrollController();
 
   AddTeamRepoImpl addTeamRepoImpl = AddTeamRepoImpl();
 
@@ -47,11 +44,13 @@ class AddTeamCubit extends Cubit<AddTeamState> {
   String championship = championShip[0];
 
   List<Team> teams = [];
+  List<Team> teamsSearch = [];
+  List<Team> backupTeam = [];
 
   bool isUpdate = false;
+  bool isCloseUpdate = false;
   String? pathImageTeamUpdate;
 
-  bool isLoading = false;
   String idTeam = '';
   bool isView = false;
 
@@ -59,19 +58,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     pathImageTeamUpdate = null;
 
     emit(RemoveImageTeamState());
-  }
-
-  void scrollListenerPangation() {
-    bool isDone = true;
-    if (isLoading == false && isDone) {
-      scrollController.addListener(() {
-        if (scrollController.position.pixels ==
-            scrollController.position.maxScrollExtent) {
-          getTeams();
-          isDone = false;
-        }
-      });
-    }
   }
 
   void viewTeam(Team team, context) {
@@ -91,9 +77,10 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     String path = await uploadImageToFirebaseStorage(File(pathImageTeam!));
     AddTeamRepoImpl addTeamRepoImpl = AddTeamRepoImpl();
     var response = await addTeamRepoImpl.addTeam(
-        id: nameTeamController.text,
+        id: (teams.length + 1).toString(),
         teamModel: Team(
           name: nameTeamController.text,
+          isCloseUpdate: isCloseUpdate,
           pathImage: path,
           country: countryController.text,
           captain: int.parse(captain.text),
@@ -102,7 +89,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
           fantasyID3: int.parse(fantasyID3.text),
           fantasyID4: int.parse(fantasyID4.text),
           managerID: mangerId.text,
-
         ));
 
     response.fold((failure) {
@@ -118,7 +104,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
   done(context) async {
     Navigator.pop(context);
     teams.clear();
-    await getTeams(refrish: true);
+    await getTeams();
   }
 
   void editTeam(Team team, context) {
@@ -138,6 +124,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     captain.text = team.captain!.toString();
     idTeam = team.id!;
     countryController.text = team.country!;
+    isCloseUpdate = team.isCloseUpdate!;
   }
 
   addOrUpdateTeam(context) async {
@@ -157,6 +144,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
       teamUpdate.pathImage = path;
     }
 
+    teamUpdate.isCloseUpdate = isCloseUpdate;
     teamUpdate.name = nameTeamController.text;
     teamUpdate.country = countryController.text;
     teamUpdate.captain = int.parse(captain.text);
@@ -165,7 +153,6 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     teamUpdate.fantasyID3 = int.parse(fantasyID3.text);
     teamUpdate.fantasyID4 = int.parse(fantasyID4.text);
     teamUpdate.managerID = mangerId.text;
-
 
     var response = await addTeamRepoImpl.updateTeam(
       id: idTeam,
@@ -188,18 +175,22 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     teams.clear();
     clearDataTeam();
     championshipSelected = 'جميع البطولات';
-    await getTeams(refrish: true);
+    await getTeams();
   }
 
-  getTeams({bool refrish = false, String? championShipSelected}) async {
+  getTeams({List<Team>? teamsdelete}) async {
     emit(LoadingGetTeamsState());
-    var response = await addTeamRepoImpl.getTeams(refrish: refrish);
+
+    var response = await addTeamRepoImpl.getTeams();
     response.fold((failure) {
-      isLoading = true;
       emit(FailureGetTeamsState(failure));
     }, (teams) {
-      isLoading = true;
-      this.teams.addAll(teams);
+      if (teamsdelete == null) {
+        this.teams = teams;
+        backupTeam = teams;
+      } else {
+        removeListOfTeam(teamsdelete, teams);
+      }
       emit(SuccessfulGetTeamsState());
     });
   }
@@ -217,16 +208,42 @@ class AddTeamCubit extends Cubit<AddTeamState> {
   }
 
   search(String nameTeam) async {
-    emit(LoadingGetTeamsState());
-    var response = await addTeamRepoImpl.search(nameTeam);
-    response.fold((failure) {
-      emit(FailureGetTeamsState(failure));
-    }, (teams) {
-      this.teams.clear();
-      this.teams.addAll(teams);
-      print(teams.length);
-      emit(SuccessfulGetTeamsState());
-    });
+    emit(LoadingSearchState());
+    if (nameTeam.isNotEmpty) {
+      List<Team> searchedTeams = teams
+          .where((team) =>
+              team.name!.toLowerCase().contains(nameTeam.toLowerCase()))
+          .toList();
+      teams = searchedTeams;
+    } else {
+      teams = backupTeam;
+    }
+
+    emit(SuccessfulSearchState(
+      length: teams.length,
+    ));
+  }
+
+  removeListOfTeam(List<Team> teamsDelete, List<Team> teamss) {
+    for (var team in teamsDelete) {
+      teamss.removeWhere((t) => t.id == team.id);
+    }
+    teams = teamss;
+    emit(RemoveListOfTeamState());
+  }
+
+  removeTeamFromShow(
+    Team team,
+  ) {
+    teams.removeWhere((t) => t.id == team.id);
+    emit(RemoveTeamFromShowState());
+  }
+
+  addTeamToShow(
+    Team team,
+  ) {
+    teams.insert(0, team);
+    emit(AddTeamToShowTeamState());
   }
 
   clearDataTeam() {
@@ -316,15 +333,18 @@ class AddTeamCubit extends Cubit<AddTeamState> {
 //
 // }
 
-  int counter = 1;
-
   add1000Team() async {
+    print("start" * 130);
+    int counter = 1;
+
     AddTeamRepoImpl addTeamRepoImpl = AddTeamRepoImpl();
+
     List<Future> futures = [];
-    for (int i = 0; i < 1000; i++) {
+    int id = 0;
+    for (int i = 0; i < 256; i++) {
       Team teamModel = Team(
-        name: 'team $i',
-        country: 'مصر',
+        name: names[i],
+        country: arabCountrys[i % arabCountrys.length],
         captain: counter++,
         fantasyID1: counter++,
         fantasyID2: counter++,
@@ -335,7 +355,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
             'https://firebasestorage.googleapis.com/v0/b/crazy-fantasy-97ec8.appspot.com/o/1688990399391.jpg?alt=media&token=f90ef88e-a643-4e1d-9e5f-ef3cf8f6ee90',
       );
 
-      futures.add(addTeamRepoImpl.addTeam(id: "cvg", teamModel: teamModel));
+      futures.add(addTeamRepoImpl.addTeam(id: "${id++}", teamModel: teamModel));
     }
     if (kDebugMode) {
       print(futures.length);

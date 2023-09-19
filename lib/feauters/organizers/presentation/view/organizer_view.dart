@@ -1,3 +1,4 @@
+import 'package:crazy_fantasy/core/widget/background_image.dart';
 import 'package:crazy_fantasy/feauters/organizers/presentation/view/widget/add%20org/appBarOrg.dart';
 
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class OrganizerView extends StatelessWidget {
         body: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            OrganizerViewBody(),
+            BackgroundImage(child: OrganizerViewBody()),
             NavigationButton(),
           ],
         ));
