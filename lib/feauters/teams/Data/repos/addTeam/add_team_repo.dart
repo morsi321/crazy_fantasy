@@ -13,5 +13,7 @@ abstract class AddTeamRepo {
   Future<Either<String, String>> deleteTeam({required String id});
 
   Future<Either<String, List<Team>>> getTeams();
+  Future<Either<String, String>> addLeaderForTeam({required String idUser, required teamId,required String lastIdLeader});
+
 
 }

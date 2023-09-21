@@ -63,11 +63,13 @@ class OrganizerItem extends StatelessWidget {
                   onPressed: () {
                     showDailogDeleteOrg(
                         context,
-                        organizer.name!,
+                        organizer.id!,
                         organizer.otherChampionshipsTeams!
                             .map((e) => e["id"] as String)
                             .toList(),
-                        organizer.teams1000Id!);
+                        organizer.teams1000Id!,
+                        organizer.image!,
+                        organizer.name!);
                   },
                   icon: const Icon(
                     Icons.delete,
@@ -101,8 +103,7 @@ class InfoDataOrganizer extends StatelessWidget {
             width: context.width * .52,
             child: Row(
               children: [
-                CashImageNetwork(
-                    url: organizer.image!, width: 50, height: 50),
+                CashImageNetwork(url: organizer.image!, width: 50, height: 50),
                 const SizedBox(
                   width: 15,
                 ),

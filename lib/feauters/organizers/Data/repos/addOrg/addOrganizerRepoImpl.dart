@@ -26,17 +26,23 @@ class AddOrganizerRepoImpl implements AddOrganizerRepo {
   Future<Either<String, String>> deleteOrganizer({
     required String id,
     required List<String> idTeams,
+    required String nameOrg,
+    required String urlImage,
   }) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('organizers')
-          .doc(id)
-          .delete();
-      await deleteOrgForAllTeams(id: id, teamsId: idTeams);
-      print("i am here");
-      OrganizersRepoImpl().closeUpdateTeams(
-          teamsId: idTeams, isCloseUpdate: false);
-             return const Right('تم حذف المنظم بنجاح');
+      List<Future> futures = [
+        FirebaseFirestore.instance.collection('organizers').doc(id).delete(),
+        deleteOrgForAllTeams(id: id, teamsId: idTeams),
+        OrganizersRepoImpl().removeTeamFromOrg(
+            listOfTeams: idTeams,
+            orgId: id,
+            nameOrg: nameOrg,
+            urlImage: urlImage),
+        OrganizersRepoImpl()
+            .closeUpdateTeams(teamsId: idTeams, isCloseUpdate: false)
+      ];
+      await Future.wait(futures);
+      return const Right('تم حذف المنظم بنجاح');
     } catch (e) {
       print(e);
       return left("حدث خطأ ما يرجى المحاولة مرة أخرى");
@@ -50,7 +56,6 @@ class AddOrganizerRepoImpl implements AddOrganizerRepo {
   }) async {
     // TODO: implement updateOrganizer
     try {
-
       await FirebaseFirestore.instance
           .collection('organizers')
           .doc(organizerModel.id)
@@ -101,7 +106,6 @@ class AddOrganizerRepoImpl implements AddOrganizerRepo {
       {required List<String> teamsId, required String id}) async {
     List<Future> futures = [];
     for (var team in teamsId) {
-      print(team);
       futures.add(deleteOrg(teamId: team, nameOrg: id));
     }
     await Future.wait(futures);

@@ -65,12 +65,6 @@ class AddTeam extends StatelessWidget {
                     BlocProvider.of<AddTeamCubit>(context).isCloseUpdate,
               ),
               const SizedBox(height: 20),
-              LabelAndTextForm(
-                label: 'Manager ID',
-                controller: BlocProvider.of<AddTeamCubit>(context).mangerId,
-                enable: BlocProvider.of<AddTeamCubit>(context).isView,
-              ),
-              const SizedBox(height: 20),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

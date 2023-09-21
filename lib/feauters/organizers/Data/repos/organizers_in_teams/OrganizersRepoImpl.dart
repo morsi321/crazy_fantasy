@@ -27,18 +27,50 @@ class OrganizersRepoImpl implements OrganizerRepo {
     return champs;
   }
 
-  closeUpdateTeams({required List<String> teamsId,required bool isCloseUpdate}) async {
+  closeUpdateTeams(
+      {required List<String> teamsId, required bool isCloseUpdate}) async {
     List<Future> futures = [];
-    for(var teamId in teamsId){
-   futures.add(    FirebaseFirestore.instance
+    for (var teamId in teamsId) {
+      futures.add(FirebaseFirestore.instance
           .collection('teams')
           .doc(teamId)
           .update({"isCloseUpdate": isCloseUpdate}));
     }
     await Future.wait(futures);
-
   }
 
+  addTeamInOrg(
+      {required List<String> listOfTeams,
+      required String orgId,
+      required String nameOrg,
+      required urlImage}) async {
+    List<Future> futures = [];
+    for (String id in listOfTeams) {
+      futures.add(FirebaseFirestore.instance.collection('teams').doc(id).set({
+        "listOfOrganizers": FieldValue.arrayUnion([
+          {"name": nameOrg, "urlImage": urlImage, "id": orgId}
+        ]),
+      }, SetOptions(merge: true)));
+    }
+    await Future.wait(futures);
+  }
+
+  removeTeamFromOrg(
+      {required List<String> listOfTeams,
+      required String orgId,
+      required String nameOrg,
+      required urlImage}) async {
+    List<Future> futures = [];
+
+    for (String id in listOfTeams) {
+      futures.add(FirebaseFirestore.instance.collection('teams').doc(id).set({
+        "listOfOrganizers": FieldValue.arrayRemove([
+          {"name": nameOrg, "urlImage": urlImage, "id": orgId}
+        ]),
+      }, SetOptions(merge: true)));
+    }
+    await Future.wait(futures);
+  }
 
   addOrgInTeams(
       {required List<String> teams,
@@ -58,8 +90,6 @@ class OrganizersRepoImpl implements OrganizerRepo {
         await FirebaseFirestore.instance.collection('teams').get();
     return teams.docs;
   }
-
-
 
   @override
   Future addOrganizersInTeamsForChamp1000Team(
@@ -129,7 +159,6 @@ class OrganizersRepoImpl implements OrganizerRepo {
   @override
   Future removeOrgOthersChampions(
       {required List<String> teams, required String nameOrg}) async {
-
     List<Future> futures = [];
     for (String teamId in teams) {
       futures.add(Future(() async {
@@ -177,6 +206,4 @@ class OrganizersRepoImpl implements OrganizerRepo {
         .doc(nameOrg)
         .delete();
   }
-
-
 }

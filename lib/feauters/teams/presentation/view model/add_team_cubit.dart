@@ -152,7 +152,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     teamUpdate.fantasyID2 = int.parse(fantasyID2.text);
     teamUpdate.fantasyID3 = int.parse(fantasyID3.text);
     teamUpdate.fantasyID4 = int.parse(fantasyID4.text);
-    teamUpdate.managerID = mangerId.text;
+    teamUpdate.managerID ="";
 
     var response = await addTeamRepoImpl.updateTeam(
       id: idTeam,
@@ -350,7 +350,7 @@ class AddTeamCubit extends Cubit<AddTeamState> {
         fantasyID2: counter++,
         fantasyID3: counter++,
         fantasyID4: counter++,
-        managerID: '123',
+        managerID: '',
         pathImage:
             'https://firebasestorage.googleapis.com/v0/b/crazy-fantasy-97ec8.appspot.com/o/1688990399391.jpg?alt=media&token=f90ef88e-a643-4e1d-9e5f-ef3cf8f6ee90',
       );
@@ -362,5 +362,21 @@ class AddTeamCubit extends Cubit<AddTeamState> {
     }
     await Future.wait(futures);
     print("done" * 130);
+  }
+
+
+  addLeaderInTeam({required String idUser, required String teamId , required String lastIdLeader}) {
+    emit(LoadingAddLeaderState());
+    addTeamRepoImpl
+        .addLeaderForTeam(idUser: idUser, teamId: teamId, lastIdLeader: lastIdLeader )
+        .then((value) {
+      value.fold((l) {
+        emit(FailureAddLeaderNameState(l));
+      }, (r) async{
+        emit(SuccessfulAddLeaderState(response: r));
+        await getTeams();
+
+      });
+    });
   }
 }

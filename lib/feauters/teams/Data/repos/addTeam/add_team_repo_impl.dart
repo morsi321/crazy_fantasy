@@ -23,6 +23,7 @@ class AddTeamRepoImpl implements AddTeamRepo {
       await teams.doc(id).set(teamModel.toMap(), SetOptions(merge: true));
       return const Right('تم اضافه الفريق بنجاح');
     } catch (e) {
+      print("error");
       return left("حدث خطأ ما يرجى المحاولة مرة أخرى");
     }
   }
@@ -31,6 +32,7 @@ class AddTeamRepoImpl implements AddTeamRepo {
   Future<Either<String, String>> deleteTeam({required String id}) async {
     try {
       await FirebaseFirestore.instance.collection('teams').doc(id).delete();
+      await deleteTeamIdFromUserCaptain(idUser: id);
       return const Right('تم حذف الفريق بنجاح');
     } catch (e) {
       debugPrint(e.toString());
@@ -57,7 +59,6 @@ class AddTeamRepoImpl implements AddTeamRepo {
   }
 
   fetchDoc(List<DocumentSnapshot<Object?>> documents) {
-
     List<Team> teams = documents.map((doc) {
       var data = doc.data();
       String idDoc = doc.reference.id;
@@ -74,6 +75,7 @@ class AddTeamRepoImpl implements AddTeamRepo {
       CollectionReference fire = FirebaseFirestore.instance.collection('teams');
 
       await fire.doc(id).update(teamModel.toMap());
+
       return const Right('تم تعديل الفريق بنجاح');
     } catch (e) {
       debugPrint(e.toString());
@@ -98,7 +100,6 @@ class AddTeamRepoImpl implements AddTeamRepo {
   //     return querySnapshot.docs;
   //   }
   // }
-
 
   // Future getScorePlayer(int id) async {
   //   try {
@@ -128,5 +129,101 @@ class AddTeamRepoImpl implements AddTeamRepo {
       // Handle any errors here
       return false;
     }
+  }
+
+  getUserName(String idUser) async {
+    DocumentSnapshot data =
+        await FirebaseFirestore.instance.collection('users').doc(idUser).get();
+    return data['name'];
+  }
+
+  @override
+  Future<Either<String, String>> addLeaderForTeam(
+      {required String idUser,
+      required teamId,
+      required String lastIdLeader}) async {
+    try {
+      if(idUser==""){
+        return left("برجاء ادخال id القائد");
+      }
+      bool check = await checkLeaderIsFound(idUser);
+
+      if(idUser == lastIdLeader){
+        return left("لا يمكنك تسجيل نفس القائد مرتين هذا القائد مسجل بالفعل لهذا الفريق");
+      }
+      if (check) {
+        DocumentSnapshot data = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(idUser)
+            .get();
+        if (data['teamId'] != "") {
+          String nameTeam = await getNameTeam(data['teamId']);
+
+          return Left(
+              "  لقد تم تسجيل هذا القائد ${data["name"]} لفريق  اسمه " +
+                  nameTeam +
+                  " " +
+                  "برجاء  تعديله حتي تتمكن من اضافه قائد جديد");
+        } else {
+
+          List<Future> futures = [
+            lastIdLeader != ""
+                ? deleteTeamIdFromUserCaptain(idUser: lastIdLeader)
+                : Future.value(),
+            regTeamIdInUserCaptain(idUser: idUser, teamId: teamId),
+            regLeaderIdInTeam(idUser: idUser, teamId: teamId)
+          ];
+          await Future.wait(futures);
+
+          String name = await getUserName(idUser);
+
+          return Right("تم تسجيل الفريق بنجاح لقائد اسمه " + name );
+        }
+      } else {
+        return left("لا يوجد قائد بهذا id");
+      }
+    } catch (e) {
+      print(e);
+      return left("حدث خطأ ما يرجى المحاولة مرة أخرى");
+    }
+  }
+
+  regTeamIdInUserCaptain({required String idUser, required teamId}) async {
+    FirebaseFirestore.instance.collection('users').doc(idUser).set({
+      "teamId": teamId,
+    }, SetOptions(merge: true));
+    print("regTeamIdInUserCaptain");
+  }
+
+  deleteTeamIdFromUserCaptain({
+    required String idUser,
+  }) async {
+    await FirebaseFirestore.instance.collection('users').doc(idUser).set({
+      "teamId": "",
+    }, SetOptions(merge: true));
+  }
+
+  checkLeaderIsFound(String idLeader) async {
+    DocumentSnapshot data = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(idLeader)
+        .get();
+    if (data.exists) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  regLeaderIdInTeam({required String idUser, required teamId}) async {
+    FirebaseFirestore.instance.collection('teams').doc(teamId).set({
+      "managerID": idUser,
+    }, SetOptions(merge: true));
+  }
+
+  getNameTeam(String idTeam) async {
+    DocumentSnapshot data =
+        await FirebaseFirestore.instance.collection('teams').doc(idTeam).get();
+    return data['name'];
   }
 }

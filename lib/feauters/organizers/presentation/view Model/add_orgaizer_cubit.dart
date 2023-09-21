@@ -42,6 +42,7 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   int numGameWeek = 0;
 
   int countHeadingTeam = 0;
+  String lastImage = "";
 
   bool isTeams1000 = false;
   bool isCup = false;
@@ -147,8 +148,19 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     emit(RemoveTeamOrgState());
   }
 
-  removeOrgFromTeam({required String id}) async {
+  removeOrgFromTeam({required String id, required String url}) async {
+    List<String> otherChampionsId = removeElementsDuplicated(
+        convertListTeamToListID(teamsRemoves),
+        convertListTeamToListID(teams1000));
+    List<String> team1000Ids = removeElementsDuplicated(
+        convertListTeamToListID(teams1000Removes),
+        convertListTeamToListID(teams));
     List<Future> futures = [
+      OrganizersRepoImpl().removeTeamFromOrg(
+          listOfTeams: mergeTwoList(otherChampionsId, team1000Ids),
+          orgId: id,
+          nameOrg: name.text,
+          urlImage: lastImage),
       OrganizersRepoImpl().removeOrgOthersChampions(
         teams: convertListTeamToListID(teamsRemoves),
         nameOrg: id,
@@ -233,8 +245,6 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   }
 
   void changeIndexPageOrganizers(bool back, context) async {
-    // FocusManager.instance.primaryFocus?.unfocus();
-
     // if (indexPageOrganizer == 2 &&
     //     !back &&
     //     teams.length < int.parse(countTeams)) {
@@ -266,10 +276,16 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   deleteOrg(
       {required String id,
       required List<String> teamOtherChampions,
-      required List<String> team1000}) async {
+      required List<String> team1000,
+      required String url,
+      required String name}) async {
     emit(CrudOrganizerLoadingState());
+
     var result = await AddOrganizerRepoImpl().deleteOrganizer(
-        id: id, idTeams: mergeTwoList(teamOtherChampions, team1000));
+        id: id,
+        idTeams: mergeTwoList(teamOtherChampions, team1000),
+        nameOrg: name,
+        urlImage: url);
 
     result.fold((l) {
       emit(CrudOrganizerErrorState(l));
@@ -285,7 +301,7 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     fetchDataOrganizer(organizer);
   }
 
-  addOrgInTeams() async {
+  addOrgInTeams({required String url}) async {
     List<String> champions = [];
     if (isClassicLeague) {
       champions.add("classic");
@@ -296,33 +312,33 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     if (isCup) {
       champions.add("cup");
     }
-
-    OrganizersRepoImpl().closeUpdateTeams(
-        teamsId: mergeTwoList(
-            convertListTeamToListID(teams), convertListTeamToListID(teams1000)),
-        isCloseUpdate: true);
-    OrganizersRepoImpl().addOrganizersInTeamsForOthersChampions(
-        teams: convertListTeamToListID(teams),
+    List<Future> futures = [
+      OrganizersRepoImpl().closeUpdateTeams(
+          teamsId: mergeTwoList(convertListTeamToListID(teams),
+              convertListTeamToListID(teams1000)),
+          isCloseUpdate: true),
+      OrganizersRepoImpl().addTeamInOrg(
+          listOfTeams: mergeTwoList(convertListTeamToListID(teams),
+              convertListTeamToListID(teams1000)),
+          orgId: name.text.replaceAll(' ', ''),
+          nameOrg: name.text,
+          urlImage: url),
+      OrganizersRepoImpl().addOrganizersInTeamsForOthersChampions(
+          teams: convertListTeamToListID(teams),
+          nameOrg: name.text.replaceAll(' ', ''),
+          championShip: champions),
+      OrganizersRepoImpl().addOrganizersInTeamsForChamp1000Team(
+        teams: convertListTeamToListID(teams1000),
         nameOrg: name.text.replaceAll(' ', ''),
-        championShip: champions);
-    OrganizersRepoImpl().addOrganizersInTeamsForChamp1000Team(
-      teams: convertListTeamToListID(teams1000),
-      nameOrg: name.text.replaceAll(' ', ''),
-    );
+      )
+    ];
+    await Future.wait(futures);
   }
 
   addOrUpdateOrganize(context) async {
     if (isUpdate) {
-      !isCloseUpdate
-          ? {
-              await addOrgInTeams(),
-              await removeOrgFromTeam(id: idOrganizer),
-            }
-          : () {};
-
       await updateOrganizer();
     } else {
-      await addOrgInTeams();
       await addOrganizer(context);
     }
   }
@@ -358,6 +374,7 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     twiter.text = organizer.urlTwitter!;
     instagram.text = organizer.urlInstagram!;
     tiktok.text = organizer.urlTiktok!;
+    lastImage = organizer.image!;
     youtube.text = organizer.urlYoutube!;
     description.text = organizer.description!;
     numGameWeek = organizer.numGameWeek!;
@@ -462,6 +479,12 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     } else {
       organizer.image = pathImageTeamUpdate;
     }
+    !isCloseUpdate
+        ? {
+            await addOrgInTeams(url: organizer.image!),
+            await removeOrgFromTeam(id: idOrganizer, url: organizer.image!),
+          }
+        : () {};
     organizer.id = idOrganizer;
     organizer.name = name.text;
     organizer.phone = phone.text;
@@ -533,6 +556,7 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     if (isCompletedTeams) {
       emit(CrudOrganizerLoadingState());
       String urlImage = await uploadImageToFirebaseStorage(File(imagePath!));
+      await addOrgInTeams(url: urlImage);
 
       AddOrganizerRepoImpl addOrganizerRepoImpl = AddOrganizerRepoImpl();
       var response = await addOrganizerRepoImpl.addOrganizer(
@@ -623,5 +647,19 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     list.addAll(list2);
     list = list.toSet().toList();
     return list;
+  }
+
+  List<T> removeElementsDuplicated<T>(List<T> list1, List<T> list2) {
+    List<T> resultList = List<T>.from(list1);
+
+    for (var element in list2) {
+      if (resultList.isNotEmpty && resultList.first == element) {
+        resultList.removeAt(0);
+      } else {
+        break;
+      }
+    }
+
+    return resultList;
   }
 }

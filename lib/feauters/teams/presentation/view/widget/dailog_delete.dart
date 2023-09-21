@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void showDailogDeleteOrg(context,String id, List<String> otherChampionshipsTeams,
-    List<String> teams1000Id) {
+    List<String> teams1000Id,String url ,String name) {
   showDialog(
       context: context,
       builder: (context) {
@@ -28,7 +28,7 @@ void showDailogDeleteOrg(context,String id, List<String> otherChampionshipsTeams
                 BlocProvider.of<AddOrganizerCubit>(context).deleteOrg(
                     id: id,
                     teamOtherChampions: otherChampionshipsTeams,
-                    team1000: teams1000Id);
+                    team1000: teams1000Id, url: url, name: name);
               },
               child: const Text(
                 'Delete',
