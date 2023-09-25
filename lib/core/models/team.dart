@@ -40,18 +40,14 @@ class Team {
       'fantasyID4': fantasyID4,
       'managerID': managerID,
       'isCloseUpdate': isCloseUpdate,
-
     };
   }
 
-  Team.fromJson(
-    Map<String, dynamic> json,
-    String idDoc,
-  { bool? isHead}
-  )   : id = idDoc,
-        isHeading = isHead??false,
+  Team.fromJson(Map<String, dynamic> json, String idDoc, {bool? isHead})
+      : id = idDoc,
+        isHeading = isHead ?? false,
         name = json['name'],
-  isCloseUpdate = json['isCloseUpdate'],
+        isCloseUpdate = json['isCloseUpdate'],
         pathImage = json['path'],
         captain = json['captain'],
         fantasyID1 = json['fantasyID1'],

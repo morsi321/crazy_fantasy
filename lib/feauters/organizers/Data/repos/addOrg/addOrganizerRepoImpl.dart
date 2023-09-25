@@ -37,7 +37,7 @@ class AddOrganizerRepoImpl implements AddOrganizerRepo {
             listOfTeams: idTeams,
             orgId: id,
             nameOrg: nameOrg,
-            urlImage: urlImage),
+            urlImage: urlImage,),
         OrganizersRepoImpl()
             .closeUpdateTeams(teamsId: idTeams, isCloseUpdate: false)
       ];

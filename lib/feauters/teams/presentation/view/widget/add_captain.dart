@@ -2,13 +2,11 @@ import 'package:crazy_fantasy/core/constance/colors.dart';
 import 'package:crazy_fantasy/core/extension/MediaQueryValues.dart';
 import 'package:crazy_fantasy/core/widget/button_custom.dart';
 import 'package:crazy_fantasy/core/widget/labelAndTextForm.dart';
-import 'package:crazy_fantasy/core/widget/my_snackBar.dart';
 import 'package:crazy_fantasy/feauters/teams/presentation/view%20model/add_team_cubit.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/widget/bootom_sheet_custom.dart';
 import '../../../../../core/widget/card_white.dart';
-import '../../../../../core/widget/text_field_custom.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void addCaptain(
@@ -95,6 +93,7 @@ void addCaptain(
                               child: AlertDialog(
                                 title: Text(
                                   "عمليه نجاحه",
+                                  textAlign: TextAlign.center,
 
                                   style: TextStyle(
                                       color: Colors.green, fontSize: 30),
@@ -124,6 +123,7 @@ void addCaptain(
                               child: AlertDialog(
                                 title: Text(
                                   "تحذير",
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.red, fontSize: 30),
                                 ),

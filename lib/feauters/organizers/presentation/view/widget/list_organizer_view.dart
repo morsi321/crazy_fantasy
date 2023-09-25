@@ -63,13 +63,7 @@ class OrganizerItem extends StatelessWidget {
                   onPressed: () {
                     showDailogDeleteOrg(
                         context,
-                        organizer.id!,
-                        organizer.otherChampionshipsTeams!
-                            .map((e) => e["id"] as String)
-                            .toList(),
-                        organizer.teams1000Id!,
-                        organizer.image!,
-                        organizer.name!);
+                        organizer);
                   },
                   icon: const Icon(
                     Icons.delete,

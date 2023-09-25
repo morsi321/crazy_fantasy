@@ -8,16 +8,14 @@ class LoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return
         // color: Colors.black.withOpacity(0.5),
-        SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Lottie.asset('assets/images/loading.json'),
-              const SizedBox(height: 20,),
-              const Text("جاري تحميل البيانات",style: TextStyle(color: Colors.red,fontSize: 30),),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.asset('assets/images/loading.json'),
+            const SizedBox(height: 20,),
+            const Text("جاري تحميل البيانات",style: TextStyle(color: Colors.red,fontSize: 30),),
 
-            ],
-          ),
+          ],
         );
   }
 }

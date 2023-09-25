@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:crazy_fantasy/feauters/Teams%20Data%20update/Data/repos/Properties%20Team/properties%20_team_repo_impl.dart';
+import 'package:crazy_fantasy/feauters/open_champion/Data/open_champion_repo_impl.dart';
 import 'package:crazy_fantasy/feauters/organizers/Data/models/orgnizer_model.dart';
 
 import 'package:dartz/dartz.dart';
@@ -20,10 +21,11 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     try {
       futures = [
         OrganizeVipChampionshipRepoImpl().createVip(org: org),
-        OrganizeCupChampionshipRepoImpl().createCup(org: org)
+        OrganizeCupChampionshipRepoImpl().createCup(org: org),
+        OpenChampionRepoImpl().CreateOpenChampion(org: org),
       ];
       await Future.wait(futures);
-      // await closeUpdate(idOrg: org.id!);
+      await closeUpdate(idOrg: org.id!);
 
       await updateNumGameWeek(idOrg: org.id!);
 
@@ -50,7 +52,6 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
       //             .map((e) => e["id"] as String)
       //             .toList(),
       //         org.teams1000Id!));
-// 245 397
       await handelChampionship(
         org: org,
       );
@@ -78,16 +79,19 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     List<Future> futures = [];
     if (org.countTeams == "512") {
       futures = [
+        OpenChampionRepoImpl().FinishGameWeek(org: org),
         OrganizeVipChampionshipRepoImpl().handeVip512(org: org),
         OrganizeCupChampionshipRepoImpl().handeCup512(org: org)
       ];
     } else if (org.countTeams == "256") {
       futures = [
+        OpenChampionRepoImpl().FinishGameWeek(org: org),
         // OrganizeVipChampionshipRepoImpl().handeVip256(org: org),
-        OrganizeCupChampionshipRepoImpl().handeCup256(org: org)
+        // OrganizeCupChampionshipRepoImpl().handeCup256(org: org)
       ];
     } else if (org.countTeams == "128") {
       futures = [
+        OpenChampionRepoImpl().FinishGameWeek(org: org),
         OrganizeVipChampionshipRepoImpl().handeVip128(org: org),
         OrganizeCupChampionshipRepoImpl().handeCup128(org: org)
       ];
@@ -100,17 +104,15 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
       required int numGameWeek,
       required isRealTimeUpdate,
       required List<String> idTeams}) async {
-    List<DocumentSnapshot> teamsDocs = await getALLTeams(idTeams: idTeams);
+    List<Map> teamsDocs = await getALLTeams(idTeams: idTeams, idOrg: idOrg);
 
-    List<Map> teamScores = await getGameWeekTeamScores(
+    List<Map> championsTeams = await getGameWeekTeamScores(
       teamsDocs,
       numGameWeek,
       idOrg,
     );
-    List<Map> championsTeamOrg =
-        await getChampionsTeamOrg(idOrg: idOrg, detailsTeams: teamScores);
     List<Map> newScoresOrgTeam = handelOrg(
-        orgTeamsDetails: championsTeamOrg,
+        orgTeamsDetails: championsTeams,
         numGameWeek: numGameWeek,
         isRealTimeUpdate: isRealTimeUpdate);
 
@@ -130,37 +132,55 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     return 20 + random.nextInt(90 - 20);
   }
 
-  getGameWeekTeamScores(
-    List<DocumentSnapshot<Object?>> documents,
-    int numGameWeek,
-    String idOrg,
-  ) async {
+  getScoresFirstChampion(List teamFirstChampionships, int numGameWeek) async {
+    List<Map> scores = [];
     List<Future> futures = [];
-    List<Map> teamsScores = [];
-    Stopwatch stopwatch = Stopwatch()..start();
-    for (var docTeam in documents) {
+    for (int i = 0; i < 5; i++) {
       futures.add(Future(() async {
-        List<int> gameWeekScore = await Future.wait([
-          getPointsGameWeek(docTeam['captain'], numGameWeek),
-          getPointsGameWeek(docTeam['fantasyID1'], numGameWeek),
-          getPointsGameWeek(docTeam['fantasyID2'], numGameWeek),
-          getPointsGameWeek(docTeam['fantasyID3'], numGameWeek),
-          getPointsGameWeek(docTeam['fantasyID4'], numGameWeek),
-        ]);
-        teamsScores.add({
-          docTeam.reference.id: {
-            "gameWeekScoresTeam": gameWeekScore,
-          }
+        scores.add({
+          "id": teamFirstChampionships[i]["id"],
+          "score": await getPointsGameWeek(
+              teamFirstChampionships[i]["id"], numGameWeek)
         });
       }));
     }
     await Future.wait(futures);
-    stopwatch.stop();
-    if (kDebugMode) {
-      print("time${stopwatch.elapsedMilliseconds}");
+
+    return scores;
+  }
+
+  Future<List<Map>> getGameWeekTeamScores(
+    List<Map> documents,
+    int numGameWeek,
+    String idOrg,
+  ) async {
+    List<Future> futures = [];
+
+    for (Map docTeam in documents) {
+      final champ = docTeam[docTeam.keys.first];
+      List<Map> scores = await getScoresFirstChampion(
+          champ[champ.keys.first]["team"], numGameWeek);
+      List<Future> teamFutures = [];
+
+      champ.forEach((key, value) async {
+        final team = value["team"];
+        for (int i = 0; i < 5; i++) {
+          try {
+            team[i]["score"] = scores.firstWhere(
+                (element) => element["id"] == value["team"][i]["id"])["score"];
+          } catch (e) {
+            team[i]["score"] =
+                await getPointsGameWeek(team[i]["id"], numGameWeek);
+            print(team[i]["score"]);
+          }
+        }
+      });
+
+      futures.addAll(teamFutures);
     }
 
-    return teamsScores;
+    await Future.wait(futures);
+    return documents;
   }
 
   Future<int> getScorePlayer(int id) async {
@@ -181,17 +201,18 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     }
   }
 
-  Future getALLTeams({required List<String> idTeams}) async {
+  Future getALLTeams(
+      {required List<String> idTeams, required String idOrg}) async {
     List<Future> futures = [];
-    List<DocumentSnapshot> teamsDocs = [];
+    List<Map> teamsDocs = [];
     for (var id in idTeams) {
       futures.add(FirebaseFirestore.instance
           .collection('teams')
           .doc(id)
+          .collection("organizers")
+          .doc(idOrg)
           .get()
-          .then((value) {
-        teamsDocs.add(value);
-      }));
+          .then((value) => teamsDocs.add({id: value.data() as Map})));
     }
     await Future.wait(futures);
     return teamsDocs;
@@ -212,110 +233,99 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
       {required List<Map> orgTeamsDetails,
       required int numGameWeek,
       required bool isRealTimeUpdate}) {
-    List<Map> newScoresOrgTeams = [];
-    for (Map team in orgTeamsDetails) {
-      List<String> nameChampionShips =
-          team[team.keys.first]["champions"].keys.toList();
+    for (Map champion in orgTeamsDetails) {
+      final champ = champion[champion.keys.first];
+      champ.forEach((key, value) {
+        if (value["chosen"] == "captain") {
+          value["totalPoints"] -=
+              value["gameWeek"]["gameWeek$numGameWeek"]?["score"] ?? 0;
+          int doubleCaptain =
+              PropertiesTeamRepoImpl().doubleScore(scores: value["team"]);
 
-      for (var champion in nameChampionShips) {
-        if (team[team.keys.first]["champions"][champion]["chosen"] ==
-            "captain") {
-          team[team.keys.first]["champions"][champion]["totalPoints"] -=
-              team[team.keys.first]["champions"][champion]["gameWeek"]
-                      ["gameWeek$numGameWeek"]?["score"] ??
-                  0;
-          int doubleCaptain = PropertiesTeamRepoImpl()
-              .doubleScore(scores: team[team.keys.first]["gameWeekScoresTeam"]);
-
-          team[team.keys.first]["champions"][champion]["gameWeek"] = {
-            "gameWeek$numGameWeek": {
-              "score": doubleCaptain,
-              "type": "doubleCaptain"
-            }
+          value["gameWeek"]["gameWeek$numGameWeek"] = {
+            "score": doubleCaptain,
+            "type": "doubleCaptain"
           };
-          team[team.keys.first]["champions"][champion]["totalPoints"] =
-              team[team.keys.first]["champions"][champion]["totalPoints"] +
-                  doubleCaptain;
-        } else if (team[team.keys.first]["champions"][champion]["chosen"] ==
-            "tripleCaptain") {
-          team[team.keys.first]["champions"][champion]["totalPoints"] -=
-              team[team.keys.first]["champions"][champion]["gameWeek"]
-                      ["gameWeek$numGameWeek"]?["score"] ??
-                  0;
+
+          value["totalPoints"] = value["totalPoints"] + doubleCaptain;
+        } else if (value["chosen"] == "tripleCaptain") {
+          value["totalPoints"] -=
+              value["gameWeek"]["gameWeek$numGameWeek"]?["score"] ?? 0;
           if (!isRealTimeUpdate) {
-            team[team.keys.first]["champions"][champion]["tripleCaptain"] =
-                false;
-            team[team.keys.first]["champions"][champion]["chosen"] = "captain";
+            value["tripleCaptain"] = false;
+            value["chosen"] = "captain";
           }
 
-          int tripleCaptain = PropertiesTeamRepoImpl()
-              .tripleScore(scores: team[team.keys.first]["gameWeekScoresTeam"]);
+          int tripleCaptain =
+              PropertiesTeamRepoImpl().tripleScore(scores: value["team"]);
 
-          team[team.keys.first]["champions"][champion]["gameWeek"] = {
-            "gameWeek$numGameWeek": {
-              "score": tripleCaptain,
-              "type": "tripleCaptain",
-            }
+          value["gameWeek"]["gameWeek$numGameWeek"] = {
+            "score": tripleCaptain,
+            "type": "tripleCaptain",
           };
 
-          team[team.keys.first]["champions"][champion]["totalPoints"] =
-              team[team.keys.first]["champions"][champion]["totalPoints"] +
-                  tripleCaptain;
-        } else if (team[team.keys.first]["champions"][champion]["chosen"] ==
-            "maxCaptain") {
-          team[team.keys.first]["champions"][champion]["totalPoints"] -=
-              team[team.keys.first]["champions"][champion]["gameWeek"]
-                      ["gameWeek$numGameWeek"]?["score"] ??
-                  0;
+          value["totalPoints"] = value["totalPoints"] + tripleCaptain;
+        } else if (value["chosen"] == "maxCaptain") {
+          value["totalPoints"] -=
+              value["gameWeek"]["gameWeek$numGameWeek"]?["score"] ?? 0;
           if (isRealTimeUpdate) {
-            team[team.keys.first]["champions"][champion]["maxCaptain"] = false;
-            team[team.keys.first]["champions"][champion]["chosen"] = "captain";
+            value["maxCaptain"] = false;
+            value["chosen"] = "captain";
           }
 
-          int maxCaptain = PropertiesTeamRepoImpl().maximumScore(
-              scores: team[team.keys.first]["gameWeekScoresTeam"]);
-          team[team.keys.first]["champions"][champion]["gameWeek"] = {
-            "gameWeek$numGameWeek": {"score": maxCaptain, "type": "maxCaptain"}
+          int maxCaptain =
+              PropertiesTeamRepoImpl().maximumScore(scores: value["team"]);
+          value["gameWeek"]["gameWeek$numGameWeek"] = {
+            "score": maxCaptain,
+            "type": "maxCaptain"
           };
 
-          team[team.keys.first]["champions"][champion]["totalPoints"] =
-              team[team.keys.first]["champions"][champion]["totalPoints"] +
-                  maxCaptain;
-        }
-      }
-      newScoresOrgTeams.add(team);
-    }
-    return newScoresOrgTeams;
-  }
-
-  getChampionsTeamOrg(
-      {required String idOrg, required List<Map> detailsTeams}) async {
-    List<Map> orgDetailsTeam = [];
-    List<Future> futures = [];
-
-    for (var team in detailsTeams) {
-      futures.add(Future(() async {
-        Map<String, dynamic> org =
-            await getOrg(idTeam: team.keys.first, idOrg: idOrg);
-        orgDetailsTeam.add({
-          team.keys.first: {
-            "gameWeekScoresTeam": team[team.keys.first]["gameWeekScoresTeam"],
-            "champions": org,
+          value["totalPoints"] = value["totalPoints"] + maxCaptain;
+        } else if (value["chosen"] == "guestPlayer") {
+          value["totalPoints"] -=
+              value["gameWeek"]["gameWeek$numGameWeek"]?["score"] ?? 0;
+          if (isRealTimeUpdate) {
+            value["guestPlayer"] = false;
+            value["chosen"] = "captain";
           }
-        });
-      }));
+
+          int guestPlayer =
+              PropertiesTeamRepoImpl().doubleScore(scores: value["team"]);
+          value["gameWeek"] = {"score": guestPlayer, "type": "maxCaptain"};
+
+          value["gameWeek"]["gameWeek$numGameWeek"] = {
+            "score": guestPlayer,
+            "type": "guestPlayer"
+          };
+
+          value["totalPoints"] = value["totalPoints"] + guestPlayer;
+
+          for (int i = 0; i < 5; i++) {
+            if (value["team"][i]["id"] == value["team"][5]["id"]) {
+              value["team"][i]["id"] = value["team"][6]["id"];
+            }
+          }
+        } else if (value["chosen"] == "freeMinus") {
+          value["totalPoints"] -=
+              value["gameWeek"]["gameWeek$numGameWeek"]?["score"] ?? 0;
+          if (isRealTimeUpdate) {
+            value["freeMinus"] = false;
+            value["chosen"] = "captain";
+          }
+
+          int freeMinus =
+              PropertiesTeamRepoImpl().freeScore(scores: value["team"]);
+          value["gameWeek"]["gameWeek$numGameWeek"] = {
+            "score": freeMinus,
+            "type": "freeMinus"
+          };
+
+          value["totalPoints"] = value["totalPoints"] + freeMinus;
+        }
+      });
     }
-    await Future.wait(futures);
-
-    return orgDetailsTeam;
+    return orgTeamsDetails;
   }
-
-// getOrgsForAllTeams(List<String> ids) async {
-//   List orgs = [];
-//   for (var id in ids) {
-//     orgs.add(getOrg(id));
-//   }
-// }
 
   getOrg({required String idTeam, required String idOrg}) async {
     DocumentSnapshot org = await FirebaseFirestore.instance
@@ -328,21 +338,27 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
   }
 
   putResult(List<Map> newScoreOrgTeams, String nameOrg) async {
-    List<Future> futures = [];
+    Stopwatch stopwatch = Stopwatch()..start();
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     firestore.settings = const Settings(persistenceEnabled: false);
-    for (var team in newScoreOrgTeams) {
+    WriteBatch writeBatch = firestore.batch();
+    for (Map team in newScoreOrgTeams) {
       String idTeam = team.keys.first;
 
-      futures.add(firestore
-          .collection('teams')
-          .doc(idTeam)
-          .collection("organizers")
-          .doc(nameOrg)
-          .set(team[team.keys.first]["champions"], SetOptions(merge: true)));
+      writeBatch.set(
+        firestore
+            .collection('teams')
+            .doc(idTeam)
+            .collection("organizers")
+            .doc(nameOrg),
+        team[team.keys.first],
+      );
     }
+    await writeBatch.commit();
 
-    await Future.wait(futures);
+    // await Future.wait(futures);
+    stopwatch.stop();
+    print('finish putResult ${stopwatch.elapsedMilliseconds}');
   }
 
   deleteTeams() {

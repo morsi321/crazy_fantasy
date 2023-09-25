@@ -3,33 +3,57 @@ import 'Properties_team_repo.dart';
 class PropertiesTeamRepoImpl implements PropertiesTeamRepo {
   @override
   int doubleScore({required List scores}) {
-    return ((scores[0]* 2) + scores[1] + scores[2] + scores[3] + scores[4]);
+    int scoreCaptain =
+        scores.firstWhere((element) => element["type"] == "captain")["score"];
+    scoreCaptain = scoreCaptain * 2;
+    int otherScore = scores
+        .where((element) =>
+            element["type"] != "captain" &&
+            element["id"] != "" &&
+            element["name"] != "guestPlayer" &&
+            element["name"] != "disablePlayer")
+        .map((e) => e["score"])
+        .reduce((value, element) => value + element);
+    return scoreCaptain + otherScore;
   }
 
   @override
   int freeScore({required List scores}) {
-    // TODO: implement freeScore
     throw UnimplementedError();
   }
 
   @override
   int maximumScore({required List scores}) {
     int maxIndexScore = 0;
-    for (int i = 0; i < scores.length; i++) {
-      if (scores[i] > scores[maxIndexScore]) {
+    print(scores);
+    for (int i = 0; i < 5; i++) {
+      if (scores[i]["score"] > scores[maxIndexScore]["score"]) {
         maxIndexScore = i;
       }
     }
-    int maxScore = scores[maxIndexScore] * 2;
+    int maxScore = scores[maxIndexScore]["score"] * 2;
     scores.removeAt(maxIndexScore);
-    int sum = scores[0] + scores[1] + scores[2] + scores[3] + maxScore;
+    int sum = scores[0]["score"] +
+        scores[1]["score"] +
+        scores[2]["score"] +
+        scores[3]["score"] +
+        maxScore;
     return sum;
   }
 
   @override
   int tripleScore({required List scores}) {
-
-    return ((scores[0] * 3) + scores[1] + scores[2] + scores[3] + scores[4]);
-
+    int scoreCaptain =
+    scores.firstWhere((element) => element["type"] == "captain")["score"];
+    scoreCaptain = scoreCaptain * 3;
+    int otherScore = scores
+        .where((element) =>
+    element["type"] != "captain" &&
+        element["id"] != "" &&
+        element["name"] != "guestPlayer" &&
+        element["name"] != "disablePlayer")
+        .map((e) => e["score"])
+        .reduce((value, element) => value + element);
+    return scoreCaptain + otherScore;
   }
 }

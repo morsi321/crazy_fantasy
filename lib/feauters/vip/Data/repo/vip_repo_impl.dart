@@ -591,7 +591,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     return matches;
   }
 
-   bestOf3(
+  bestOf3(
       {required Map matches,
       required String nameOrg,
       required numGameWeek}) async {
@@ -1077,9 +1077,9 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
         .get();
 
     int points =
-        documentSnapshot["vip"]['gameWeek']["gameWeek$numGameWeek"]["score"];
+        documentSnapshot["VIP"]['gameWeek']["gameWeek$numGameWeek"]["score"];
     String type =
-        documentSnapshot["vip"]['gameWeek']["gameWeek$numGameWeek"]["type"];
+        documentSnapshot["VIP"]['gameWeek']["gameWeek$numGameWeek"]["type"];
     return {
       "score": points,
       "type": type,

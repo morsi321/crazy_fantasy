@@ -425,8 +425,8 @@ class OrganizeCupChampionshipRepoImpl implements OrganizeCupChampionshipRepo {
         'imageTeamB': isFirstRound ? teams[numMatches + i]['path']
             .split('/')
             .last : teams[numMatches + i]['imagePath'],
-        'teamA': teams[i]['teamId'],
-        'teamB': teams[numMatches + i]['teamId'],
+        'teamA': teams[i][isFirstRound?'id':'teamId'],
+        'teamB': teams[numMatches + i][isFirstRound?'id':'teamId'],
         'teamGoalsA': 0,
         'teamGoalsB': 0,
       });
@@ -511,9 +511,9 @@ class OrganizeCupChampionshipRepoImpl implements OrganizeCupChampionshipRepo {
         .get();
 
     int points =
-    documentSnapshot["cup"]['gameWeek']["gameWeek$numGameWeek"]["score"];
+    documentSnapshot["كأس الاقصائي"]['gameWeek']["gameWeek$numGameWeek"]["score"];
     String type =
-    documentSnapshot["cup"]['gameWeek']["gameWeek$numGameWeek"]["type"];
+    documentSnapshot["كأس الاقصائي"]['gameWeek']["gameWeek$numGameWeek"]["type"];
     return {
       "score": points,
       "type": type,

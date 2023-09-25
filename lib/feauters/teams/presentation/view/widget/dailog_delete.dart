@@ -1,10 +1,12 @@
+import 'package:crazy_fantasy/feauters/organizers/Data/models/orgnizer_model.dart';
 import 'package:crazy_fantasy/feauters/organizers/presentation/view%20Model/add_orgaizer_cubit.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-void showDailogDeleteOrg(context,String id, List<String> otherChampionshipsTeams,
-    List<String> teams1000Id,String url ,String name) {
+void showDailogDeleteOrg(
+    context,
+    Organizer org ) {
   showDialog(
       context: context,
       builder: (context) {
@@ -25,10 +27,8 @@ void showDailogDeleteOrg(context,String id, List<String> otherChampionshipsTeams
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                BlocProvider.of<AddOrganizerCubit>(context).deleteOrg(
-                    id: id,
-                    teamOtherChampions: otherChampionshipsTeams,
-                    team1000: teams1000Id, url: url, name: name);
+                BlocProvider.of<AddOrganizerCubit>(context).deleteOrg(org: org
+                    );
               },
               child: const Text(
                 'Delete',

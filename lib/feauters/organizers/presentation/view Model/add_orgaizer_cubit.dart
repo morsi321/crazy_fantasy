@@ -63,8 +63,6 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   bool isCloseUpdate = false;
 
   addTeamInBag(Team team, context) {
-    print("isCloseUpdate");
-    print(isCloseUpdate);
     if (isCloseUpdate) {
       mySnackBar(
         context,
@@ -157,10 +155,11 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
         convertListTeamToListID(teams));
     List<Future> futures = [
       OrganizersRepoImpl().removeTeamFromOrg(
-          listOfTeams: mergeTwoList(otherChampionsId, team1000Ids),
-          orgId: id,
-          nameOrg: name.text,
-          urlImage: lastImage),
+        listOfTeams: mergeTwoList(otherChampionsId, team1000Ids),
+        orgId: id,
+        nameOrg: name.text,
+        urlImage: lastImage,
+      ),
       OrganizersRepoImpl().removeOrgOthersChampions(
         teams: convertListTeamToListID(teamsRemoves),
         nameOrg: id,
@@ -245,16 +244,16 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   }
 
   void changeIndexPageOrganizers(bool back, context) async {
-    // if (indexPageOrganizer == 2 &&
-    //     !back &&
-    //     teams.length < int.parse(countTeams)) {
-    //   mySnackBar(
-    //     context,
-    //     message: "يجب اضافة $countTeams فريق",
-    //   );
-    //
-    //   return;
-    // }
+    if (indexPageOrganizer == 2 &&
+        !back &&
+        teams.length < int.parse(countTeams)) {
+      mySnackBar(
+        context,
+        message: "يجب اضافة $countTeams فريق",
+      );
+
+      return;
+    }
 
     if (back) {
       indexPageOrganizer--;
@@ -273,19 +272,17 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
     }
   }
 
-  deleteOrg(
-      {required String id,
-      required List<String> teamOtherChampions,
-      required List<String> team1000,
-      required String url,
-      required String name}) async {
+  deleteOrg({required Organizer org}) async {
     emit(CrudOrganizerLoadingState());
 
     var result = await AddOrganizerRepoImpl().deleteOrganizer(
-        id: id,
-        idTeams: mergeTwoList(teamOtherChampions, team1000),
-        nameOrg: name,
-        urlImage: url);
+      id: org.id!,
+      idTeams: mergeTwoList(
+          org.otherChampionshipsTeams!.map((e) => e["id"] as String).toList(),
+          org.teams1000Id!),
+      nameOrg: org.name!,
+      urlImage: org.image!,
+    );
 
     result.fold((l) {
       emit(CrudOrganizerErrorState(l));
@@ -304,13 +301,16 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
   addOrgInTeams({required String url}) async {
     List<String> champions = [];
     if (isClassicLeague) {
-      champions.add("classic");
+      champions.add("الدوري الكلاسيكي");
     }
     if (isVipLeague) {
-      champions.add("vip");
+      champions.add("VIP");
     }
     if (isCup) {
-      champions.add("cup");
+      champions.add("كأس الاقصائي");
+    }
+    if (isTeams1000) {
+      champions.add("البطولة المفتوحة");
     }
     List<Future> futures = [
       OrganizersRepoImpl().closeUpdateTeams(
@@ -318,17 +318,18 @@ class AddOrganizerCubit extends Cubit<AddOrganizerState> {
               convertListTeamToListID(teams1000)),
           isCloseUpdate: true),
       OrganizersRepoImpl().addTeamInOrg(
-          listOfTeams: mergeTwoList(convertListTeamToListID(teams),
-              convertListTeamToListID(teams1000)),
-          orgId: name.text.replaceAll(' ', ''),
-          nameOrg: name.text,
-          urlImage: url),
+        listOfTeams: mergeTwoList(
+            convertListTeamToListID(teams), convertListTeamToListID(teams1000)),
+        orgId: name.text.replaceAll(' ', ''),
+        nameOrg: name.text,
+        urlImage: url,
+      ),
       OrganizersRepoImpl().addOrganizersInTeamsForOthersChampions(
-          teams: convertListTeamToListID(teams),
+          teams: teams,
           nameOrg: name.text.replaceAll(' ', ''),
           championShip: champions),
       OrganizersRepoImpl().addOrganizersInTeamsForChamp1000Team(
-        teams: convertListTeamToListID(teams1000),
+        teams: teams1000,
         nameOrg: name.text.replaceAll(' ', ''),
       )
     ];
