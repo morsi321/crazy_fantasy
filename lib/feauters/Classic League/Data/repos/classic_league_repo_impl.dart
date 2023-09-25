@@ -271,6 +271,7 @@ class OrganizeClassicLeagueRepoImpl implements OrganizeClassicLeagueRepo {
     }
   }
 
+
   getTotalPointsTeam(String teamId) async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
