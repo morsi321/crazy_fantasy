@@ -229,18 +229,26 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
   Future createVip({required Organizer org}) async {
     String numRound1 = '';
     String numRound2 = '';
+    String numRound3 = '';
+    String numRound4 = '';
     int countHead = 0;
     if (org.countTeams == "512") {
       numRound1 = '512-1';
       numRound2 = '512-2';
+      numRound3 = '512-3';
+      numRound4 = '512-4';
       countHead = 32;
     } else if (org.countTeams == "256") {
       numRound1 = '256-1';
       numRound2 = '256-2';
+      numRound3 = '256-3';
+      numRound4 = '256-4';
       countHead = 16;
     } else if (org.countTeams == "128") {
       numRound1 = '128-1';
       numRound2 = '128-2';
+      numRound3 = '128-3';
+      numRound4 = '128-4';
       countHead = 8;
     }
 
@@ -252,13 +260,17 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     Map groupWithMatches = await groupDivision(
         othersTeams: othersTeam, teamsHead: headTeam, countHead: countHead);
     Map<dynamic, dynamic> matches = matchesDivision(groupWithMatches);
-    var groups = halfGroups(matches);
-    Map half1Group = groups.$1;
-    Map half2Group = groups.$2;
+    var groups = fourGroups(matches);
+
     List<Future> futures = [
       addGroupsInFireStore(
-          data: half1Group, nameRound: numRound1, org: org.id!),
-      addGroupsInFireStore(data: half2Group, nameRound: numRound2, org: org.id!)
+          data: groups["1"], nameRound: numRound1, org: org.id!),
+      addGroupsInFireStore(
+          data: groups["2"], nameRound: numRound2, org: org.id!),
+      addGroupsInFireStore(
+          data: groups["3"], nameRound: numRound3, org: org.id!),
+      addGroupsInFireStore(
+          data: groups["4"], nameRound: numRound4, org: org.id!)
     ];
 
     await Future.wait(futures);
@@ -271,10 +283,20 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
   @override
   Future doSecondRound({required String org, required String numRound}) async {
-    Map half1 = await getRound(numRound: "$numRound-1", org: org);
-    Map half2 = await getRound(numRound: "$numRound-2", org: org);
+    List<Future> futures = [
+      getRound(numRound: "$numRound-1", org: org),
+      getRound(numRound: "$numRound-2", org: org),
+      getRound(numRound: "$numRound-3", org: org),
+      getRound(numRound: "$numRound-4", org: org),
+    ];
 
-    Map mergeGroups = merge2Groups(half1["groups"], half2["groups"]);
+    var rounds = await Future.wait(futures);
+
+    Map mergeGroups = merge4Groups(
+        group1: rounds[0]["groups"],
+        group2: rounds[1]["groups"],
+        group3: rounds[2]["groups"],
+        group4: rounds[3]["groups"]);
 
     Map qualifiedTeams = await selectQualifiedTeams(mergeGroups);
     Map matches = matchesDivisionCross(qualifiedTeams);
@@ -389,29 +411,43 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     return numGameWeek;
   }
 
-  merge2Groups(Map group1, Map group2) {
+  merge4Groups({
+    required Map group1,
+    required Map group2,
+    required Map group3,
+    required Map group4,
+  }) {
     Map mergeGroups = {};
-    for (int i = 1; i <= group1.length * 2; i++) {
-      if (i <= group1.length) {
-        mergeGroups['group$i'] = group1['group$i'];
-      } else {
-        mergeGroups['group$i'] = group2['group$i'];
-      }
-    }
+    mergeGroups.addAll(group1);
+    mergeGroups.addAll(group2);
+    mergeGroups.addAll(group3);
+    mergeGroups.addAll(group4);
     return mergeGroups;
   }
 
-  halfGroups(Map group) {
-    Map half1Group = {};
-    Map half2Group = {};
+  fourGroups(Map group) {
+    Map firstGroups = {};
+    Map secondGroups = {};
+    Map thereGroups = {};
+    Map fourthGroups = {};
+
     for (int i = 1; i <= group.length; i++) {
-      if (i <= group.length / 2) {
-        half1Group['group$i'] = group['group$i'];
+      if (i <= group.length / 4) {
+        firstGroups['group$i'] = group['group$i'];
+      } else if (i <= group.length / 2) {
+        secondGroups['group$i'] = group['group$i'];
+      } else if (i <= group.length * 3 / 4) {
+        thereGroups['group$i'] = group['group$i'];
       } else {
-        half2Group['group$i'] = group['group$i'];
+        fourthGroups['group$i'] = group['group$i'];
       }
     }
-    return (half1Group, half2Group);
+    return {
+      '1': firstGroups,
+      '2': secondGroups,
+      '3': thereGroups,
+      '4': fourthGroups
+    };
   }
 
   individuallyDivisionMatches(List<Map> teams) {
@@ -714,7 +750,6 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     Map groups = createGroups(countHead);
     groups = addHeadTeamsInGroups(groups, teamsHead);
 
-    print(othersTeams.length);
     int numberOfGroups = 1;
     for (var i = 0; i < othersTeams.length; i++) {
       if (groups["group$numberOfGroups"].length == 16) {
@@ -741,7 +776,6 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       }
     }
 
-    print(groups['group8'].length);
     return groups;
   }
 
@@ -791,34 +825,87 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
     return matches;
   }
 
-  matchesDivision(Map teams) {
-    List<Map> matches = [];
+  matchesDivision(Map groups) {
+    groups.forEach((key, value) {
+      int totalTeams = value.length;
+      int matchesPerRound = totalTeams ~/ 2;
 
-    for (int i = 0; i < teams.length; i++) {
-      for (int j = 0; j < teams["group${i + 1}"].length; j++) {
-        for (int k = 0; k < teams["group${i + 1}"].length; k++) {
-          if (j == k) {
-            continue;
+      Map<String, dynamic> matchSchedule = {};
+
+      for (int round = 0; round < 15; round++) {
+        List<Map> roundSchedule = [];
+
+        for (int match = 0; match < matchesPerRound; match++) {
+          int home = (round + match) % (totalTeams - 1);
+          int away = (totalTeams - 1 - match + round) % (totalTeams - 1);
+
+          if (match == 0) {
+            away = totalTeams - 1;
           }
-          matches.add({
-            "teamA": teams["group${i + 1}"][j]['teamId'],
-            "teamB": teams["group${i + 1}"][k]['teamId'],
-            "nameA": teams["group${i + 1}"][j]['name'],
-            "minusPoints": 0,
-            "nameB": teams["group${i + 1}"][k]['name'],
-            "image2": teams["group${i + 1}"][k]['imagePath'],
-            "countryA": teams["group${i + 1}"][j]['country'],
-            "countryB": teams["group${i + 1}"][k]['country'],
-            "teamGoalsA": 0,
-            "teamGoalsB": 0,
+
+          Map matchInfo = {
+            "teamA": value[home]['teamId'],
+            "teamB": value[away]['teamId'],
+            "nameA": value[home]['name'],
+            "nameB": value[away]['name'],
+            "image2": value[away]['imagePath'],
+            "countryA": value[home]['country'],
+            "countryB": value[away]['country'],
+          };
+
+          roundSchedule.add(matchInfo);
+        }
+
+        matchSchedule['Round ${round + 1}'] = roundSchedule;
+        for (int i = 0; i < value.length; i++) {
+          List<Map> matchesTeam = [];
+          matchSchedule.forEach((key, round) {
+            round.forEach((element) {
+              if (element['teamA'] == value[i]["teamId"]
+                 ) {
+                matchesTeam.add({
+                  "teamA": value[i]['teamId'],
+                  "teamB": element['teamB'],
+                  "nameA": value[i]['name'],
+                  "minusPoints": 0,
+                  "nameB": element['nameB'],
+                  "image2": element['image2'],
+                  "countryA": value[i]['country'],
+                  "countryB": element['countryB'],
+                  "teamGoalsA": 0,
+                  "teamGoalsB": 0,
+                  "teamScoreA": 0,
+                  "teamScoreB": 0,
+                  "typeA": "",
+                  "typeB": "",
+                });
+              } else if( element['teamB'] == value[i]["teamId"]){
+                matchesTeam.add({
+                  "teamA": value[i]['teamId'],
+                  "teamB": element['teamA'],
+                  "nameA": value[i]['name'],
+                  "minusPoints": 0,
+                  "nameB": element['nameA'],
+                  "image2": element['image2'],
+                  "countryA": value[i]['country'],
+                  "countryB": element['countryA'],
+                  "teamGoalsA": 0,
+                  "teamGoalsB": 0,
+                  "teamScoreA": 0,
+                  "teamScoreB": 0,
+                  "typeA": "",
+                  "typeB": "",
+                });
+
+              }
+            });
+            value[i]["matches"] = matchesTeam;
           });
         }
-        teams["group${i + 1}"][j]['matches'] = matches;
-        matches = [];
       }
-    }
+    });
 
-    return teams;
+    return groups;
   }
 
   selectQualifiedTeams(
@@ -891,18 +978,21 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       numGameWeek: numGameWeek,
       numRound: numRound,
     );
-    var result = halfGroups(newResult);
 
-    Map half1Group = result.$1;
-    Map half2Group = result.$2;
-    half1Group = sortTeams(half1Group);
-    half2Group = sortTeams(half2Group);
+    newResult = sortTeams(newResult);
+    var result = fourGroups(newResult);
 
-    await addGroupsInFireStore(
-        data: half1Group, nameRound: '$numRound-1', org: orgName);
-
-    await addGroupsInFireStore(
-        data: half2Group, nameRound: '$numRound-2', org: orgName);
+    List<Future> futures = [
+      addGroupsInFireStore(
+          data: result["1"], nameRound: '$numRound-1', org: orgName),
+      addGroupsInFireStore(
+          data: result["2"], nameRound: '$numRound-2', org: orgName),
+      addGroupsInFireStore(
+          data: result["3"], nameRound: '$numRound-3', org: orgName),
+      addGroupsInFireStore(
+          data: result["4"], nameRound: '$numRound-4', org: orgName),
+    ];
+    await Future.wait(futures);
   }
 
   @override
@@ -989,14 +1079,25 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       {required int numGameWeek,
       required String org,
       required String numRound}) async {
-    Map half1 = await getRound(numRound: "$numRound-1", org: org);
-    Map half2 = await getRound(numRound: "$numRound-2", org: org);
-    Map merge2Group = merge2Groups(half1['groups'], half2['groups']);
+    List<Future> futuresGroups = [
+      getRound(numRound: "$numRound-1", org: org),
+      getRound(numRound: "$numRound-2", org: org),
+      getRound(numRound: "$numRound-3", org: org),
+      getRound(numRound: "$numRound-4", org: org),
+    ];
+
+    var rounds = await Future.wait(futuresGroups);
+
+    Map mergeGroups = merge4Groups(
+        group1: rounds[0]["groups"],
+        group2: rounds[1]["groups"],
+        group3: rounds[2]["groups"],
+        group4: rounds[3]["groups"]);
     numGameWeek = numGameWeek - 1;
 
     List<Future> futures = [];
 
-    merge2Group.forEach((key, group) {
+    mergeGroups.forEach((key, group) {
       for (int i = 0; i < group.length; i++) {
         for (int j = 0; j < group[i]['matches'].length; j++) {
           if (j == numGameWeek) {
@@ -1021,11 +1122,18 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
 
               int scoreA = teamA['score'];
               int scoreB = teamB['score'];
+              String typeA = teamA['type'];
+              String typeB = teamB['type'];
 
               // minus points
               group[i]['matches'][numGameWeek]['minusPoints'] =
                   (scoreA - scoreB);
               group[i]["minusPointsForAllGameWeek"] += (scoreA - scoreB);
+
+              group[i]['matches'][numGameWeek]['teamScoreA'] = scoreA;
+              group[i]['matches'][numGameWeek]['teamScoreB'] = scoreB;
+              group[i]['matches'][numGameWeek]["typeA"] = typeA;
+              group[i]['matches'][numGameWeek]["typeB"] = typeB;
 
               if (scoreA > scoreB) {
                 group[i]['matches'][numGameWeek]['teamGoalsA'] = 3;
@@ -1048,7 +1156,7 @@ class OrganizeVipChampionshipRepoImpl implements OrganizeVipChampionshipRepo {
       }
     });
     await Future.wait(futures);
-    return merge2Group;
+    return mergeGroups;
   }
 
   addGroupsInFireStore(

@@ -9,6 +9,9 @@ import 'feauters/organizers/presentation/view Model/add_orgaizer_cubit.dart';
 import 'firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:crazy_fantasy/feauters/Classic%20League/Data/repos/classic_league_repo_impl.dart';
 import 'package:crazy_fantasy/feauters/Teams%20Data%20update/Data/repos/Properties%20Team/properties%20_team_repo_impl.dart';
 import 'package:crazy_fantasy/feauters/open_champion/Data/open_champion_repo_impl.dart';
 import 'package:crazy_fantasy/feauters/organizers/Data/models/orgnizer_model.dart';
@@ -20,13 +21,14 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     List<Future> futures = [];
     try {
       futures = [
+        OrganizeClassicLeagueRepoImpl().createClassicLeague(org: org),
         OrganizeVipChampionshipRepoImpl().createVip(org: org),
         OrganizeCupChampionshipRepoImpl().createCup(org: org),
         OpenChampionRepoImpl().CreateOpenChampion(org: org),
       ];
       await Future.wait(futures);
-      await closeUpdate(idOrg: org.id!);
-
+      // await closeUpdate(idOrg: org.id!);
+      //
       await updateNumGameWeek(idOrg: org.id!);
 
       return const Right('تم بداء الموسم بنجاح');
@@ -43,15 +45,15 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     required Organizer org,
   }) async {
     try {
-      // await updateTeams(
-      //     isRealTimeUpdate: org.isUpdateRealTime,
-      //     idOrg: org.id!,
-      //     numGameWeek: org.numGameWeek!,
-      //     idTeams: mergeTwoListWithOutDuplicate(
-      //         org.otherChampionshipsTeams!
-      //             .map((e) => e["id"] as String)
-      //             .toList(),
-      //         org.teams1000Id!));
+      await updateTeams(
+          isRealTimeUpdate: org.isUpdateRealTime,
+          idOrg: org.id!,
+          numGameWeek: org.numGameWeek!,
+          idTeams: mergeTwoListWithOutDuplicate(
+              org.otherChampionshipsTeams!
+                  .map((e) => e["id"] as String)
+                  .toList(),
+              org.teams1000Id!));
       await handelChampionship(
         org: org,
       );
@@ -79,18 +81,21 @@ class UpdateTeamsRepoImpl implements UpdateTeamsRepo {
     List<Future> futures = [];
     if (org.countTeams == "512") {
       futures = [
+        OrganizeClassicLeagueRepoImpl().handel512Classic(org: org),
         OpenChampionRepoImpl().FinishGameWeek(org: org),
         OrganizeVipChampionshipRepoImpl().handeVip512(org: org),
         OrganizeCupChampionshipRepoImpl().handeCup512(org: org)
       ];
     } else if (org.countTeams == "256") {
       futures = [
+        OrganizeClassicLeagueRepoImpl().handel256Classic(org: org),
         OpenChampionRepoImpl().FinishGameWeek(org: org),
-        // OrganizeVipChampionshipRepoImpl().handeVip256(org: org),
-        // OrganizeCupChampionshipRepoImpl().handeCup256(org: org)
+        OrganizeVipChampionshipRepoImpl().handeVip256(org: org),
+        OrganizeCupChampionshipRepoImpl().handeCup256(org: org)
       ];
     } else if (org.countTeams == "128") {
       futures = [
+      OrganizeClassicLeagueRepoImpl().handel128Classic(org: org),
         OpenChampionRepoImpl().FinishGameWeek(org: org),
         OrganizeVipChampionshipRepoImpl().handeVip128(org: org),
         OrganizeCupChampionshipRepoImpl().handeCup128(org: org)

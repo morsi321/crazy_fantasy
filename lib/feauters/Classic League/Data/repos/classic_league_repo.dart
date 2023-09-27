@@ -1,7 +1,11 @@
-import 'package:dartz/dartz.dart';
+
+import '../../../organizers/Data/models/orgnizer_model.dart';
 
 abstract class OrganizeClassicLeagueRepo {
-  Future<Either<String, String>> createClassicLeague();
-  Future<Either<String, String>> doRound({required int numRound});
+  Future  createClassicLeague({required Organizer org});
+
+  Future handel512Classic({required Organizer org});
+  Future handel128Classic({required Organizer org});
+  Future handel256Classic({required Organizer org});
 
 }
